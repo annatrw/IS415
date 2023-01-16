@@ -1,0 +1,77 @@
+---
+title: "In-class Exercise 2: Geospatial Data Wrangling"
+date: "` r Sys.Date()`"
+format: html
+execute: 
+  message: true
+  warning: false
+editor: visual
+---
+
+# Context
+
+Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world's accessible freshwater.
+
+Developing countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.
+
+To address the issue of providing clean and sustainable water supply to the rural community, a global [Water Point Data Exchange (WPdx)](https://www.waterpointdata.org/about/) project has been initiated. The main aim of this initiative is to collect water point related data from rural areas at the water point or small water scheme level and share the data via WPdx Data Repository, a cloud-based data library. What is so special of this project is that data are collected based on [WPDx Data Standard](https://www.waterpointdata.org/wp-content/uploads/2021/04/WPDx_Data_Standard.pdf).
+
+# The Task
+
+The specific tasks of this take-home exercise are as follows:
+
+1.  Using appropriate sf method, import the shapefile into R and save it in a simple feature data frame format. Note that there are three Projected Coordinate Systems of Nigeria, they are: EPSG: 26391, 26392, and 26303. You can use any one of them.
+2.  Using appropriate tidyr and dplyr methods, derive the proportion of functional and non-functional water point at LGA level.
+3.  Combining the geospatial and aspatial data frame into simple feature data frame.
+4.  Visualising the distribution of water point by using appropriate analytical visualisation methods.
+
+Installing appropriate R packages
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+pacman::p_load(sf, tidyverse,funModeling)
+```
+
+Importing geoboundaries data 
+
+```{r}
+geoNGA <- st_read("data/geospatial/", layer="geoBoundaries-BDI-ADM2")  %>% st_transform(crs= 26392)
+```
+Importing NGA data set
+```{r}
+NGA <- st_read("data/geospatial/",
+               layer = "nga_admbnda_adm2_osgof_20190417") %>%
+  st_transform(crs = 26392)
+```
+
+Importing aspatial data
+
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| eval: false
+wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
+  filter(`#clean_country_name` == "Nigeria")
+
+```
+
+
+
+Converting data from aspatial to geospatial
+```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+#| eval: false
+wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
+wp_nga
+
+wp_sf <- st_sf(wp_nga, crs=4326)
+wp_sf26392 <- wp_sf %>% st_transform( crs=26392)
+```
+
+
+Projection transformation
+
+
+Proportion of functional and non-functional water point
