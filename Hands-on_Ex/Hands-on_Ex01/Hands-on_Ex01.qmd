@@ -3,7 +3,6 @@ title: "Hands-on Exercise 1: Geospatial Data Wrangling with R"
 date: "`r Sys.Date()`"
 execute:
   warning: false
-
 ---
 
 # Getting Started
@@ -16,10 +15,46 @@ In this section, I will install and load tidyverse and sf packages
 pacman::p_load(tidyverse, sf)
 ```
 
-# Importing a geospatial data in shapefile format
+# Importing the data
+
+## Importing geospatial data in shapefile format
+
+Utilising sf package to read the Masterplan subzone boundary (2014) data in shapefile format.
 
 ```{r}
 mpsz <- st_read(dsn = "data/geospatial", layer="MP14_SUBZONE_WEB_PL")
+```
+
+Importing polyline feature data in shapefile format
+
+```{r}
+cyclingpath = st_read(dsn = "data/geospatial", layer = "CyclingPathGazette")
+```
+
+## Importing GIS data in kml format
+
+This section uses sf package to read Pre-Schools location data in kml format.
+
+```{r}
+preschool = st_read("data/geospatial/preschools-location.kml")
+```
+
+## Checking contents of Simple Feature Dataframes
+
+To retrieve and view basic feature information of the Masterplan subzone boundary (2014) layer, the following code chunk is used.
+
+```{r}
+st_geometry(mpsz)
+```
+
+To further view associated attribute information in the dataframe, glimpse() from dplyr package and head() from Base R can be used below.
+
+```{r}
+glimpse(mpsz)
+```
+
+```{r}
+head(mpsz, n=5)
 ```
 
 ## Plotting the geospatial data
@@ -27,3 +62,134 @@ mpsz <- st_read(dsn = "data/geospatial", layer="MP14_SUBZONE_WEB_PL")
 ```{r}
 plot(mpsz)
 ```
+
+::: callout-note
+Default plot of an sf object is multi-plot of all attributes
+:::
+
+To plot only the geometry to view the subzone boundary:
+
+```{r}
+plot(st_geometry(mpsz))
+```
+
+To plot specific attributes for quick viewing:
+
+```{r}
+plot(mpsz["PLN_AREA_N"])
+```
+
+# Working with projection
+
+To view CRS of mpsz or any given geospatial layer,
+
+```{r}
+st_crs(mpsz)
+```
+
+To set new CRS
+
+```{r}
+mpsz3414 <- st_set_crs(mpsz, 3414)
+```
+
+To check if the new CRS has been updated to EPSG3414,
+
+```{r}
+st_crs(mpsz3414)
+```
+
+When analysis requires measurements using area or distance, st_set_crs() is not appropriate and st_transform() should be used instead. Decide on the appropriate CRS before doing projection transformation.
+
+```{r}
+preschool3414 <- st_transform(preschool, crs=3414)
+```
+
+Updated contents of preschool data
+
+```{r}
+st_geometry(preschool3414)
+```
+
+# Working with aspatial data
+
+Importing csv data
+
+```{r}
+listings <- st_read("data/aspatial/listings.csv")
+```
+
+Verify the data has been imported correctly
+
+```{r}
+#| eval: false
+list(listings)
+```
+
+```{r}
+#| echo: false
+as_tibble(listings)
+```
+
+Converting listings Data Frame into a simple feature Data Frame:
+
+```{r}
+listings_sf <- st_as_sf(listings, 
+                       coords = c("longitude", "latitude"),
+                       crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+The listings Data Frame contains 4,252 rows and 15 columns as seen below.
+
+```{r}
+glimpse(listings_sf)
+```
+
+# Geoprocessing
+
+## Buffering
+
+Context: A governmental organisation wants to retrofit and upgrade an existing cycling path that requires 5 meters of reserved land on either side of the current cycling path. How can we find out the total land area needed to be acquired?
+
+Solution: 
+
+1. Using a buffer of 5 meters around the cycling paths
+
+```{r}
+buffer_cycling <- st_buffer(cyclingpath, dist=5, nQuadSegs = 30)
+```
+
+2. Calculate the area of the buffers
+
+```{r}
+buffer_cycling$AREA <- st_area(buffer_cycling)
+```
+
+3. Therefore, the total area needed would be the sum of areas of buffers
+
+```{r}
+sum(buffer_cycling$AREA)
+```
+
+## Point-in-polygon count
+
+Context: How can we find out the number of pre-schools in each planning subzone?
+
+Solution: 
+1. Identify the count of pre-schools in each subzone
+
+```{r}
+mpsz3414$`PreSch Count`<- lengths(st_intersects(mpsz3414, preschool3414))
+```
+
+2. Check summary statistics of newly derived 'PreSch Count' field
+
+```{r}
+summary(mpsz3414$`PreSch Count`)
+```
+
+
+
+
+
