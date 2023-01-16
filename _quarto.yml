@@ -25,6 +25,8 @@ format:
     theme: Flatly
     css: styles.css
     toc: true
+    number-sections: true
+    highlight-style: tango
 
 editor: visual
 
