@@ -53,14 +53,14 @@
     "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#histogram",
     "title": "Hands-on Exercise 1: Geospatial Data Wrangling with R",
     "section": "6.1 Histogram",
-    "text": "6.1 Histogram\nShows distribution of PreSch Density using conventional package from R Graphics.\n\nhist(mpsz3414$`PreSch Density`)\n\n\n\n\nAppropriate histogram visualisation using ggplot2\n\nggplot(data=mpsz3414, \n       aes(x= as.numeric(`PreSch Density`)))+\n  geom_histogram(bins=20, color=\"black\",  fill=\"light blue\") +\n  labs(title = \"Are pre-school even distributed in Singapore?\",\n       subtitle= \"There are many planning sub-zones with a single pre-school, on the other hand, \\nthere are two planning sub-zones with at least 20 pre-schools\",\n      x = \"Pre-school density (per km sq)\",\n      y = \"Frequency\")"
+    "text": "6.1 Histogram\nShows distribution of PreSch Density using conventional package from R Graphics.\n\nhist(mpsz3414$`PreSch Density`)\n\n\n\n\nAppropriate histogram visualisation using ggplot2.\n\nggplot(data=mpsz3414, \n       aes(x= as.numeric(`PreSch Density`)))+\n  geom_histogram(bins=20, color=\"black\",  fill=\"light blue\") +\n  labs(title = \"Are pre-school even distributed in Singapore?\",\n       subtitle= \"There are many planning sub-zones with a single pre-school, on the other hand, \\nthere are two planning sub-zones with at least 20 pre-schools\",\n      x = \"Pre-school density (per km sq)\",\n      y = \"Frequency\")"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#scatterplot",
     "href": "Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html#scatterplot",
     "title": "Hands-on Exercise 1: Geospatial Data Wrangling with R",
     "section": "6.2 Scatterplot",
-    "text": "6.2 Scatterplot\nShows the relationship between Pre-school Density and Pre-school Count\n\nggplot(data=mpsz3414, \n       aes(y = `PreSch Count`,  x= as.numeric(`PreSch Density`)))+\n  geom_point(color=\"black\", fill=\"light blue\") +\n  xlim(0, 40) +\n  ylim(0, 40) +\n  labs(title = \"\",\n      x = \"Pre-school density (per km sq)\",\n      y = \"Pre-school count\")"
+    "text": "6.2 Scatterplot\nShows the relationship between PreSch Density and PreSch Count.\n\nggplot(data=mpsz3414, \n       aes(y = `PreSch Count`,  x= as.numeric(`PreSch Density`)))+\n  geom_point(color=\"black\", fill=\"light blue\") +\n  xlim(0, 40) +\n  ylim(0, 40) +\n  labs(title = \"\",\n      x = \"Pre-school density (per km sq)\",\n      y = \"Pre-school count\")"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",

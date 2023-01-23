@@ -321,7 +321,7 @@ Projected CRS: SVY21
 First 5 geometries:</code></pre>
 </div>
 </div>
-<p>To further view associated attribute information in the dataframe, glimpse() from dplyr package and head() from Base R can be used below.</p>
+<p>To further view associated attribute information in the dataframe, <em>glimpse()</em> from <code>dplyr</code> package and <em>head()</em> from Base R can be used below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(mpsz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -413,7 +413,7 @@ Note
 </section>
 <section id="working-with-projection" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> Working with projection</h1>
-<p>To view CRS of mpsz or any given geospatial layer,</p>
+<p>To view CRS of <code>mpsz</code> or any given geospatial layer,</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">st_crs</span>(mpsz)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -508,7 +508,7 @@ PROJCRS["SVY21 / Singapore TM",
     ID["EPSG",3414]]</code></pre>
 </div>
 </div>
-<p>When analysis requires measurements using area or distance, st_set_crs() is not appropriate and st_transform() should be used instead. Decide on the appropriate CRS before doing projection transformation.</p>
+<p>When analysis requires measurements using area or distance, <em>st_set_crs()</em> is not appropriate and <em>st_transform()</em> should be used instead. Decide on the appropriate CRS before doing projection transformation.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>preschool3414 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(preschool, <span class="at">crs=</span><span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -571,7 +571,7 @@ First 5 geometries:</code></pre>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">crs=</span><span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The listings Data Frame contains 4,252 rows and 15 columns as seen below.</p>
+<p>The <code>listings</code> Data Frame contains 4,252 rows and 15 columns as seen below.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(listings_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -677,17 +677,17 @@ Projected CRS: SVY21 / Singapore TM
 </section>
 <section id="exploratary-data-analysis-eda" class="level1" data-number="6">
 <h1 data-number="6"><span class="header-section-number">6</span> Exploratary Data Analysis (EDA)</h1>
-<p>EDA consists of initial analysis and findings done to understand major trends in the data and visualising it as a whole. The package ggplot2 is used to give a quick overview of the dataset.</p>
+<p>EDA consists of initial analysis and findings done to understand major trends in the data and visualising it as a whole. The package <strong>ggplot2</strong> is used to give a quick overview of the dataset.</p>
 <section id="histogram" class="level2" data-number="6.1">
 <h2 data-number="6.1" class="anchored" data-anchor-id="histogram"><span class="header-section-number">6.1</span> Histogram</h2>
-<p>Shows distribution of PreSch Density using conventional package from R Graphics.</p>
+<p>Shows distribution of <code>PreSch Density</code> using conventional package from R Graphics.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(mpsz3414<span class="sc">$</span><span class="st">`</span><span class="at">PreSch Density</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Appropriate histogram visualisation using ggplot2</p>
+<p>Appropriate histogram visualisation using <strong>ggplot2</strong>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>mpsz3414, </span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x=</span> <span class="fu">as.numeric</span>(<span class="st">`</span><span class="at">PreSch Density</span><span class="st">`</span>)))<span class="sc">+</span></span>
@@ -703,7 +703,7 @@ Projected CRS: SVY21 / Singapore TM
 </section>
 <section id="scatterplot" class="level2" data-number="6.2">
 <h2 data-number="6.2" class="anchored" data-anchor-id="scatterplot"><span class="header-section-number">6.2</span> Scatterplot</h2>
-<p>Shows the relationship between Pre-school Density and Pre-school Count</p>
+<p>Shows the relationship between <code>PreSch Density</code> and <code>PreSch Count</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>mpsz3414, </span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">y =</span> <span class="st">`</span><span class="at">PreSch Count</span><span class="st">`</span>,  <span class="at">x=</span> <span class="fu">as.numeric</span>(<span class="st">`</span><span class="at">PreSch Density</span><span class="st">`</span>)))<span class="sc">+</span></span>

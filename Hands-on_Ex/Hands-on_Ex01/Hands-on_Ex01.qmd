@@ -47,7 +47,7 @@ To retrieve and view basic feature information of the Masterplan subzone boundar
 st_geometry(mpsz)
 ```
 
-To further view associated attribute information in the dataframe, glimpse() from dplyr package and head() from Base R can be used below.
+To further view associated attribute information in the dataframe, *glimpse()* from <code>dplyr</code> package and *head()* from Base R can be used below.
 
 ```{r}
 glimpse(mpsz)
@@ -81,7 +81,7 @@ plot(mpsz["PLN_AREA_N"])
 
 # Working with projection
 
-To view CRS of mpsz or any given geospatial layer,
+To view CRS of <code>mpsz</code> or any given geospatial layer,
 
 ```{r}
 st_crs(mpsz)
@@ -99,7 +99,7 @@ To check if the new CRS has been updated to EPSG3414,
 st_crs(mpsz3414)
 ```
 
-When analysis requires measurements using area or distance, st_set_crs() is not appropriate and st_transform() should be used instead. Decide on the appropriate CRS before doing projection transformation.
+When analysis requires measurements using area or distance, *st_set_crs()* is not appropriate and *st_transform()* should be used instead. Decide on the appropriate CRS before doing projection transformation.
 
 ```{r}
 preschool3414 <- st_transform(preschool, crs=3414)
@@ -140,7 +140,7 @@ listings_sf <- st_as_sf(listings,
   st_transform(crs = 3414)
 ```
 
-The listings Data Frame contains 4,252 rows and 15 columns as seen below.
+The <code>listings</code> Data Frame contains 4,252 rows and 15 columns as seen below.
 
 ```{r}
 glimpse(listings_sf)
@@ -211,17 +211,17 @@ mpsz3414 <- mpsz3414 %>%
 
 # Exploratary Data Analysis (EDA)
 
-EDA consists of initial analysis and findings done to understand major trends in the data and visualising it as a whole. The package ggplot2 is used to give a quick overview of the dataset.
+EDA consists of initial analysis and findings done to understand major trends in the data and visualising it as a whole. The package **ggplot2** is used to give a quick overview of the dataset.
 
 ## Histogram
 
-Shows distribution of PreSch Density using conventional package from R Graphics.
+Shows distribution of <code>PreSch Density</code> using conventional package from R Graphics.
 
 ```{r}
 hist(mpsz3414$`PreSch Density`)
 ```
 
-Appropriate histogram visualisation using ggplot2
+Appropriate histogram visualisation using **ggplot2**.
 
 ```{r}
 ggplot(data=mpsz3414, 
@@ -235,7 +235,7 @@ ggplot(data=mpsz3414,
 
 ## Scatterplot
 
-Shows the relationship between Pre-school Density and Pre-school Count
+Shows the relationship between <code>PreSch Density</code> and <code>PreSch Count</code>.
 
 ```{r}
 ggplot(data=mpsz3414, 
