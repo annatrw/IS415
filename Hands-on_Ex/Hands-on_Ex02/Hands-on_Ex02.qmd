@@ -1,0 +1,120 @@
+---
+title: "Hands-on Exercise 2: Choropleth Mapping with R"
+date: "`r Sys.Date()`"
+execute:
+  warning: false
+---
+
+# Getting Started
+
+## Installing and loading R packages
+
+Installing and loading tidyverse and sf packages
+
+```{r}
+pacman::p_load(tidyverse, sf, tmap)
+```
+
+# Importing the data
+
+## Importing geospatial data in shapefile format
+
+Utilising sf package to read the Masterplan subzone boundary (2014) data in shapefile format.
+
+```{r}
+mpsz <- st_read(dsn = "data/geospatial", layer="MP14_SUBZONE_WEB_PL")
+```
+
+Checking the simple feature object <code>mpsz</code>:
+
+```{r}
+mpsz
+```
+
+## Importing aspatial data in csv format
+
+Imports the population census data in csv into R.
+
+```{r}
+popdata <- read_csv("data/aspatial/respopagesextod2011to2020.csv")
+```
+
+# Data preparation
+
+This section prepares the data in a table format that includes the following columns:
+
+-   YOUNG: aged 0 to 4 years until aged 20 to 24 years
+
+-   ECONOMY ACTIVE: aged 25 to 29 years until aged 60 to 64 years
+
+-   AGED: aged 65 and above
+
+-   TOTAL: all age groups
+
+-   DEPENDENCY: ratio of sum of young and aged to economically active age group
+
+## Data wrangling
+
+```{r}
+popdata2020 <- popdata %>%
+  filter(Time == 2020) %>%
+  group_by(PA, SZ, AG) %>%
+  summarise(`POP` = sum(`Pop`)) %>%
+  ungroup()%>%
+  pivot_wider(names_from=AG, 
+              values_from=POP) %>%
+  mutate(YOUNG = rowSums(.[3:6])
+         +rowSums(.[12])) %>%
+mutate(`ECONOMY ACTIVE` = rowSums(.[7:11])+
+rowSums(.[13:15]))%>%
+mutate(`AGED`=rowSums(.[16:21])) %>%
+mutate(`TOTAL`=rowSums(.[3:21])) %>%  
+mutate(`DEPENDENCY` = (`YOUNG` + `AGED`)
+/`ECONOMY ACTIVE`) %>%
+  select(`PA`, `SZ`, `YOUNG`, 
+       `ECONOMY ACTIVE`, `AGED`, 
+       `TOTAL`, `DEPENDENCY`)
+```
+
+## Joining aspatial and geospatial data
+
+Before performing a relational join on both datasets, the fields PZ and SZ in popdata2020 need to be capitalised since SUBZONE_N and PLN_AREA_N are in uppercase.
+
+```{r}
+popdata2020 <- popdata2020 %>%  mutate_at(
+.vars = vars(PA, SZ), 
+.funs = funs(toupper)) %>%
+  filter(`ECONOMY ACTIVE` > 0)
+```
+
+### Perform left_join() on geospatial data
+
+```{r}
+mpsz_pop2020 <- left_join(mpsz, popdata2020, by = c("SUBZONE_N" = "SZ"))
+```
+
+```{r}
+write_rds(mpsz_pop2020, "data/rds/mpszpop2020.rds")
+```
+
+# Choropleth Mapping using *tmap*
+
+## Plotting a choropleth map using *qtm()*
+
+## Plotting a choropleth map using *tmap()*
+
+### Plotting a base map
+
+### Using *tm_polygons()*
+
+### Using *tm_fill()* and *tm_border()*
+
+## Data classification of tmap
+
+## Colour scheme
+
+## Map layouts
+
+## Plotting multiple choropleth maps
+
+## Mapping spatial object meeting selection criterion

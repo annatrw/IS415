@@ -68,5 +68,89 @@
     "title": "In-class Exercise 2: Geospatial Data Wrangling",
     "section": "",
     "text": "1 Context\nWater is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world’s accessible freshwater.\nDeveloping countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.\nTo address the issue of providing clean and sustainable water supply to the rural community, a global Water Point Data Exchange (WPdx) project has been initiated. The main aim of this initiative is to collect water point related data from rural areas at the water point or small water scheme level and share the data via WPdx Data Repository, a cloud-based data library. What is so special of this project is that data are collected based on WPDx Data Standard.\n\n\n2 The Task\nThe specific tasks of this take-home exercise are as follows:\n\nUsing appropriate sf method, import the shapefile into R and save it in a simple feature data frame format. Note that there are three Projected Coordinate Systems of Nigeria, they are: EPSG: 26391, 26392, and 26303. You can use any one of them.\nUsing appropriate tidyr and dplyr methods, derive the proportion of functional and non-functional water point at LGA level.\nCombining the geospatial and aspatial data frame into simple feature data frame.\nVisualising the distribution of water point by using appropriate analytical visualisation methods.\n\nInstalling appropriate R packages\n\n\nShow the code\npacman::p_load(sf, tidyverse,funModeling)\n\n\nImporting geoboundaries data\n\ngeoNGA <- st_read(\"data/geospatial/\", layer=\"geoBoundaries-BDI-ADM2\")  %>% st_transform(crs= 26392)\n\nReading layer `geoBoundaries-BDI-ADM2' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 119 features and 6 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 29.00034 ymin: -4.470001 xmax: 30.85091 ymax: -2.30907\nGeodetic CRS:  WGS 84\n\n\nImporting NGA data set\n\nNGA <- st_read(\"data/geospatial/\",\n               layer = \"nga_admbnda_adm2_osgof_20190417\") %>%\n  st_transform(crs = 26392)\n\nReading layer `nga_admbnda_adm2_osgof_20190417' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 16 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84\n\n\nImporting aspatial data\n\n\nShow the code\nwp_nga <- read_csv(\"data/aspatial/WPdx.csv\") %>%\n  filter(`#clean_country_name` == \"Nigeria\")\n\n\nConverting data from aspatial to geospatial\n\n\nShow the code\nwp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)\nwp_nga\n\nwp_sf <- st_sf(wp_nga, crs=4326)\nwp_sf26392 <- wp_sf %>% st_transform( crs=26392)\n\n\nProjection transformation\nProportion of functional and non-functional water point"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "",
+    "text": "Installing and loading tidyverse and sf packages\n\npacman::p_load(tidyverse, sf, tmap)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#importing-geospatial-data-in-shapefile-format",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#importing-geospatial-data-in-shapefile-format",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "2.1 Importing geospatial data in shapefile format",
+    "text": "2.1 Importing geospatial data in shapefile format\nUtilising sf package to read the Masterplan subzone boundary (2014) data in shapefile format.\n\nmpsz <- st_read(dsn = \"data/geospatial\", layer=\"MP14_SUBZONE_WEB_PL\")\n\nReading layer `MP14_SUBZONE_WEB_PL' from data source \n  `C:\\annatrw\\IS415\\Hands-on_Ex\\Hands-on_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 323 features and 15 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33\nProjected CRS: SVY21\n\n\nChecking the simple feature object mpsz:\n\nmpsz\n\nSimple feature collection with 323 features and 15 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33\nProjected CRS: SVY21\nFirst 10 features:\n   OBJECTID SUBZONE_NO       SUBZONE_N SUBZONE_C CA_IND      PLN_AREA_N\n1         1          1    MARINA SOUTH    MSSZ01      Y    MARINA SOUTH\n2         2          1    PEARL'S HILL    OTSZ01      Y          OUTRAM\n3         3          3       BOAT QUAY    SRSZ03      Y SINGAPORE RIVER\n4         4          8  HENDERSON HILL    BMSZ08      N     BUKIT MERAH\n5         5          3         REDHILL    BMSZ03      N     BUKIT MERAH\n6         6          7  ALEXANDRA HILL    BMSZ07      N     BUKIT MERAH\n7         7          9   BUKIT HO SWEE    BMSZ09      N     BUKIT MERAH\n8         8          2     CLARKE QUAY    SRSZ02      Y SINGAPORE RIVER\n9         9         13 PASIR PANJANG 1    QTSZ13      N      QUEENSTOWN\n10       10          7       QUEENSWAY    QTSZ07      N      QUEENSTOWN\n   PLN_AREA_C       REGION_N REGION_C          INC_CRC FMEL_UPD_D   X_ADDR\n1          MS CENTRAL REGION       CR 5ED7EB253F99252E 2014-12-05 31595.84\n2          OT CENTRAL REGION       CR 8C7149B9EB32EEFC 2014-12-05 28679.06\n3          SR CENTRAL REGION       CR C35FEFF02B13E0E5 2014-12-05 29654.96\n4          BM CENTRAL REGION       CR 3775D82C5DDBEFBD 2014-12-05 26782.83\n5          BM CENTRAL REGION       CR 85D9ABEF0A40678F 2014-12-05 26201.96\n6          BM CENTRAL REGION       CR 9D286521EF5E3B59 2014-12-05 25358.82\n7          BM CENTRAL REGION       CR 7839A8577144EFE2 2014-12-05 27680.06\n8          SR CENTRAL REGION       CR 48661DC0FBA09F7A 2014-12-05 29253.21\n9          QT CENTRAL REGION       CR 1F721290C421BFAB 2014-12-05 22077.34\n10         QT CENTRAL REGION       CR 3580D2AFFBEE914C 2014-12-05 24168.31\n     Y_ADDR SHAPE_Leng SHAPE_Area                       geometry\n1  29220.19   5267.381  1630379.3 MULTIPOLYGON (((31495.56 30...\n2  29782.05   3506.107   559816.2 MULTIPOLYGON (((29092.28 30...\n3  29974.66   1740.926   160807.5 MULTIPOLYGON (((29932.33 29...\n4  29933.77   3313.625   595428.9 MULTIPOLYGON (((27131.28 30...\n5  30005.70   2825.594   387429.4 MULTIPOLYGON (((26451.03 30...\n6  29991.38   4428.913  1030378.8 MULTIPOLYGON (((25899.7 297...\n7  30230.86   3275.312   551732.0 MULTIPOLYGON (((27746.95 30...\n8  30222.86   2208.619   290184.7 MULTIPOLYGON (((29351.26 29...\n9  29893.78   6571.323  1084792.3 MULTIPOLYGON (((20996.49 30...\n10 30104.18   3454.239   631644.3 MULTIPOLYGON (((24472.11 29..."
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#importing-aspatial-data-in-csv-format",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#importing-aspatial-data-in-csv-format",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "2.2 Importing aspatial data in csv format",
+    "text": "2.2 Importing aspatial data in csv format\nImports the population census data in csv into R.\n\npopdata <- read_csv(\"data/aspatial/respopagesextod2011to2020.csv\")"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#data-wrangling",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#data-wrangling",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "3.1 Data wrangling",
+    "text": "3.1 Data wrangling\n\npopdata2020 <- popdata %>%\n  filter(Time == 2020) %>%\n  group_by(PA, SZ, AG) %>%\n  summarise(`POP` = sum(`Pop`)) %>%\n  ungroup()%>%\n  pivot_wider(names_from=AG, \n              values_from=POP) %>%\n  mutate(YOUNG = rowSums(.[3:6])\n         +rowSums(.[12])) %>%\nmutate(`ECONOMY ACTIVE` = rowSums(.[7:11])+\nrowSums(.[13:15]))%>%\nmutate(`AGED`=rowSums(.[16:21])) %>%\nmutate(`TOTAL`=rowSums(.[3:21])) %>%  \nmutate(`DEPENDENCY` = (`YOUNG` + `AGED`)\n/`ECONOMY ACTIVE`) %>%\n  select(`PA`, `SZ`, `YOUNG`, \n       `ECONOMY ACTIVE`, `AGED`, \n       `TOTAL`, `DEPENDENCY`)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#joining-aspatial-and-geospatial-data",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#joining-aspatial-and-geospatial-data",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "3.2 Joining aspatial and geospatial data",
+    "text": "3.2 Joining aspatial and geospatial data\nBefore performing a relational join on both datasets, the fields PZ and SZ in popdata2020 need to be capitalised since SUBZONE_N and PLN_AREA_N are in uppercase.\n\npopdata2020 <- popdata2020 %>%  mutate_at(\n.vars = vars(PA, SZ), \n.funs = funs(toupper)) %>%\n  filter(`ECONOMY ACTIVE` > 0)\n\n\n3.2.1 Perform left_join() on geospatial data\n\nmpsz_pop2020 <- left_join(mpsz, popdata2020, by = c(\"SUBZONE_N\" = \"SZ\"))\n\n\nwrite_rds(mpsz_pop2020, \"data/rds/mpszpop2020.rds\")"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#plotting-a-choropleth-map-using-qtm",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#plotting-a-choropleth-map-using-qtm",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "4.1 Plotting a choropleth map using qtm()",
+    "text": "4.1 Plotting a choropleth map using qtm()"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#plotting-a-choropleth-map-using-tmap",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#plotting-a-choropleth-map-using-tmap",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "4.2 Plotting a choropleth map using tmap()",
+    "text": "4.2 Plotting a choropleth map using tmap()\n\n4.2.1 Plotting a base map\n\n\n4.2.2 Using tm_polygons()\n\n\n4.2.3 Using tm_fill() and tm_border()"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#data-classification-of-tmap",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#data-classification-of-tmap",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "4.3 Data classification of tmap",
+    "text": "4.3 Data classification of tmap"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#colour-scheme",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#colour-scheme",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "4.4 Colour scheme",
+    "text": "4.4 Colour scheme"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#map-layouts",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#map-layouts",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "4.5 Map layouts",
+    "text": "4.5 Map layouts"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#plotting-multiple-choropleth-maps",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#plotting-multiple-choropleth-maps",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "4.6 Plotting multiple choropleth maps",
+    "text": "4.6 Plotting multiple choropleth maps"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#mapping-spatial-object-meeting-selection-criterion",
+    "href": "Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html#mapping-spatial-object-meeting-selection-criterion",
+    "title": "Hands-on Exercise 2: Choropleth Mapping with R",
+    "section": "4.7 Mapping spatial object meeting selection criterion",
+    "text": "4.7 Mapping spatial object meeting selection criterion"
   }
 ]
