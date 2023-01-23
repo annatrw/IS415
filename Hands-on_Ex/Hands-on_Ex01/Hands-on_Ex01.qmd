@@ -189,7 +189,61 @@ mpsz3414$`PreSch Count`<- lengths(st_intersects(mpsz3414, preschool3414))
 summary(mpsz3414$`PreSch Count`)
 ```
 
+3. Listing the planning subzone with the highest number of pre-schools
 
+```{r}
+top_n(mpsz3414, 1, `PreSch Count`)
+```
 
+Tampines East subzone has the most number of pre-schools.
 
+4. Computing the density of pre-schools by planning subzone
 
+First, derive the area of each planning subzone:
+```{r}
+mpsz3414$Area <- mpsz3414 %>% st_area()
+```
+
+```{r}
+mpsz3414 <- mpsz3414 %>%
+  mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
+```
+
+Exploratary Data Analysis (EDA)
+
+EDA consists of initial analysis and findings done to understand major trends in the data and visualising it as a whole. The package ggplot2 is used to give a quick overview of the dataset.
+
+1. Histogram 
+
+Shows distribution of PreSch Density using conventional package from R Graphics.
+
+```{r}
+hist(mpsz3414$`PreSch Density`)
+```
+
+Appropriate histogram visualisation using ggplot2
+
+```{r}
+ggplot(data=mpsz3414, 
+       aes(x= as.numeric(`PreSch Density`)))+
+  geom_histogram(bins=20, color="black",  fill="light blue") +
+  labs(title = "Are pre-school even distributed in Singapore?",
+       subtitle= "There are many planning sub-zones with a single pre-school, on the other hand, \nthere are two planning sub-zones with at least 20 pre-schools",
+      x = "Pre-school density (per km sq)",
+      y = "Frequency")
+```
+
+2. Scatterplot
+
+Shows the relationship between Pre-school Density and Pre-school Count
+
+```{r}
+ggplot(data=mpsz3414, 
+       aes(y = `PreSch Count`,  x= as.numeric(`PreSch Density`)))+
+  geom_point(color="black", fill="light blue") +
+  xlim(0, 40) +
+  ylim(0, 40) +
+  labs(title = "",
+      x = "Pre-school density (per km sq)",
+      y = "Pre-school count")
+```
