@@ -152,21 +152,21 @@ glimpse(listings_sf)
 
 Context: A governmental organisation wants to retrofit and upgrade an existing cycling path that requires 5 meters of reserved land on either side of the current cycling path. How can we find out the total land area needed to be acquired?
 
-Solution: 
+Solution:
 
-1. Using a buffer of 5 meters around the cycling paths
+1.  Using a buffer of 5 meters around the cycling paths
 
 ```{r}
 buffer_cycling <- st_buffer(cyclingpath, dist=5, nQuadSegs = 30)
 ```
 
-2. Calculate the area of the buffers
+2.  Calculate the area of the buffers
 
 ```{r}
 buffer_cycling$AREA <- st_area(buffer_cycling)
 ```
 
-3. Therefore, the total area needed would be the sum of areas of buffers
+3.  Therefore, the total area needed would be the sum of areas of buffers
 
 ```{r}
 sum(buffer_cycling$AREA)
@@ -176,20 +176,19 @@ sum(buffer_cycling$AREA)
 
 Context: How can we find out the number of pre-schools in each planning subzone?
 
-Solution: 
-1. Identify the count of pre-schools in each subzone
+Solution: 1. Identify the count of pre-schools in each subzone
 
 ```{r}
 mpsz3414$`PreSch Count`<- lengths(st_intersects(mpsz3414, preschool3414))
 ```
 
-2. Check summary statistics of newly derived 'PreSch Count' field
+2.  Check summary statistics of newly derived 'PreSch Count' field
 
 ```{r}
 summary(mpsz3414$`PreSch Count`)
 ```
 
-3. Listing the planning subzone with the highest number of pre-schools
+3.  Listing the planning subzone with the highest number of pre-schools
 
 ```{r}
 top_n(mpsz3414, 1, `PreSch Count`)
@@ -197,9 +196,10 @@ top_n(mpsz3414, 1, `PreSch Count`)
 
 Tampines East subzone has the most number of pre-schools.
 
-4. Computing the density of pre-schools by planning subzone
+4.  Computing the density of pre-schools by planning subzone
 
 First, derive the area of each planning subzone:
+
 ```{r}
 mpsz3414$Area <- mpsz3414 %>% st_area()
 ```
@@ -209,11 +209,11 @@ mpsz3414 <- mpsz3414 %>%
   mutate(`PreSch Density` = `PreSch Count`/Area * 1000000)
 ```
 
-Exploratary Data Analysis (EDA)
+# Exploratary Data Analysis (EDA)
 
 EDA consists of initial analysis and findings done to understand major trends in the data and visualising it as a whole. The package ggplot2 is used to give a quick overview of the dataset.
 
-1. Histogram 
+## Histogram
 
 Shows distribution of PreSch Density using conventional package from R Graphics.
 
@@ -233,7 +233,7 @@ ggplot(data=mpsz3414,
       y = "Frequency")
 ```
 
-2. Scatterplot
+## Scatterplot
 
 Shows the relationship between Pre-school Density and Pre-school Count
 

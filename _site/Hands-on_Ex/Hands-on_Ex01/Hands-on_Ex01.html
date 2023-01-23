@@ -152,7 +152,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex01/Hands-on_Ex01.html">
  <span class="dropdown-text">Hands-on Exercise 1</span></a>
   </li>  
-        <li class="dropdown-header">Hands-on Exercise 2</li>
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex02/Hands-on_Ex02.html">
+ <span class="dropdown-text">Hands-on Exercise 2</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -208,6 +211,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <ul class="collapse">
   <li><a href="#buffering" id="toc-buffering" class="nav-link" data-scroll-target="#buffering"><span class="toc-section-number">5.1</span>  Buffering</a></li>
   <li><a href="#point-in-polygon-count" id="toc-point-in-polygon-count" class="nav-link" data-scroll-target="#point-in-polygon-count"><span class="toc-section-number">5.2</span>  Point-in-polygon count</a></li>
+  </ul></li>
+  <li><a href="#exploratary-data-analysis-eda" id="toc-exploratary-data-analysis-eda" class="nav-link" data-scroll-target="#exploratary-data-analysis-eda"><span class="toc-section-number">6</span>  Exploratary Data Analysis (EDA)</a>
+  <ul class="collapse">
+  <li><a href="#histogram" id="toc-histogram" class="nav-link" data-scroll-target="#histogram"><span class="toc-section-number">6.1</span>  Histogram</a></li>
+  <li><a href="#scatterplot" id="toc-scatterplot" class="nav-link" data-scroll-target="#scatterplot"><span class="toc-section-number">6.2</span>  Scatterplot</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -665,11 +673,13 @@ Projected CRS: SVY21 / Singapore TM
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>mpsz3414 <span class="ot">&lt;-</span> mpsz3414 <span class="sc">%&gt;%</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">PreSch Density</span><span class="st">`</span> <span class="ot">=</span> <span class="st">`</span><span class="at">PreSch Count</span><span class="st">`</span><span class="sc">/</span>Area <span class="sc">*</span> <span class="dv">1000000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Exploratary Data Analysis (EDA)</p>
+</section>
+</section>
+<section id="exploratary-data-analysis-eda" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Exploratary Data Analysis (EDA)</h1>
 <p>EDA consists of initial analysis and findings done to understand major trends in the data and visualising it as a whole. The package ggplot2 is used to give a quick overview of the dataset.</p>
-<ol type="1">
-<li>Histogram</li>
-</ol>
+<section id="histogram" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="histogram"><span class="header-section-number">6.1</span> Histogram</h2>
 <p>Shows distribution of PreSch Density using conventional package from R Graphics.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(mpsz3414<span class="sc">$</span><span class="st">`</span><span class="at">PreSch Density</span><span class="st">`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -690,9 +700,9 @@ Projected CRS: SVY21 / Singapore TM
 <p><img src="Hands-on_Ex01_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<ol start="2" type="1">
-<li>Scatterplot</li>
-</ol>
+</section>
+<section id="scatterplot" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="scatterplot"><span class="header-section-number">6.2</span> Scatterplot</h2>
 <p>Shows the relationship between Pre-school Density and Pre-school Count</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>mpsz3414, </span>
