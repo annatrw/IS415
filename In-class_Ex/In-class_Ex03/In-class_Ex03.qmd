@@ -1,5 +1,12 @@
 ---
 title: "In-class Exercise 3"
+date: "25 Jan 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true
+  warning: false
+editor: visual
 ---
 
 
@@ -83,7 +90,6 @@ get.var <- function(vname,df){
   return(v)
 }
 ```
-
 
 
 

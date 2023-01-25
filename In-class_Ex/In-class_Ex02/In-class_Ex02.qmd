@@ -1,6 +1,7 @@
 ---
 title: "In-class Exercise 2: Geospatial Data Wrangling"
-date: "`r Sys.Date()`"
+date: "25 Jan 2023"
+date-modified: "`r Sys.Date()`"
 format: html
 execute: 
   message: true
