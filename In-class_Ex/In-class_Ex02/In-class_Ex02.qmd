@@ -1,6 +1,6 @@
 ---
 title: "In-class Exercise 2: Geospatial Data Wrangling"
-date: "` r Sys.Date()`"
+date: "`r Sys.Date()`"
 format: html
 execute: 
   message: true
@@ -25,7 +25,7 @@ The specific tasks of this take-home exercise are as follows:
 3.  Combining the geospatial and aspatial data frame into simple feature data frame.
 4.  Visualising the distribution of water point by using appropriate analytical visualisation methods.
 
-Installing appropriate R packages
+## Installing appropriate R packages
 
 ```{r}
 #| code-fold: true
@@ -33,19 +33,23 @@ Installing appropriate R packages
 pacman::p_load(sf, tidyverse,funModeling)
 ```
 
-Importing geoboundaries data 
+## Importing geoboundaries data
 
 ```{r}
-geoNGA <- st_read("data/geospatial/", layer="geoBoundaries-BDI-ADM2")  %>% st_transform(crs= 26392)
+geoNGA <- st_read("data/geospatial/", layer="geoBoundaries-NGA-ADM2")  %>% st_transform(crs= 26392)
 ```
-Importing NGA data set
+
+## Importing NGA data set
+
 ```{r}
 NGA <- st_read("data/geospatial/",
                layer = "nga_admbnda_adm2_osgof_20190417") %>%
   st_transform(crs = 26392)
 ```
 
-Importing aspatial data
+## Importing aspatial data
+
+Waterpoint data from Humanitarian website
 
 ```{r}
 #| code-fold: true
@@ -56,22 +60,125 @@ wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
 
 ```
 
+### Converting data from aspatial to geospatial
 
+Converts aspatial data into a simple feature object because aspatial data does not have geospatial information although latitude and londitude columns are present in the dataset. The function st_as_sfc() converts the selected column into a tibble data frame.
 
-Converting data from aspatial to geospatial
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
 #| eval: false
 wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
 wp_nga
+```
 
+### Converts tibble data frame into sf object with the function st_sf()
+
+```{r}
 wp_sf <- st_sf(wp_nga, crs=4326)
-wp_sf26392 <- wp_sf %>% st_transform( crs=26392)
+wp_sf <- wp_sf %>% st_transform( crs=26392)
+``` 
+
+## Geospatial data cleaning
+
+Removing redundant fields using dplyr select()
+
+```{r}
+NGA <- NGA %>% select (c(3:4,8:9))
+```
+
+Checking for duplicate name using Base R duplicated()
+
+```{r}
+NGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]
+```
+
+The above code shows the duplicated fields with the same name from different states (ADM1_PCODE).
+
+To fix the duplicated values, replace the duplicated rows with
+
+```{r}
+NGA$ADM2_EN[94] <- "Bassa, Kogi"
+NGA$ADM2_EN[95] <- "Bassa, Plateau"
+NGA$ADM2_EN[304] <- "Ifelodun, Kwara"
+NGA$ADM2_EN[305] <- "Ifelodun, Osun"
+NGA$ADM2_EN[355] <- "Irepodun, Kwara"
+NGA$ADM2_EN[356] <- "Irepodun, Osun"
+NGA$ADM2_EN[519] <- "Nasarawa, Kano"
+NGA$ADM2_EN[520] <- "Nasarawa, Nasarawa"
+NGA$ADM2_EN[546] <- "Obi, Benue"
+NGA$ADM2_EN[547] <- "Obi, Nasarawa"
+NGA$ADM2_EN[693] <- "Surulere, Lagos"
+NGA$ADM2_EN[694] <- "Surulere, Oyo"
+```
+
+```{r}
+freq(data = wp_sf,
+     input = '#status_clean')
+```
+
+-   rename() is used to rename the column from #status_clean to status_clean (removing the hash icon)
+
+-   select() is used to include status_clean in the outputs of sf data frame
+
+-   mutate() and replace_na() replaces the NA values in status_clean field into 'unknown'
+
+```{r}
+wp_sf_nga <- wp_sf %>% 
+  rename(status_clean = '#status_clean') %>%
+  select(status_clean) %>%
+  mutate(status_clean = replace_na(status_clean, "unknown"))
+```
+
+## Extracting water point data
+
+Functional water point data
+
+```{r}
+wp_functional <- wp_sf_nga %>%
+  filter(status_clean %in% 
+  c("Functional", "Functional but not in use", "Functional but needs repair"))
+```
+
+Non-functional water point data
+
+```{r}
+wp_nonfunctional <- wp_sf_nga %>%
+  filter(status_clean %in% 
+  c("Abandoned/Decommissioned", "Abandoned", "Non-Functional due to dry season", "Non-Functional","Non functional due to dry season"))
+```
+
+```{r}
+wp_unkown <- wp_sf_nga %>%
+  filter(status_clean == "unknown")
 ```
 
 
-Projection transformation
+Finding water points that fall within each LGA 
+length() used to calculate number of water points 
+```{r}
+NGA_wp <- NGA %>%
+  mutate(`total_wp` = lengths(st_intersects(NGA, wp_sf_nga))) %>%
+  mutate(`wp_functional` = lengths(st_intersects(NGA, wp_functional))) %>%
+  mutate(`wp_nonfunctional` = lengths(st_intersects(NGA, wp_nonfunctional))) %>%
+  mutate(`wp_unknown` = lengths(st_intersects(NGA, wp_unkown)))
+
+```
+
+```{r}
+write_rds(NGA_wp, "data/rds/NGA_WP.rds")
+```
+
+Using ggplot2 to visualise distribution of water points.
+
+```{r}
+ggplot(data = NGA_wp, aes(x=total_wp)) + geom_histogram(bins=20, color="black", fill="light blue") +
+  geom_vline(aes(xintercept=mean(total_wp, na.rm=T)), color="red", linetype="dashed", size = 0.8 ) +
+  ggtitle("Distribution of total water points by LGA") + 
+  xlab("No. of water points") +
+  ylab ("No. of\nLGAs") +
+  theme(axis.title.y=element_text(angle=0))
+
+```
 
 
-Proportion of functional and non-functional water point
