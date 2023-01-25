@@ -54,7 +54,6 @@ Waterpoint data from Humanitarian website
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
-#| eval: false
 wp_nga <- read_csv("data/aspatial/WPdx.csv") %>%
   filter(`#clean_country_name` == "Nigeria")
 
@@ -67,7 +66,6 @@ Converts aspatial data into a simple feature object because aspatial data does n
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
-#| eval: false
 wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
 wp_nga
 ```
@@ -76,7 +74,7 @@ wp_nga
 
 ```{r}
 wp_sf <- st_sf(wp_nga, crs=4326)
-wp_sf <- wp_sf %>% st_transform( crs=26392)
+wp_sf <- wp_sf %>% st_transform(crs=26392)
 ``` 
 
 ## Geospatial data cleaning
@@ -166,7 +164,7 @@ NGA_wp <- NGA %>%
 ```
 
 ```{r}
-write_rds(NGA_wp, "data/rds/NGA_WP.rds")
+write_rds(NGA_wp, "data/rds/NGA_wp.rds")
 ```
 
 Using ggplot2 to visualise distribution of water points.

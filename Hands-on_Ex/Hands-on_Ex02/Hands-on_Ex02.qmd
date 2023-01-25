@@ -1,8 +1,12 @@
 ---
 title: "Hands-on Exercise 2: Choropleth Mapping with R"
-date: "`r Sys.Date()`"
+date: "18 Jan 2023"
+date-modified: "`r Sys.Date()`"
 execute:
+  echo: true
+  eval: true
   warning: false
+editor:  visual
 ---
 
 # Getting Started
@@ -281,7 +285,7 @@ tm_shape(mpsz_pop2020)+
 
 Observation from changing increasing the number of classes: the more classes there are, the harder it is to differentiate the values, hence choosing an appropriate number of classes is crucial to an effective visualisation.
 
-## Plotting choropleth maps with custom breaks 
+## Plotting choropleth maps with custom breaks
 
 Breakpoints can be manually set to create a custom data classification. It is important to note that, in tmap the breaks include a minimum and maximum. As a result, in order to end up with n categories, n+1 elements must be specified in the breaks option (the values must be in increasing order).
 
@@ -363,9 +367,9 @@ tm_shape(mpsz_pop2020)+
   tmap_style("classic")
 ```
 
-Other available <a href="https://r-tmap.github.io/tmap/reference/tmap_style.html" > map styles </a> include: "white", "gray", "natural", "cobalt", "col_blind", "albatross", "beaver", "bw", "watercolor", "red", "black" 
+Other available <a href="https://r-tmap.github.io/tmap/reference/tmap_style.html" > map styles </a> include: "white", "gray", "natural", "cobalt", "col_blind", "albatross", "beaver", "bw", "watercolor", "red", "black"
 
-### Cartographic furniture 
+### Cartographic furniture
 
 *tm_compass()*, *tm_scale_bar()*, *tm_grid()* are used to add compass, scale bar and grid lines onto the choropleth map.
 
@@ -415,8 +419,7 @@ tm_shape(mpsz_pop2020)+
   tm_layout(legend.position = c("right", "bottom")) +
   tm_borders(alpha = 0.5) +
   tmap_style("white")
-```      
-
+```
 
 ```{r}
 tm_shape(mpsz_pop2020)+ 
@@ -424,7 +427,7 @@ tm_shape(mpsz_pop2020)+
           style = c("equal", "quantile"), 
           palette = list("Blues","Greens")) +
   tm_layout(legend.position = c("right", "bottom"))
-```   
+```
 
 ### Defining a group-by variable in tm_facets()
 
@@ -441,13 +444,13 @@ tm_shape(mpsz_pop2020) +
             title.position = c("center", "center"), 
             title.size = 20) +
   tm_borders(alpha = 0.5)
-```      
+```
 
 Note:
 
--   <a href="https://www.rdocumentation.org/packages/tmap/versions/3.3-3/topics/tm_fill" > thres.poly </a>= a number that specifies the threshold at which polygons are taken into account; corresponds to the proportion of area sizes of polygons to total polygon size; default is 0 
+-   <a href="https://www.rdocumentation.org/packages/tmap/versions/3.3-3/topics/tm_fill" > thres.poly </a>= a number that specifies the threshold at which polygons are taken into account; corresponds to the proportion of area sizes of polygons to total polygon size; default is 0
 
--   <a href="https://www.rdocumentation.org/packages/tmap/versions/3.3-3/topics/tm_facets"> free.coords </a>= defines each map to have its own coordinate ranges; default is "TRUE" 
+-   <a href="https://www.rdocumentation.org/packages/tmap/versions/3.3-3/topics/tm_facets"> free.coords </a>= defines each map to have its own coordinate ranges; default is "TRUE"
 
 ### Creating multiple stand-alone maps with tmap_arrange()
 
@@ -463,7 +466,7 @@ agedmap <- tm_shape(mpsz_pop2020)+
               palette = "YlGn")
 
 tmap_arrange(youngmap, agedmap, asp=1, ncol=2)
-```      
+```
 
 ## Mapping spatial object meeting selection criterion
 
@@ -481,4 +484,4 @@ tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
             legend.position = c("right", "bottom"),
             frame = FALSE) +
   tm_borders(alpha = 0.5)
-```      
+```

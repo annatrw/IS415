@@ -1,0 +1,94 @@
+---
+title: "In-class Exercise 3"
+---
+
+
+```{r}
+pacman::p_load(tidyverse, sf, tmap)
+```
+
+```{r}
+NGA_wp <- read_rds("data/rds/NGA_wp.rds")
+```
+
+Choropleth map of functional water points
+```{r}
+p1 <- tm_shape(NGA_wp) +
+  tm_fill("wp_functional", n = 10,
+          style = "equal",
+          palette = "Blues")+
+  tm_borders(lwd = 0.1,
+             alpha=1) +
+  tm_layout(main.title = "Distribution of functional water points by LGA", legend.outside=FALSE)
+
+```
+
+Choropleth of total water points 
+```{r}
+p2 <- tm_shape(NGA_wp) +
+  tm_fill("total_wp", n = 10,
+          style = "equal",
+          palette = "Blues")+
+  tm_borders(lwd = 0.1,
+             alpha=1) +
+  tm_layout(main.title = "Total water points by LGA", legend.outside=FALSE)
+```
+
+
+```{r}
+tmap_arrange(p2, p1, nrow=1)
+```
+
+However, the above 2 maps display the total and functional water points by absolute value. By using the percentage function to view the percentage of functional to total number of water points, we see a dichotomous distribution of water points in Nigeria. 
+
+Calculating percentage of functional water points 
+```{r}
+NGA_wp <- NGA_wp %>%
+  mutate(pct_functional = wp_functional/total_wp) %>%
+  mutate(pct_nonfunctional = wp_nonfunctional/total_wp)
+```
+
+Plotting 
+```{r}
+tm_shape(NGA_wp)+
+  tm_fill("pct_functional",
+          n=10,
+          style="equal",
+          palette="Blues",
+          legend.hist = TRUE) +
+  tm_borders(lwd=0.1,
+             alpha=1)+
+  tm_layout(main.title="Rate map of functional water points", 
+            legend.outside = TRUE)
+```
+Data preparation
+```{r}
+NGA_wp <- NGA_wp %>% drop_na()
+```
+
+Customised classification and extracting values
+```{r}
+percent <- c(0,.01,.1,.5,.9,.99,1)
+var <- NGA_wp["pct_functional"] %>%
+  st_set_geometry(NULL)
+quantile(var[,1], percent)
+```
+
+Mapping function
+```{r}
+get.var <- function(vname,df){
+  v<- df[name] %>%
+    st_set_geometry(NULL)
+  v<- uname(v[,1])
+  return(v)
+}
+```
+
+
+
+
+
+
+```{r}
+
+```
