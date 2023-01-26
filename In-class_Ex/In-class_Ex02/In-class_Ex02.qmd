@@ -76,7 +76,7 @@ wp_nga
 ```{r}
 wp_sf <- st_sf(wp_nga, crs=4326)
 wp_sf <- wp_sf %>% st_transform(crs=26392)
-``` 
+```
 
 ## Geospatial data cleaning
 
@@ -152,9 +152,8 @@ wp_unkown <- wp_sf_nga %>%
   filter(status_clean == "unknown")
 ```
 
+Finding water points that fall within each LGA length() used to calculate number of water points
 
-Finding water points that fall within each LGA 
-length() used to calculate number of water points 
 ```{r}
 NGA_wp <- NGA %>%
   mutate(`total_wp` = lengths(st_intersects(NGA, wp_sf_nga))) %>%
@@ -179,5 +178,3 @@ ggplot(data = NGA_wp, aes(x=total_wp)) + geom_histogram(bins=20, color="black", 
   theme(axis.title.y=element_text(angle=0))
 
 ```
-
-

@@ -212,9 +212,9 @@
   {
     "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html",
     "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html",
-    "title": "In-class Exercise 3",
+    "title": "In-class Exercise 3: Anaytical Mapping",
     "section": "",
-    "text": "pacman::p_load(tidyverse, sf, tmap)\n\n\nNGA_wp <- read_rds(\"data/rds/NGA_wp.rds\")\n\nChoropleth map of functional water points\n\np1 <- tm_shape(NGA_wp) +\n  tm_fill(\"wp_functional\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Distribution of functional water points by LGA\", legend.outside=FALSE)\n\nChoropleth of total water points\n\np2 <- tm_shape(NGA_wp) +\n  tm_fill(\"total_wp\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Total water points by LGA\", legend.outside=FALSE)\n\n\ntmap_arrange(p2, p1, nrow=1)\n\n\n\n\nHowever, the above 2 maps display the total and functional water points by absolute value. By using the percentage function to view the percentage of functional to total number of water points, we see a dichotomous distribution of water points in Nigeria.\nCalculating percentage of functional water points\n\nNGA_wp <- NGA_wp %>%\n  mutate(pct_functional = wp_functional/total_wp) %>%\n  mutate(pct_nonfunctional = wp_nonfunctional/total_wp)\n\nPlotting\n\ntm_shape(NGA_wp)+\n  tm_fill(\"pct_functional\",\n          n=10,\n          style=\"equal\",\n          palette=\"Blues\",\n          legend.hist = TRUE) +\n  tm_borders(lwd=0.1,\n             alpha=1)+\n  tm_layout(main.title=\"Rate map of functional water points\", \n            legend.outside = TRUE)\n\n\n\n\nData preparation\n\nNGA_wp <- NGA_wp %>% drop_na()\n\nCustomised classification and extracting values\n\npercent <- c(0,.01,.1,.5,.9,.99,1)\nvar <- NGA_wp[\"pct_functional\"] %>%\n  st_set_geometry(NULL)\nquantile(var[,1], percent)\n\n       0%        1%       10%       50%       90%       99%      100% \n0.0000000 0.0000000 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 \n\n\nMapping function\n\nget.var <- function(vname,df){\n  v<- df[name] %>%\n    st_set_geometry(NULL)\n  v<- uname(v[,1])\n  return(v)\n}"
+    "text": "Installing and loading packages\n\npacman::p_load(tidyverse, sf, tmap)\n\nImporting data\n\n\n\n\n\n\nNote\n\n\n\nImport NGP_wp.rds created in In-class Exercise 2\n\n\n\nNGA_wp <- read_rds(\"data/rds/NGA_wp.rds\")"
   },
   {
     "objectID": "index.html",
@@ -222,5 +222,68 @@
     "title": "Anna’s IS415 journey",
     "section": "",
     "text": "Welcome to IS415 Geospatial Analytics and Applications!\n\n1 + 1\n\n[1] 2\n\n\n\n\n\nGeospatial analysis icon\n\n\n\n\n\n\n\n\ncallout title\n\n\n\ntesting callout content\n\n\n\ntab1tab1tab2\n\n\ntesting\n\n\ncontent\n\n\nsome random content\n\n\n\n\nGeospatial definition\n\nsome definition here"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-map-of-functional-water-points",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-map-of-functional-water-points",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "2.1 Choropleth map of functional water points",
+    "text": "2.1 Choropleth map of functional water points\n\np1 <- tm_shape(NGA_wp) +\n  tm_fill(\"wp_functional\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Distribution of functional water points by LGA\", legend.outside=FALSE)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-of-total-water-points",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-of-total-water-points",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "2.2 Choropleth of total water points",
+    "text": "2.2 Choropleth of total water points\n\np2 <- tm_shape(NGA_wp) +\n  tm_fill(\"total_wp\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Total water points by LGA\", legend.outside=FALSE)\n\n\ntmap_arrange(p2, p1, nrow=1)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#plotting",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#plotting",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "3.1 Plotting",
+    "text": "3.1 Plotting\n\ntm_shape(NGA_wp)+\n  tm_fill(\"pct_functional\",\n          n=10,\n          style=\"equal\",\n          palette=\"Blues\",\n          legend.hist = TRUE) +\n  tm_borders(lwd=0.1,\n             alpha=1)+\n  tm_layout(main.title=\"Rate map of functional water points\", \n            legend.outside = TRUE)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#percentile-map",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#percentile-map",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.1 Percentile Map",
+    "text": "4.1 Percentile Map\n\n4.1.1 Data preparation\nStep 1: Removing NA values\n\nNGA_wp <- NGA_wp %>% drop_na()\n\nStep 2: Customised classification and extracting values\n\npercent <- c(0,.01,.1,.5,.9,.99,1)\nvar <- NGA_wp[\"pct_functional\"] %>%\n  st_set_geometry(NULL)\nquantile(var[,1], percent)\n\n       0%        1%       10%       50%       90%       99%      100% \n0.0000000 0.0000000 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 \n\n\n\n\n4.1.2 Functions\nMapping functions that simplify the mapping process and reduces the likelihood of mistakes\n\n\n4.1.3 get.var function\nExtracts a variable (i.e. wp_nonfunctional) as a vector out of an sf data.frame.\n\ninputs:\n\nvname: variable name\ndf: name of the sf data frame\n\noutput:\n\nv: a vector with values\n\n\n\nget.var <- function(vname,df){\n  v<- df[vname] %>%\n    st_set_geometry(NULL)\n  v<- unname(v[,1])\n  return(v)\n}\n\n\n\n4.1.4 Percentile function\n\npercentmap <- function(vnam, df, legtitle=NA, mtitle=\"Percentile Map\"){\n  percent <- c(0,.01,.1,.5,.9,.99,1)\n  var <- get.var(vnam, df)\n  bperc <- quantile(var, percent)\n  tm_shape(df) +\n  tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,\n             title=legtitle,\n             breaks=bperc,\n             palette=\"Blues\",\n          labels=c(\"< 1%\", \"1% - 10%\", \"10% - 50%\", \"50% - 90%\", \"90% - 99%\", \"> 99%\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"right\",\"bottom\"))\n}\n\n\n\n4.1.5 Running or Calling the function\n\npercentmap(\"total_wp\", NGA_wp)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#box-map",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#box-map",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.2 Box Map",
+    "text": "4.2 Box Map\nUses custom breaks specifications which depend on lower or upper outliers.\n\nggplot(data = NGA_wp,\n       aes(x = \"\",\n           y = wp_nonfunctional)) +\n  geom_boxplot()"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxbreak-function",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxbreak-function",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.3 Boxbreak function",
+    "text": "4.3 Boxbreak function\nSimilarly, functions can be created for custom boxbreaks\n\ninputs:\n\nv: vector with observations\nmult: multiplier for IQR\n\noutput:\n\nbb: vector with 7 break points that compute quantile and fence\n\n\n\nboxbreaks <- function(v,mult=1.5) {\n  qv <- unname(quantile(v))\n  iqr <- qv[4] - qv[2]\n  upfence <- qv[4] + mult * iqr\n  lofence <- qv[2] - mult * iqr\n  # initialize break points vector\n  bb <- vector(mode=\"numeric\",length=7)\n  # logic for lower and upper fences\n  if (lofence < qv[1]) {  # no lower outliers\n    bb[1] <- lofence\n    bb[2] <- floor(qv[1])\n  } else {\n    bb[2] <- lofence\n    bb[1] <- qv[1]\n  }\n  if (upfence > qv[5]) { # no upper outliers\n    bb[7] <- upfence\n    bb[6] <- ceiling(qv[5])\n  } else {\n    bb[6] <- upfence\n    bb[7] <- qv[5]\n  }\n  bb[3:5] <- qv[2:4]\n  return(bb)\n}"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#get.var-function-1",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#get.var-function-1",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.4 get.var function",
+    "text": "4.4 get.var function\n\ninputs:\n\nvname: variable name (as character in quotes)\ndf: name of the sf data frame\n\noutput:\n\nv: a vector with values (without column name)\n\n\nget.var <- function(vname,df) {\n  v <- df[vname] %>% st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#running-the-newly-created-function",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#running-the-newly-created-function",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.5 Running the newly created function",
+    "text": "4.5 Running the newly created function\n\nvar <- get.var(\"wp_nonfunctional\", NGA_wp) \nboxbreaks(var)\n\n[1] -56.5   0.0  14.0  34.0  61.0 131.5 278.0"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxmap-function",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxmap-function",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.6 Boxmap function",
+    "text": "4.6 Boxmap function\n\narguments:\n\nvnam: variable name\ndf: simple feature polygon layer\nlegtitle: legend title\nmtitle: map title\nmult: multiplier for IQR\n\noutput: tmap element that plots the map\n\n\nboxmap <- function(vnam, df, \n                   legtitle=NA,\n                   mtitle=\"Box Map\",\n                   mult=1.5){\n  var <- get.var(vnam,df)\n  bb <- boxbreaks(var)\n  tm_shape(df) +\n    tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,title=legtitle,\n             breaks=bb,\n             palette=\"Blues\",\n          labels = c(\"lower outlier\", \n                     \"< 25%\", \n                     \"25% - 50%\", \n                     \"50% - 75%\",\n                     \"> 75%\", \n                     \"upper outlier\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"left\",\n                               \"top\"))\n}\n\n\ntmap_mode(\"plot\")\nboxmap(\"wp_nonfunctional\", NGA_wp)"
   }
 ]
