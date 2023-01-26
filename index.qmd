@@ -1,5 +1,5 @@
 ---
-title: "IS415"
+title: "Anna's IS415 journey"
 ---
 
 Welcome to **IS415 Geospatial Analytics and Applications**!
@@ -7,3 +7,29 @@ Welcome to **IS415 Geospatial Analytics and Applications**!
 ```{r}
 1 + 1
 ```
+
+![Geospatial analysis icon](images/planet.png){fig-align="left" width="200"}
+
+::: {.callout-note appearance="simple"}
+## callout title
+
+testing callout content
+:::
+
+::: panel-tabset
+## tab1
+
+testing
+
+## tab1
+
+content
+
+## tab2
+
+some random content
+:::
+
+Geospatial definition
+
+:   some definition here
