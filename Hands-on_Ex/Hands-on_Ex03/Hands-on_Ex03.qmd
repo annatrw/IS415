@@ -13,13 +13,13 @@ editor: visual
 
 Aim: are the childcare centres in Singapore randomly distributed throughout the country? if no, then where are the locations with higher concentration of childcare centres?
 
-## Installing and loading R packages
+# Installing and loading R packages
 
 ```{r}
 pacman::p_load(maptools, sf, raster, spatstat, tmap, tidyverse)
 ```
 
-## Spatial data wrangling
+# Spatial data wrangling
 
 ```{r}
 childcare_sf <- st_read("data/child-care-services-geojson.geojson") %>%
@@ -68,9 +68,9 @@ tm_shape(childcare_sf)+
 Use the 'view' mode on tmap for interactive view
 :::
 
-## Geospatial data wrangling
+# Geospatial data wrangling
 
-Using sp's spatial class
+## Converting sf data to sp's Spatial class
 
 ```{r}
 childcare <- as_Spatial(childcare_sf)
@@ -90,6 +90,8 @@ mpsz
 sg
 ```
 
+## Converting Spatial class into generic sp object
+
 spatstat requires the analytical data in ppp object form. There is no direct way to convert a Spatial\* classes into ppp object. We need to convert the Spatial classes\* into Spatial object first.
 
 The codes chunk below converts the Spatial\* classes into generic sp objects.
@@ -107,9 +109,7 @@ childcare_sp
 sg_sp
 ```
 
-## Differences between Spatial\* classes and generic sp objects:
-
-Converting generic spatial sp format to spatstat ppp format
+## Converting generic spatial sp format to spatstat ppp format
 
 ```{r}
 childcare_ppp <- as(childcare_sp, "ppp")
@@ -124,7 +124,7 @@ plot(childcare_ppp)
 summary(childcare_ppp)
 ```
 
-Handling duplicated points
+## Handling duplicated points
 
 ```{r}
 any(duplicated(childcare_ppp))
@@ -176,7 +176,9 @@ childcare_ppp_jit <- rjitter(childcare_ppp,
 any(duplicated(childcare_ppp_jit))
 ```
 
-Creating owin object In spatstat, owin objects are used to represent polygonal region (Singapore boundary).
+## Creating owin object 
+
+In spatstat, owin objects are used to represent polygonal region (Singapore boundary).
 
 ```{r}
 sg_owin <- as(sg_sp, "owin")
@@ -190,7 +192,7 @@ plot(sg_owin)
 summary(sg_owin)
 ```
 
-Combining point features and owin objects
+## Combining point features and owin objects
 
 Extract the childcare points located within Singapore
 
@@ -206,14 +208,16 @@ summary(childcareSG_ppp)
 plot(childcareSG_ppp)
 ```
 
-First order spatial point patterns analysis
+# First order spatial point patterns analysis
 
 The hands-on exercise will focus on:
 
 -   deriving kernel density estimation (KDE) layer for visualising and exploring the intensity of point processes,
 -   performing Confirmatory Spatial Point Patterns Analysis by using Nearest Neighbour statistics.
 
-Kernal density estimation (KDE) The code chunk below computes a kernel density by using the following configurations of density() of spatstat:
+## Kernal density estimation (KDE) 
+
+The code chunk below computes a kernel density by using the following configurations of density() of spatstat:
 
 -   bw.diggle() automatic bandwidth selection method. Other recommended methods are bw.CvL(), bw.scott() or bw.ppl().
 
@@ -241,7 +245,7 @@ bw <- bw.diggle(childcareSG_ppp)
 bw
 ```
 
-Rescaling KDE values
+### Rescaling KDE values
 
 Converting meter to kilometer
 
@@ -256,7 +260,7 @@ plot(kde_childcareSG.bw)
 
 Notice that the legend is changed.
 
-Automatic badwidth methods
+## Automatic badwidth methods
 
 Beside bw.diggle(), there are three other spatstat functions can be used to determine the bandwidth, they are: bw.CvL(), bw.scott(), and bw.ppl().
 
@@ -288,7 +292,7 @@ plot(kde_childcareSG.bw, main = "bw.diggle")
 plot(kde_childcareSG.ppl, main = "bw.ppl")
 ```
 
-Kernel methods
+## Kernel methods
 
 By default, the kernel method used in density.ppp() is gaussian. But there are three other options, namely: Epanechnikov, Quartic and Dics.
 
@@ -318,9 +322,9 @@ plot(density(childcareSG_ppp.km,
      main="Disc")
 ```
 
-Fixed and Adaptive KDE
+# Fixed and Adaptive KDE
 
-Computing KDE by Fixed bandwidth
+## Computing KDE by Fixed bandwidth
 
 ```{r}
 kde_childcareSG_600 <- density(childcareSG_ppp.km, sigma=0.6, edge=TRUE, kernel="gaussian")
@@ -331,7 +335,7 @@ plot(kde_childcareSG_600)
 sigma value is 0.6 as unit for childcareSG_ppp.km object is in kilometer (0.6km = 600m).
 :::
 
-Computing KDE by Adaptive bandwidth
+## Computing KDE by Adaptive bandwidth
 
 ```{r}
 kde_childcareSG_adaptive <- adaptive.density(childcareSG_ppp.km, method="kernel")
@@ -376,7 +380,7 @@ tm_shape(kde_childcareSG_bw_raster) +
   tm_layout(legend.position = c("right", "bottom"), frame = FALSE)
 ```
 
-Comparing spatial point patterns using KDE
+## Comparing spatial point patterns using KDE
 
 Comparing KDE of childcare centres in Punggol, Tampines, Chua Chu Kang and Jurong West planning areas.
 
@@ -495,7 +499,7 @@ plot(density(childcare_tm_ppp.km,
      main="Tampines")
 ```
 
-Nearest Neighbour Analysis
+# Nearest Neighbour Analysis
 
 Clark-Evans test of aggregation for a spatial point pattern by using clarkevans.test()\[https://www.rdocumentation.org/packages/spatstat/versions/1.63-3/topics/clarkevans.test\] of statspat.
 
@@ -507,7 +511,7 @@ H1= The distribution of childcare services are not randomly distributed.
 
 The 95% confident interval will be used.
 
-Testing spatial point patterns using Clark and Evans Test
+## Testing spatial point patterns using Clark and Evans Test
 
 ```{r}
 clarkevans.test(childcareSG_ppp,
@@ -519,7 +523,7 @@ clarkevans.test(childcareSG_ppp,
 
 Conclusion: Since the p-value is less than the alpha value of 0.05, there is sufficient evidence to reject the null hypothesis that childcare services are randomly distributed.
 
-Clark and Evans test on Choa Chu Kang
+## Clark and Evans test on Choa Chu Kang
 
 ```{r}
 clarkevans.test(childcare_ck_ppp,
@@ -529,7 +533,7 @@ clarkevans.test(childcare_ck_ppp,
                 nsim=999)
 ```
 
-Clark and Evans test on Tampines
+## Clark and Evans test on Tampines
 
 ```{r}
 clarkevans.test(childcare_tm_ppp,
