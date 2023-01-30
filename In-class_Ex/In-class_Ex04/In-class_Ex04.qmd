@@ -70,6 +70,7 @@ tmap_mode('plot')
 # Geospatial Data Wrangling
 
 ## Convert sf data to sp Spatial class
+
 ```{r}
 childcare <- as_Spatial(childcare_sf)
 mpsz <- as_Spatial(mpsz_sf)
@@ -104,6 +105,7 @@ sg_sp
 ```
 
 ## Convert generic sp format to spatstat's ppp format
+
 ```{r}
 childcare_ppp <- as(childcare_sp, "ppp")
 childcare_ppp
@@ -117,24 +119,22 @@ plot(childcare_ppp)
 summary(childcare_ppp)
 ```
 
-
 ## Duplicate points
 
 Check for presence of duplicate points
+
 ```{r}
 any(duplicated(childcare_ppp))
 ```
 
 Count the number of co-incidence points
+
 ```{r}
 multiplicity(childcare_ppp)
 ```
 
-Compute the number of locations with more than 1 point event 
+Compute the number of locations with more than 1 point event
+
 ```{r}
 sum(multiplicity(childcare_ppp) >1)
 ```
-
-
-
-
