@@ -263,14 +263,14 @@
     "href": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-choa-chu-kang",
     "title": "Hands-on Exercise 3: 1st Order Spatial Point Patterns Analysis Methods",
     "section": "7.2 Clark and Evans test on Choa Chu Kang",
-    "text": "7.2 Clark and Evans test on Choa Chu Kang\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.92163, p-value = 0.048\nalternative hypothesis: two-sided"
+    "text": "7.2 Clark and Evans test on Choa Chu Kang\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.97701, p-value = 0.274\nalternative hypothesis: two-sided"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-tampines",
     "href": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-tampines",
     "title": "Hands-on Exercise 3: 1st Order Spatial Point Patterns Analysis Methods",
     "section": "7.3 Clark and Evans test on Tampines",
-    "text": "7.3 Clark and Evans test on Tampines\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.81228, p-value = 0.002\nalternative hypothesis: two-sided"
+    "text": "7.3 Clark and Evans test on Tampines\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.76453, p-value = 0.002\nalternative hypothesis: two-sided"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
@@ -392,10 +392,31 @@
     "text": "4.6 Boxmap function\n\narguments:\n\nvnam: variable name\ndf: simple feature polygon layer\nlegtitle: legend title\nmtitle: map title\nmult: multiplier for IQR\n\noutput: tmap element that plots the map\n\n\nboxmap <- function(vnam, df, \n                   legtitle=NA,\n                   mtitle=\"Box Map\",\n                   mult=1.5){\n  var <- get.var(vnam,df)\n  bb <- boxbreaks(var)\n  tm_shape(df) +\n    tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,title=legtitle,\n             breaks=bb,\n             palette=\"Blues\",\n          labels = c(\"lower outlier\", \n                     \"< 25%\", \n                     \"25% - 50%\", \n                     \"50% - 75%\",\n                     \"> 75%\", \n                     \"upper outlier\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"left\",\n                               \"top\"))\n}\n\n\ntmap_mode(\"plot\")\nboxmap(\"wp_nonfunctional\", NGA_wp)"
   },
   {
+    "objectID": "In-class_Ex/In-class_Ex04/In-class_Ex04.html",
+    "href": "In-class_Ex/In-class_Ex04/In-class_Ex04.html",
+    "title": "In-class Exercise 4",
+    "section": "",
+    "text": "1 Getting Started"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Anna’s IS415 journey",
     "section": "",
-    "text": "Welcome to IS415 Geospatial Analytics and Applications!\n\n1 + 1\n\n[1] 2\n\n\n\n\n\nGeospatial analysis icon\n\n\n\n\n\n\n\n\ncallout title\n\n\n\ntesting callout content\n\n\n\ntab1tab1tab2\n\n\ntesting\n\n\ncontent\n\n\nsome random content\n\n\n\n\nGeospatial definition\n\nsome definition here"
+    "text": "Welcome to IS415 Geospatial Analytics and Applications!\n\n\n\nGeospatial analysis icon\n\n\n\n\n\n\n\n\ncallout title\n\n\n\ntesting callout content\n\n\n\ntab1tab2tab3\n\n\ntesting\n\n\ncontent\n\n\nsome random content\n\n\n\n\nGeospatial definition\n\nsome definition here"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
+    "title": "Take Home Exercise 1",
+    "section": "",
+    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#running-code",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#running-code",
+    "title": "Take Home Exercise 1",
+    "section": "2 Running Code",
+    "text": "2 Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
   }
 ]

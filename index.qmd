@@ -4,10 +4,6 @@ title: "Anna's IS415 journey"
 
 Welcome to **IS415 Geospatial Analytics and Applications**!
 
-```{r}
-1 + 1
-```
-
 ![Geospatial analysis icon](images/planet.png){fig-align="left" width="200"}
 
 ::: {.callout-note appearance="simple"}
@@ -21,11 +17,11 @@ testing callout content
 
 testing
 
-## tab1
+## tab2
 
 content
 
-## tab2
+## tab3
 
 some random content
 :::

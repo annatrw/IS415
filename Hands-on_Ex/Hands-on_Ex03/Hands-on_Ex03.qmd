@@ -176,7 +176,7 @@ childcare_ppp_jit <- rjitter(childcare_ppp,
 any(duplicated(childcare_ppp_jit))
 ```
 
-## Creating owin object 
+## Creating owin object
 
 In spatstat, owin objects are used to represent polygonal region (Singapore boundary).
 
@@ -215,7 +215,7 @@ The hands-on exercise will focus on:
 -   deriving kernel density estimation (KDE) layer for visualising and exploring the intensity of point processes,
 -   performing Confirmatory Spatial Point Patterns Analysis by using Nearest Neighbour statistics.
 
-## Kernal density estimation (KDE) 
+## Kernal density estimation (KDE)
 
 The code chunk below computes a kernel density by using the following configurations of density() of spatstat:
 

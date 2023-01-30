@@ -1,0 +1,32 @@
+---
+title: "In-class Exercise 4"
+date: "30 Jan 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true
+  warning: false
+editor: visual
+---
+
+# Getting Started
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
