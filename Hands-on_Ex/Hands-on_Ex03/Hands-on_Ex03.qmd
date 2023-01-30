@@ -109,6 +109,11 @@ childcare_sp
 sg_sp
 ```
 
+:::{callout-note}
+Difference between Spatial classes and generic sp objects:
+- the generic sp objects (spatial polygons) will only store the spatial component of the data
+:::
+
 ## Converting generic spatial sp format to spatstat ppp format
 
 ```{r}
