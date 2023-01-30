@@ -1,5 +1,5 @@
 ---
-title: "In-class Exercise 4"
+title: "In-class Exercise 4: 2nd Order Spatial Point Pattern Analysis Methods"
 date: "30 Jan 2023"
 date-modified: "`r Sys.Date()`"
 format: html
@@ -11,22 +11,130 @@ editor: visual
 
 # Getting Started
 
-```{r}
+Spatial Point Pattern Analysis is the evaluation of the pattern or distribution, of a set of points on a surface. The point can be location of:
 
+-   events such as crime, traffic accident and disease onset, or
+-   business services (coffee and fastfood outlets) or facilities such as childcare and eldercare.
+
+Using appropriate functions of spatstat, this hands-on exercise aims to discover the spatial point processes of childecare centres in Singapore.
+
+The specific questions we would like to answer are as follows:
+
+are the childcare centres in Singapore randomly distributed throughout the country? if the answer is not, then the next logical question is where are the locations with higher concentration of childcare centres?
+
+# Installing and Loading R packages
+
+```{r}
+pacman::p_load(maptools, sf, raster, spatstat, tmap)
+```
+
+# Spatial Data Wrangling
+
+```{r}
+childcare_sf <- st_read("data/child-care-services-geojson.geojson") %>%
+  st_transform(crs = 3414)
 ```
 
 ```{r}
-
+sg_sf <- st_read(dsn = "data", layer="CostalOutline")
 ```
 
 ```{r}
+mpsz_sf <- st_read(dsn = "data", 
+                layer = "MP14_SUBZONE_WEB_PL")
+```
 
+Standardising projection systems
+
+```{r}
+sg_sf <- st_transform(sg_sf, crs=3414)
 ```
 
 ```{r}
+mpsz_sf <- st_transform(mpsz_sf, crs=3414)
+```
 
+Mapping geospatial data
+
+```{r}
+tmap_mode('plot')+
+qtm(mpsz_sf)+
+tm_shape(childcare_sf)+
+  tm_dots() 
 ```
 
 ```{r}
-
+tmap_mode('plot')
 ```
+
+# Geospatial Data Wrangling
+
+## Convert sf data to sp Spatial class
+```{r}
+childcare <- as_Spatial(childcare_sf)
+mpsz <- as_Spatial(mpsz_sf)
+sg <- as_Spatial(sg_sf)
+```
+
+```{r}
+childcare
+```
+
+```{r}
+mpsz
+```
+
+```{r}
+sg
+```
+
+## Convert Spatial class into generic sp format
+
+```{r}
+childcare_sp <- as(childcare, "SpatialPoints")
+sg_sp <- as(sg, "SpatialPolygons")
+```
+
+```{r}
+childcare_sp
+```
+
+```{r}
+sg_sp
+```
+
+## Convert generic sp format to spatstat's ppp format
+```{r}
+childcare_ppp <- as(childcare_sp, "ppp")
+childcare_ppp
+```
+
+```{r}
+plot(childcare_ppp)
+```
+
+```{r}
+summary(childcare_ppp)
+```
+
+
+## Duplicate points
+
+Check for presence of duplicate points
+```{r}
+any(duplicated(childcare_ppp))
+```
+
+Count the number of co-incidence points
+```{r}
+multiplicity(childcare_ppp)
+```
+
+Compute the number of locations with more than 1 point event 
+```{r}
+sum(multiplicity(childcare_ppp) >1)
+```
+
+
+
+
