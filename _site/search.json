@@ -161,132 +161,6 @@
     "text": "4.8 Mapping spatial object meeting selection criterion\n\ntm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N==\"CENTRAL REGION\", ])+\n  tm_fill(\"DEPENDENCY\", \n          style = \"quantile\", \n          palette = \"YlGn\", \n          legend.hist = TRUE, \n          legend.is.portrait = TRUE,\n          legend.hist.z = 0.1) +\n  tm_layout(legend.outside = TRUE,\n            legend.height = 0.45, \n            legend.width = 5.0,\n            legend.position = c(\"right\", \"bottom\"),\n            frame = FALSE) +\n  tm_borders(alpha = 0.5)"
   },
   {
-    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
-    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
-    "title": "In-class Exercise 2: Geospatial Data Wrangling",
-    "section": "",
-    "text": "Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world’s accessible freshwater.\nDeveloping countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.\nTo address the issue of providing clean and sustainable water supply to the rural community, a global Water Point Data Exchange (WPdx) project has been initiated. The main aim of this initiative is to collect water point related data from rural areas at the water point or small water scheme level and share the data via WPdx Data Repository, a cloud-based data library. What is so special of this project is that data are collected based on WPDx Data Standard."
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#installing-appropriate-r-packages",
-    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#installing-appropriate-r-packages",
-    "title": "In-class Exercise 2: Geospatial Data Wrangling",
-    "section": "2.1 Installing appropriate R packages",
-    "text": "2.1 Installing appropriate R packages\n\n\nShow the code\npacman::p_load(sf, tidyverse,funModeling)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-geoboundaries-data",
-    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-geoboundaries-data",
-    "title": "In-class Exercise 2: Geospatial Data Wrangling",
-    "section": "2.2 Importing geoboundaries data",
-    "text": "2.2 Importing geoboundaries data\n\ngeoNGA <- st_read(\"data/geospatial/\", layer=\"geoBoundaries-NGA-ADM2\")  %>% st_transform(crs= 26392)\n\nReading layer `geoBoundaries-NGA-ADM2' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 6 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-nga-data-set",
-    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-nga-data-set",
-    "title": "In-class Exercise 2: Geospatial Data Wrangling",
-    "section": "2.3 Importing NGA data set",
-    "text": "2.3 Importing NGA data set\n\nNGA <- st_read(\"data/geospatial/\",\n               layer = \"nga_admbnda_adm2_osgof_20190417\") %>%\n  st_transform(crs = 26392)\n\nReading layer `nga_admbnda_adm2_osgof_20190417' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 16 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-aspatial-data",
-    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-aspatial-data",
-    "title": "In-class Exercise 2: Geospatial Data Wrangling",
-    "section": "2.4 Importing aspatial data",
-    "text": "2.4 Importing aspatial data\nWaterpoint data from Humanitarian website\n\n\nShow the code\nwp_nga <- read_csv(\"data/aspatial/WPdx.csv\") %>%\n  filter(`#clean_country_name` == \"Nigeria\")\n\n\n\n2.4.1 Converting data from aspatial to geospatial\nConverts aspatial data into a simple feature object because aspatial data does not have geospatial information although latitude and londitude columns are present in the dataset. The function st_as_sfc() converts the selected column into a tibble data frame.\n\n\nShow the code\nwp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)\nwp_nga\n\n\n# A tibble: 95,008 × 71\n   row_id `#source`      #lat_…¹ #lon_…² #repo…³ #stat…⁴ #wate…⁵ #wate…⁶ #wate…⁷\n    <dbl> <chr>            <dbl>   <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  \n 1 429068 GRID3             7.98    5.12 08/29/… Unknown <NA>    <NA>    Tapsta…\n 2 222071 Federal Minis…    6.96    3.60 08/16/… Yes     Boreho… Well    Mechan…\n 3 160612 WaterAid          6.49    7.93 12/04/… Yes     Boreho… Well    Hand P…\n 4 160669 WaterAid          6.73    7.65 12/04/… Yes     Boreho… Well    <NA>   \n 5 160642 WaterAid          6.78    7.66 12/04/… Yes     Boreho… Well    Hand P…\n 6 160628 WaterAid          6.96    7.78 12/04/… Yes     Boreho… Well    Hand P…\n 7 160632 WaterAid          7.02    7.84 12/04/… Yes     Boreho… Well    Hand P…\n 8 642747 Living Water …    7.33    8.98 10/03/… Yes     Boreho… Well    Mechan…\n 9 642456 Living Water …    7.17    9.11 10/03/… Yes     Boreho… Well    Hand P…\n10 641347 Living Water …    7.20    9.22 03/28/… Yes     Boreho… Well    Hand P…\n# … with 94,998 more rows, 62 more variables: `#water_tech_category` <chr>,\n#   `#facility_type` <chr>, `#clean_country_name` <chr>, `#clean_adm1` <chr>,\n#   `#clean_adm2` <chr>, `#clean_adm3` <chr>, `#clean_adm4` <chr>,\n#   `#install_year` <dbl>, `#installer` <chr>, `#rehab_year` <lgl>,\n#   `#rehabilitator` <lgl>, `#management_clean` <chr>, `#status_clean` <chr>,\n#   `#pay` <chr>, `#fecal_coliform_presence` <chr>,\n#   `#fecal_coliform_value` <dbl>, `#subjective_quality` <chr>, …\n\n\n\n\n2.4.2 Converts tibble data frame into sf object with the function st_sf()\n\nwp_sf <- st_sf(wp_nga, crs=4326)\nwp_sf <- wp_sf %>% st_transform(crs=26392)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#geospatial-data-cleaning",
-    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#geospatial-data-cleaning",
-    "title": "In-class Exercise 2: Geospatial Data Wrangling",
-    "section": "2.5 Geospatial data cleaning",
-    "text": "2.5 Geospatial data cleaning\nRemoving redundant fields using dplyr select()\n\nNGA <- NGA %>% select (c(3:4,8:9))\n\nChecking for duplicate name using Base R duplicated()\n\nNGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]\n\n[1] \"Bassa\"    \"Ifelodun\" \"Irepodun\" \"Nasarawa\" \"Obi\"      \"Surulere\"\n\n\nThe above code shows the duplicated fields with the same name from different states (ADM1_PCODE).\nTo fix the duplicated values, replace the duplicated rows with\n\nNGA$ADM2_EN[94] <- \"Bassa, Kogi\"\nNGA$ADM2_EN[95] <- \"Bassa, Plateau\"\nNGA$ADM2_EN[304] <- \"Ifelodun, Kwara\"\nNGA$ADM2_EN[305] <- \"Ifelodun, Osun\"\nNGA$ADM2_EN[355] <- \"Irepodun, Kwara\"\nNGA$ADM2_EN[356] <- \"Irepodun, Osun\"\nNGA$ADM2_EN[519] <- \"Nasarawa, Kano\"\nNGA$ADM2_EN[520] <- \"Nasarawa, Nasarawa\"\nNGA$ADM2_EN[546] <- \"Obi, Benue\"\nNGA$ADM2_EN[547] <- \"Obi, Nasarawa\"\nNGA$ADM2_EN[693] <- \"Surulere, Lagos\"\nNGA$ADM2_EN[694] <- \"Surulere, Oyo\"\n\n\nfreq(data = wp_sf,\n     input = '#status_clean')\n\n\n\n\n                     #status_clean frequency percentage cumulative_perc\n1                       Functional     45883      48.29           48.29\n2                   Non-Functional     29385      30.93           79.22\n3                             <NA>     10656      11.22           90.44\n4      Functional but needs repair      4579       4.82           95.26\n5 Non-Functional due to dry season      2403       2.53           97.79\n6        Functional but not in use      1686       1.77           99.56\n7         Abandoned/Decommissioned       234       0.25           99.81\n8                        Abandoned       175       0.18           99.99\n9 Non functional due to dry season         7       0.01          100.00\n\n\n\nrename() is used to rename the column from #status_clean to status_clean (removing the hash icon)\nselect() is used to include status_clean in the outputs of sf data frame\nmutate() and replace_na() replaces the NA values in status_clean field into ‘unknown’\n\n\nwp_sf_nga <- wp_sf %>% \n  rename(status_clean = '#status_clean') %>%\n  select(status_clean) %>%\n  mutate(status_clean = replace_na(status_clean, \"unknown\"))"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#extracting-water-point-data",
-    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#extracting-water-point-data",
-    "title": "In-class Exercise 2: Geospatial Data Wrangling",
-    "section": "2.6 Extracting water point data",
-    "text": "2.6 Extracting water point data\nFunctional water point data\n\nwp_functional <- wp_sf_nga %>%\n  filter(status_clean %in% \n  c(\"Functional\", \"Functional but not in use\", \"Functional but needs repair\"))\n\nNon-functional water point data\n\nwp_nonfunctional <- wp_sf_nga %>%\n  filter(status_clean %in% \n  c(\"Abandoned/Decommissioned\", \"Abandoned\", \"Non-Functional due to dry season\", \"Non-Functional\",\"Non functional due to dry season\"))\n\n\nwp_unkown <- wp_sf_nga %>%\n  filter(status_clean == \"unknown\")\n\nFinding water points that fall within each LGA length() used to calculate number of water points\n\nNGA_wp <- NGA %>%\n  mutate(`total_wp` = lengths(st_intersects(NGA, wp_sf_nga))) %>%\n  mutate(`wp_functional` = lengths(st_intersects(NGA, wp_functional))) %>%\n  mutate(`wp_nonfunctional` = lengths(st_intersects(NGA, wp_nonfunctional))) %>%\n  mutate(`wp_unknown` = lengths(st_intersects(NGA, wp_unkown)))\n\n\nwrite_rds(NGA_wp, \"data/rds/NGA_wp.rds\")\n\nUsing ggplot2 to visualise distribution of water points.\n\nggplot(data = NGA_wp, aes(x=total_wp)) + geom_histogram(bins=20, color=\"black\", fill=\"light blue\") +\n  geom_vline(aes(xintercept=mean(total_wp, na.rm=T)), color=\"red\", linetype=\"dashed\", size = 0.8 ) +\n  ggtitle(\"Distribution of total water points by LGA\") + \n  xlab(\"No. of water points\") +\n  ylab (\"No. of\\nLGAs\") +\n  theme(axis.title.y=element_text(angle=0))"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "",
-    "text": "Installing and loading packages\n\npacman::p_load(tidyverse, sf, tmap)\n\nImporting data\n\n\n\n\n\n\nNote\n\n\n\nImport NGP_wp.rds created in In-class Exercise 2\n\n\n\nNGA_wp <- read_rds(\"data/rds/NGA_wp.rds\")"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Anna’s IS415 journey",
-    "section": "",
-    "text": "Welcome to IS415 Geospatial Analytics and Applications!\n\n1 + 1\n\n[1] 2\n\n\n\n\n\nGeospatial analysis icon\n\n\n\n\n\n\n\n\ncallout title\n\n\n\ntesting callout content\n\n\n\ntab1tab1tab2\n\n\ntesting\n\n\ncontent\n\n\nsome random content\n\n\n\n\nGeospatial definition\n\nsome definition here"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-map-of-functional-water-points",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-map-of-functional-water-points",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "2.1 Choropleth map of functional water points",
-    "text": "2.1 Choropleth map of functional water points\n\np1 <- tm_shape(NGA_wp) +\n  tm_fill(\"wp_functional\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Distribution of functional water points by LGA\", legend.outside=FALSE)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-of-total-water-points",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-of-total-water-points",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "2.2 Choropleth of total water points",
-    "text": "2.2 Choropleth of total water points\n\np2 <- tm_shape(NGA_wp) +\n  tm_fill(\"total_wp\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Total water points by LGA\", legend.outside=FALSE)\n\n\ntmap_arrange(p2, p1, nrow=1)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#plotting",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#plotting",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "3.1 Plotting",
-    "text": "3.1 Plotting\n\ntm_shape(NGA_wp)+\n  tm_fill(\"pct_functional\",\n          n=10,\n          style=\"equal\",\n          palette=\"Blues\",\n          legend.hist = TRUE) +\n  tm_borders(lwd=0.1,\n             alpha=1)+\n  tm_layout(main.title=\"Rate map of functional water points\", \n            legend.outside = TRUE)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#percentile-map",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#percentile-map",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "4.1 Percentile Map",
-    "text": "4.1 Percentile Map\n\n4.1.1 Data preparation\nStep 1: Removing NA values\n\nNGA_wp <- NGA_wp %>% drop_na()\n\nStep 2: Customised classification and extracting values\n\npercent <- c(0,.01,.1,.5,.9,.99,1)\nvar <- NGA_wp[\"pct_functional\"] %>%\n  st_set_geometry(NULL)\nquantile(var[,1], percent)\n\n       0%        1%       10%       50%       90%       99%      100% \n0.0000000 0.0000000 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 \n\n\n\n\n4.1.2 Functions\nMapping functions that simplify the mapping process and reduces the likelihood of mistakes\n\n\n4.1.3 get.var function\nExtracts a variable (i.e. wp_nonfunctional) as a vector out of an sf data.frame.\n\ninputs:\n\nvname: variable name\ndf: name of the sf data frame\n\noutput:\n\nv: a vector with values\n\n\n\nget.var <- function(vname,df){\n  v<- df[vname] %>%\n    st_set_geometry(NULL)\n  v<- unname(v[,1])\n  return(v)\n}\n\n\n\n4.1.4 Percentile function\n\npercentmap <- function(vnam, df, legtitle=NA, mtitle=\"Percentile Map\"){\n  percent <- c(0,.01,.1,.5,.9,.99,1)\n  var <- get.var(vnam, df)\n  bperc <- quantile(var, percent)\n  tm_shape(df) +\n  tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,\n             title=legtitle,\n             breaks=bperc,\n             palette=\"Blues\",\n          labels=c(\"< 1%\", \"1% - 10%\", \"10% - 50%\", \"50% - 90%\", \"90% - 99%\", \"> 99%\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"right\",\"bottom\"))\n}\n\n\n\n4.1.5 Running or Calling the function\n\npercentmap(\"total_wp\", NGA_wp)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#box-map",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#box-map",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "4.2 Box Map",
-    "text": "4.2 Box Map\nUses custom breaks specifications which depend on lower or upper outliers.\n\nggplot(data = NGA_wp,\n       aes(x = \"\",\n           y = wp_nonfunctional)) +\n  geom_boxplot()"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxbreak-function",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxbreak-function",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "4.3 Boxbreak function",
-    "text": "4.3 Boxbreak function\nSimilarly, functions can be created for custom boxbreaks\n\ninputs:\n\nv: vector with observations\nmult: multiplier for IQR\n\noutput:\n\nbb: vector with 7 break points that compute quantile and fence\n\n\n\nboxbreaks <- function(v,mult=1.5) {\n  qv <- unname(quantile(v))\n  iqr <- qv[4] - qv[2]\n  upfence <- qv[4] + mult * iqr\n  lofence <- qv[2] - mult * iqr\n  # initialize break points vector\n  bb <- vector(mode=\"numeric\",length=7)\n  # logic for lower and upper fences\n  if (lofence < qv[1]) {  # no lower outliers\n    bb[1] <- lofence\n    bb[2] <- floor(qv[1])\n  } else {\n    bb[2] <- lofence\n    bb[1] <- qv[1]\n  }\n  if (upfence > qv[5]) { # no upper outliers\n    bb[7] <- upfence\n    bb[6] <- ceiling(qv[5])\n  } else {\n    bb[6] <- upfence\n    bb[7] <- qv[5]\n  }\n  bb[3:5] <- qv[2:4]\n  return(bb)\n}"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#get.var-function-1",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#get.var-function-1",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "4.4 get.var function",
-    "text": "4.4 get.var function\n\ninputs:\n\nvname: variable name (as character in quotes)\ndf: name of the sf data frame\n\noutput:\n\nv: a vector with values (without column name)\n\n\nget.var <- function(vname,df) {\n  v <- df[vname] %>% st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#running-the-newly-created-function",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#running-the-newly-created-function",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "4.5 Running the newly created function",
-    "text": "4.5 Running the newly created function\n\nvar <- get.var(\"wp_nonfunctional\", NGA_wp) \nboxbreaks(var)\n\n[1] -56.5   0.0  14.0  34.0  61.0 131.5 278.0"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxmap-function",
-    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxmap-function",
-    "title": "In-class Exercise 3: Anaytical Mapping",
-    "section": "4.6 Boxmap function",
-    "text": "4.6 Boxmap function\n\narguments:\n\nvnam: variable name\ndf: simple feature polygon layer\nlegtitle: legend title\nmtitle: map title\nmult: multiplier for IQR\n\noutput: tmap element that plots the map\n\n\nboxmap <- function(vnam, df, \n                   legtitle=NA,\n                   mtitle=\"Box Map\",\n                   mult=1.5){\n  var <- get.var(vnam,df)\n  bb <- boxbreaks(var)\n  tm_shape(df) +\n    tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,title=legtitle,\n             breaks=bb,\n             palette=\"Blues\",\n          labels = c(\"lower outlier\", \n                     \"< 25%\", \n                     \"25% - 50%\", \n                     \"50% - 75%\",\n                     \"> 75%\", \n                     \"upper outlier\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"left\",\n                               \"top\"))\n}\n\n\ntmap_mode(\"plot\")\nboxmap(\"wp_nonfunctional\", NGA_wp)"
-  },
-  {
     "objectID": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html",
     "href": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html",
     "title": "Hands-on Exercise 3: 1st Order Spatial Point Patterns Analysis Methods",
@@ -389,13 +263,139 @@
     "href": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-choa-chu-kang",
     "title": "Hands-on Exercise 3: 1st Order Spatial Point Patterns Analysis Methods",
     "section": "7.2 Clark and Evans test on Choa Chu Kang",
-    "text": "7.2 Clark and Evans test on Choa Chu Kang\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.90115, p-value = 0.044\nalternative hypothesis: two-sided"
+    "text": "7.2 Clark and Evans test on Choa Chu Kang\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.92163, p-value = 0.048\nalternative hypothesis: two-sided"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-tampines",
     "href": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-tampines",
     "title": "Hands-on Exercise 3: 1st Order Spatial Point Patterns Analysis Methods",
     "section": "7.3 Clark and Evans test on Tampines",
-    "text": "7.3 Clark and Evans test on Tampines\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.80471, p-value = 0.002\nalternative hypothesis: two-sided"
+    "text": "7.3 Clark and Evans test on Tampines\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.81228, p-value = 0.002\nalternative hypothesis: two-sided"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
+    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
+    "title": "In-class Exercise 2: Geospatial Data Wrangling",
+    "section": "",
+    "text": "Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world’s accessible freshwater.\nDeveloping countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.\nTo address the issue of providing clean and sustainable water supply to the rural community, a global Water Point Data Exchange (WPdx) project has been initiated. The main aim of this initiative is to collect water point related data from rural areas at the water point or small water scheme level and share the data via WPdx Data Repository, a cloud-based data library. What is so special of this project is that data are collected based on WPDx Data Standard."
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#installing-appropriate-r-packages",
+    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#installing-appropriate-r-packages",
+    "title": "In-class Exercise 2: Geospatial Data Wrangling",
+    "section": "2.1 Installing appropriate R packages",
+    "text": "2.1 Installing appropriate R packages\n\n\nShow the code\npacman::p_load(sf, tidyverse,funModeling)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-geoboundaries-data",
+    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-geoboundaries-data",
+    "title": "In-class Exercise 2: Geospatial Data Wrangling",
+    "section": "2.2 Importing geoboundaries data",
+    "text": "2.2 Importing geoboundaries data\n\ngeoNGA <- st_read(\"data/geospatial/\", layer=\"geoBoundaries-NGA-ADM2\")  %>% st_transform(crs= 26392)\n\nReading layer `geoBoundaries-NGA-ADM2' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 6 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-nga-data-set",
+    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-nga-data-set",
+    "title": "In-class Exercise 2: Geospatial Data Wrangling",
+    "section": "2.3 Importing NGA data set",
+    "text": "2.3 Importing NGA data set\n\nNGA <- st_read(\"data/geospatial/\",\n               layer = \"nga_admbnda_adm2_osgof_20190417\") %>%\n  st_transform(crs = 26392)\n\nReading layer `nga_admbnda_adm2_osgof_20190417' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 774 features and 16 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2.668534 ymin: 4.273007 xmax: 14.67882 ymax: 13.89442\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-aspatial-data",
+    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#importing-aspatial-data",
+    "title": "In-class Exercise 2: Geospatial Data Wrangling",
+    "section": "2.4 Importing aspatial data",
+    "text": "2.4 Importing aspatial data\nWaterpoint data from Humanitarian website\n\n\nShow the code\nwp_nga <- read_csv(\"data/aspatial/WPdx.csv\") %>%\n  filter(`#clean_country_name` == \"Nigeria\")\n\n\n\n2.4.1 Converting data from aspatial to geospatial\nConverts aspatial data into a simple feature object because aspatial data does not have geospatial information although latitude and londitude columns are present in the dataset. The function st_as_sfc() converts the selected column into a tibble data frame.\n\n\nShow the code\nwp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)\nwp_nga\n\n\n# A tibble: 95,008 × 71\n   row_id `#source`      #lat_…¹ #lon_…² #repo…³ #stat…⁴ #wate…⁵ #wate…⁶ #wate…⁷\n    <dbl> <chr>            <dbl>   <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  \n 1 429068 GRID3             7.98    5.12 08/29/… Unknown <NA>    <NA>    Tapsta…\n 2 222071 Federal Minis…    6.96    3.60 08/16/… Yes     Boreho… Well    Mechan…\n 3 160612 WaterAid          6.49    7.93 12/04/… Yes     Boreho… Well    Hand P…\n 4 160669 WaterAid          6.73    7.65 12/04/… Yes     Boreho… Well    <NA>   \n 5 160642 WaterAid          6.78    7.66 12/04/… Yes     Boreho… Well    Hand P…\n 6 160628 WaterAid          6.96    7.78 12/04/… Yes     Boreho… Well    Hand P…\n 7 160632 WaterAid          7.02    7.84 12/04/… Yes     Boreho… Well    Hand P…\n 8 642747 Living Water …    7.33    8.98 10/03/… Yes     Boreho… Well    Mechan…\n 9 642456 Living Water …    7.17    9.11 10/03/… Yes     Boreho… Well    Hand P…\n10 641347 Living Water …    7.20    9.22 03/28/… Yes     Boreho… Well    Hand P…\n# … with 94,998 more rows, 62 more variables: `#water_tech_category` <chr>,\n#   `#facility_type` <chr>, `#clean_country_name` <chr>, `#clean_adm1` <chr>,\n#   `#clean_adm2` <chr>, `#clean_adm3` <chr>, `#clean_adm4` <chr>,\n#   `#install_year` <dbl>, `#installer` <chr>, `#rehab_year` <lgl>,\n#   `#rehabilitator` <lgl>, `#management_clean` <chr>, `#status_clean` <chr>,\n#   `#pay` <chr>, `#fecal_coliform_presence` <chr>,\n#   `#fecal_coliform_value` <dbl>, `#subjective_quality` <chr>, …\n\n\n\n\n2.4.2 Converts tibble data frame into sf object with the function st_sf()\n\nwp_sf <- st_sf(wp_nga, crs=4326)\nwp_sf <- wp_sf %>% st_transform(crs=26392)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#geospatial-data-cleaning",
+    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#geospatial-data-cleaning",
+    "title": "In-class Exercise 2: Geospatial Data Wrangling",
+    "section": "2.5 Geospatial data cleaning",
+    "text": "2.5 Geospatial data cleaning\nRemoving redundant fields using dplyr select()\n\nNGA <- NGA %>% select (c(3:4,8:9))\n\nChecking for duplicate name using Base R duplicated()\n\nNGA$ADM2_EN[duplicated(NGA$ADM2_EN)==TRUE]\n\n[1] \"Bassa\"    \"Ifelodun\" \"Irepodun\" \"Nasarawa\" \"Obi\"      \"Surulere\"\n\n\nThe above code shows the duplicated fields with the same name from different states (ADM1_PCODE).\nTo fix the duplicated values, replace the duplicated rows with\n\nNGA$ADM2_EN[94] <- \"Bassa, Kogi\"\nNGA$ADM2_EN[95] <- \"Bassa, Plateau\"\nNGA$ADM2_EN[304] <- \"Ifelodun, Kwara\"\nNGA$ADM2_EN[305] <- \"Ifelodun, Osun\"\nNGA$ADM2_EN[355] <- \"Irepodun, Kwara\"\nNGA$ADM2_EN[356] <- \"Irepodun, Osun\"\nNGA$ADM2_EN[519] <- \"Nasarawa, Kano\"\nNGA$ADM2_EN[520] <- \"Nasarawa, Nasarawa\"\nNGA$ADM2_EN[546] <- \"Obi, Benue\"\nNGA$ADM2_EN[547] <- \"Obi, Nasarawa\"\nNGA$ADM2_EN[693] <- \"Surulere, Lagos\"\nNGA$ADM2_EN[694] <- \"Surulere, Oyo\"\n\n\nfreq(data = wp_sf,\n     input = '#status_clean')\n\n\n\n\n                     #status_clean frequency percentage cumulative_perc\n1                       Functional     45883      48.29           48.29\n2                   Non-Functional     29385      30.93           79.22\n3                             <NA>     10656      11.22           90.44\n4      Functional but needs repair      4579       4.82           95.26\n5 Non-Functional due to dry season      2403       2.53           97.79\n6        Functional but not in use      1686       1.77           99.56\n7         Abandoned/Decommissioned       234       0.25           99.81\n8                        Abandoned       175       0.18           99.99\n9 Non functional due to dry season         7       0.01          100.00\n\n\n\nrename() is used to rename the column from #status_clean to status_clean (removing the hash icon)\nselect() is used to include status_clean in the outputs of sf data frame\nmutate() and replace_na() replaces the NA values in status_clean field into ‘unknown’\n\n\nwp_sf_nga <- wp_sf %>% \n  rename(status_clean = '#status_clean') %>%\n  select(status_clean) %>%\n  mutate(status_clean = replace_na(status_clean, \"unknown\"))"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#extracting-water-point-data",
+    "href": "In-class_Ex/In-class_Ex02/In-class_Ex02.html#extracting-water-point-data",
+    "title": "In-class Exercise 2: Geospatial Data Wrangling",
+    "section": "2.6 Extracting water point data",
+    "text": "2.6 Extracting water point data\nFunctional water point data\n\nwp_functional <- wp_sf_nga %>%\n  filter(status_clean %in% \n  c(\"Functional\", \"Functional but not in use\", \"Functional but needs repair\"))\n\nNon-functional water point data\n\nwp_nonfunctional <- wp_sf_nga %>%\n  filter(status_clean %in% \n  c(\"Abandoned/Decommissioned\", \"Abandoned\", \"Non-Functional due to dry season\", \"Non-Functional\",\"Non functional due to dry season\"))\n\n\nwp_unkown <- wp_sf_nga %>%\n  filter(status_clean == \"unknown\")\n\nFinding water points that fall within each LGA length() used to calculate number of water points\n\nNGA_wp <- NGA %>%\n  mutate(`total_wp` = lengths(st_intersects(NGA, wp_sf_nga))) %>%\n  mutate(`wp_functional` = lengths(st_intersects(NGA, wp_functional))) %>%\n  mutate(`wp_nonfunctional` = lengths(st_intersects(NGA, wp_nonfunctional))) %>%\n  mutate(`wp_unknown` = lengths(st_intersects(NGA, wp_unkown)))\n\n\nwrite_rds(NGA_wp, \"data/rds/NGA_wp.rds\")\n\nUsing ggplot2 to visualise distribution of water points.\n\nggplot(data = NGA_wp, aes(x=total_wp)) + geom_histogram(bins=20, color=\"black\", fill=\"light blue\") +\n  geom_vline(aes(xintercept=mean(total_wp, na.rm=T)), color=\"red\", linetype=\"dashed\", size = 0.8 ) +\n  ggtitle(\"Distribution of total water points by LGA\") + \n  xlab(\"No. of water points\") +\n  ylab (\"No. of\\nLGAs\") +\n  theme(axis.title.y=element_text(angle=0))"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "",
+    "text": "Installing and loading packages\n\npacman::p_load(tidyverse, sf, tmap)\n\nImporting data\n\n\n\n\n\n\nNote\n\n\n\nImport NGP_wp.rds created in In-class Exercise 2\n\n\n\nNGA_wp <- read_rds(\"data/rds/NGA_wp.rds\")"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-map-of-functional-water-points",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-map-of-functional-water-points",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "2.1 Choropleth map of functional water points",
+    "text": "2.1 Choropleth map of functional water points\n\np1 <- tm_shape(NGA_wp) +\n  tm_fill(\"wp_functional\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Distribution of functional water points by LGA\", legend.outside=FALSE)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-of-total-water-points",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#choropleth-of-total-water-points",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "2.2 Choropleth of total water points",
+    "text": "2.2 Choropleth of total water points\n\np2 <- tm_shape(NGA_wp) +\n  tm_fill(\"total_wp\", n = 10,\n          style = \"equal\",\n          palette = \"Blues\")+\n  tm_borders(lwd = 0.1,\n             alpha=1) +\n  tm_layout(main.title = \"Total water points by LGA\", legend.outside=FALSE)\n\n\ntmap_arrange(p2, p1, nrow=1)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#plotting",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#plotting",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "3.1 Plotting",
+    "text": "3.1 Plotting\n\ntm_shape(NGA_wp)+\n  tm_fill(\"pct_functional\",\n          n=10,\n          style=\"equal\",\n          palette=\"Blues\",\n          legend.hist = TRUE) +\n  tm_borders(lwd=0.1,\n             alpha=1)+\n  tm_layout(main.title=\"Rate map of functional water points\", \n            legend.outside = TRUE)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#percentile-map",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#percentile-map",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.1 Percentile Map",
+    "text": "4.1 Percentile Map\n\n4.1.1 Data preparation\nStep 1: Removing NA values\n\nNGA_wp <- NGA_wp %>% drop_na()\n\nStep 2: Customised classification and extracting values\n\npercent <- c(0,.01,.1,.5,.9,.99,1)\nvar <- NGA_wp[\"pct_functional\"] %>%\n  st_set_geometry(NULL)\nquantile(var[,1], percent)\n\n       0%        1%       10%       50%       90%       99%      100% \n0.0000000 0.0000000 0.2169811 0.4791667 0.8611111 1.0000000 1.0000000 \n\n\n\n\n4.1.2 Functions\nMapping functions that simplify the mapping process and reduces the likelihood of mistakes\n\n\n4.1.3 get.var function\nExtracts a variable (i.e. wp_nonfunctional) as a vector out of an sf data.frame.\n\ninputs:\n\nvname: variable name\ndf: name of the sf data frame\n\noutput:\n\nv: a vector with values\n\n\n\nget.var <- function(vname,df){\n  v<- df[vname] %>%\n    st_set_geometry(NULL)\n  v<- unname(v[,1])\n  return(v)\n}\n\n\n\n4.1.4 Percentile function\n\npercentmap <- function(vnam, df, legtitle=NA, mtitle=\"Percentile Map\"){\n  percent <- c(0,.01,.1,.5,.9,.99,1)\n  var <- get.var(vnam, df)\n  bperc <- quantile(var, percent)\n  tm_shape(df) +\n  tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,\n             title=legtitle,\n             breaks=bperc,\n             palette=\"Blues\",\n          labels=c(\"< 1%\", \"1% - 10%\", \"10% - 50%\", \"50% - 90%\", \"90% - 99%\", \"> 99%\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"right\",\"bottom\"))\n}\n\n\n\n4.1.5 Running or Calling the function\n\npercentmap(\"total_wp\", NGA_wp)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#box-map",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#box-map",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.2 Box Map",
+    "text": "4.2 Box Map\nUses custom breaks specifications which depend on lower or upper outliers.\n\nggplot(data = NGA_wp,\n       aes(x = \"\",\n           y = wp_nonfunctional)) +\n  geom_boxplot()"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxbreak-function",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxbreak-function",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.3 Boxbreak function",
+    "text": "4.3 Boxbreak function\nSimilarly, functions can be created for custom boxbreaks\n\ninputs:\n\nv: vector with observations\nmult: multiplier for IQR\n\noutput:\n\nbb: vector with 7 break points that compute quantile and fence\n\n\n\nboxbreaks <- function(v,mult=1.5) {\n  qv <- unname(quantile(v))\n  iqr <- qv[4] - qv[2]\n  upfence <- qv[4] + mult * iqr\n  lofence <- qv[2] - mult * iqr\n  # initialize break points vector\n  bb <- vector(mode=\"numeric\",length=7)\n  # logic for lower and upper fences\n  if (lofence < qv[1]) {  # no lower outliers\n    bb[1] <- lofence\n    bb[2] <- floor(qv[1])\n  } else {\n    bb[2] <- lofence\n    bb[1] <- qv[1]\n  }\n  if (upfence > qv[5]) { # no upper outliers\n    bb[7] <- upfence\n    bb[6] <- ceiling(qv[5])\n  } else {\n    bb[6] <- upfence\n    bb[7] <- qv[5]\n  }\n  bb[3:5] <- qv[2:4]\n  return(bb)\n}"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#get.var-function-1",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#get.var-function-1",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.4 get.var function",
+    "text": "4.4 get.var function\n\ninputs:\n\nvname: variable name (as character in quotes)\ndf: name of the sf data frame\n\noutput:\n\nv: a vector with values (without column name)\n\n\nget.var <- function(vname,df) {\n  v <- df[vname] %>% st_set_geometry(NULL)\n  v <- unname(v[,1])\n  return(v)\n}"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#running-the-newly-created-function",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#running-the-newly-created-function",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.5 Running the newly created function",
+    "text": "4.5 Running the newly created function\n\nvar <- get.var(\"wp_nonfunctional\", NGA_wp) \nboxbreaks(var)\n\n[1] -56.5   0.0  14.0  34.0  61.0 131.5 278.0"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxmap-function",
+    "href": "In-class_Ex/In-class_Ex03/In-class_Ex03.html#boxmap-function",
+    "title": "In-class Exercise 3: Anaytical Mapping",
+    "section": "4.6 Boxmap function",
+    "text": "4.6 Boxmap function\n\narguments:\n\nvnam: variable name\ndf: simple feature polygon layer\nlegtitle: legend title\nmtitle: map title\nmult: multiplier for IQR\n\noutput: tmap element that plots the map\n\n\nboxmap <- function(vnam, df, \n                   legtitle=NA,\n                   mtitle=\"Box Map\",\n                   mult=1.5){\n  var <- get.var(vnam,df)\n  bb <- boxbreaks(var)\n  tm_shape(df) +\n    tm_polygons() +\n  tm_shape(df) +\n     tm_fill(vnam,title=legtitle,\n             breaks=bb,\n             palette=\"Blues\",\n          labels = c(\"lower outlier\", \n                     \"< 25%\", \n                     \"25% - 50%\", \n                     \"50% - 75%\",\n                     \"> 75%\", \n                     \"upper outlier\"))  +\n  tm_borders() +\n  tm_layout(main.title = mtitle, \n            title.position = c(\"left\",\n                               \"top\"))\n}\n\n\ntmap_mode(\"plot\")\nboxmap(\"wp_nonfunctional\", NGA_wp)"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Anna’s IS415 journey",
+    "section": "",
+    "text": "Welcome to IS415 Geospatial Analytics and Applications!\n\n1 + 1\n\n[1] 2\n\n\n\n\n\nGeospatial analysis icon\n\n\n\n\n\n\n\n\ncallout title\n\n\n\ntesting callout content\n\n\n\ntab1tab1tab2\n\n\ntesting\n\n\ncontent\n\n\nsome random content\n\n\n\n\nGeospatial definition\n\nsome definition here"
   }
 ]
