@@ -162,6 +162,3 @@ sum(multiplicity(childcare_ppp) >1)
 ```
 
 
-```{r}
-
-```
