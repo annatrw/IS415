@@ -9,20 +9,40 @@ execute:
 editor: visual
 ---
 
-```{r}
+# Getting Started
 
+
+# Installing and loading R packages
+
+sfdep package allows us to perform colocation methods
+```{r}
+pacman::p_load(sf, tmap, tidyverse, sfdep)
+```
+
+
+
+```{r}
+studyArea <- st_read(dsn="data",
+                     layer="study_area") %>% st_transform(crs=3829)
 ```
 
 ```{r}
-
+stores <- st_read(dsn="data",
+                     layer="stores") %>% st_transform(crs=3829)
 ```
-
+[reference this for take home 1]
+[always plot polygon then points so points will not be blocked by polygon]
+[plotting functional and non-functional water point]
 ```{r}
-
-```
-
-```{r}
-
+tmap_mode("view")
+tm_shape(studyArea) +
+  tm_polygons() +
+tm_shape(stores) +
+  tm_dots(col = "Name", 
+          size = 0.01,
+          border.col="black",
+          border.lwd=0.5  )
+tm_view(set.zoom.limits = c(12,16))
 ```
 
 ```{r}
