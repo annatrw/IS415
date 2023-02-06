@@ -20,7 +20,6 @@ pacman::p_load(sf, tmap, tidyverse, sfdep)
 ```
 
 
-
 ```{r}
 studyArea <- st_read(dsn="data",
                      layer="study_area") %>% st_transform(crs=3829)
@@ -44,12 +43,79 @@ tm_shape(stores) +
           border.lwd=0.5  )
 tm_view(set.zoom.limits = c(12,16))
 ```
-
+Searching for the 6 nearest neighbours (using adaptive kernel density method)
+- choosing 6 nearest since the target point is included in function as well (total 7 and will not get an even split)
 ```{r}
-
+nb <- include_self(st_knn(st_geometry(stores), 6))
 ```
 
 ```{r}
-
+wt <- st_kernel_weights(nb, stores, "gaussian", adaptive=TRUE)
 ```
+
+Filtering out stores that are family marts and convert into a dataframe, before saving into a variable A
+```{r}
+FamilyMart <- stores %>% filter(Name=="Family Mart")
+A <-FamilyMart$Name
+```
+
+```{r}
+SevenEleven <- stores %>% filter(Name=="7-Eleven")
+B <-SevenEleven$Name
+```
+
+A is target, B is neighbour category at 50 simulations 
+outputs the p value directly
+```{r}
+LCLQ <- local_colocation(A,B,nb,wt,49)
+```
+
+```{r}
+LCLQ_stores <- cbind(stores,LCLQ)
+```
+- cannot do relational join on LCLQ and LCLQ_stores since there is no unique identifier of LCLQ
+- using cbind function only works if you do not sort the original input data 
+- cbind inherits the properties of the first parameter 
+
+```{r}
+tmap_mode("view")
+tm_shape(studyArea) +
+  tm_polygons() +
+tm_shape(LCLQ_stores) +
+  tm_dots(col = "X7.Eleven",
+          size = 0.01,
+          border.col="black",
+          border.lwd=0.5  )
+tm_view(set.zoom.limits = c(12,16))
+```      
+
+
+
+```{r}
+
+```      
+
+
+
+```{r}
+
+```      
+
+
+
+```{r}
+
+```      
+
+
+
+```{r}
+
+```      
+
+
+
+```{r}
+
+```      
 
