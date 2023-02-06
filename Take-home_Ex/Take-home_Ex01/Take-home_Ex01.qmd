@@ -4,6 +4,24 @@ format: html
 editor: visual
 ---
 
+## Tasks
+1. Exploratory Spatial Data Analysis (ESDA)
+- Derive kernel density maps of functional and non-functional water points. Using appropriate tmap functions,
+- Display the kernel density maps on openstreetmap of Osub State, Nigeria.
+- Describe the spatial patterns revealed by the kernel density maps. Highlight the advantage of kernel density map over point map.
+
+2. Second-order Spatial Point Patterns Analysis
+- Formulate the null hypothesis and alternative hypothesis and select the confidence level.
+- Perform the test by using appropriate Second order spatial point patterns analysis technique.
+- With reference to the analysis results, draw statistical conclusions.
+
+3. Spatial Correlation Analysis
+Confirm statistically if the spatial distribution of functional and non-functional water points are independent from each other.
+
+- Formulate the null hypothesis and alternative hypothesis and select the confidence level.
+- Perform the test by using appropriate Second order spatial point patterns analysis technique.
+- With reference to the analysis results, draw statistical conclusions.
+
 ## Quarto
 
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.

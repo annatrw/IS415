@@ -410,14 +410,14 @@
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html",
     "title": "Take Home Exercise 1",
     "section": "",
-    "text": "Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
+    "text": "Exploratory Spatial Data Analysis (ESDA)\n\n\nDerive kernel density maps of functional and non-functional water points. Using appropriate tmap functions,\nDisplay the kernel density maps on openstreetmap of Osub State, Nigeria.\nDescribe the spatial patterns revealed by the kernel density maps. Highlight the advantage of kernel density map over point map.\n\n\nSecond-order Spatial Point Patterns Analysis\n\n\nFormulate the null hypothesis and alternative hypothesis and select the confidence level.\nPerform the test by using appropriate Second order spatial point patterns analysis technique.\nWith reference to the analysis results, draw statistical conclusions.\n\n\nSpatial Correlation Analysis Confirm statistically if the spatial distribution of functional and non-functional water points are independent from each other.\n\n\nFormulate the null hypothesis and alternative hypothesis and select the confidence level.\nPerform the test by using appropriate Second order spatial point patterns analysis technique.\nWith reference to the analysis results, draw statistical conclusions."
   },
   {
     "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#running-code",
     "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#running-code",
     "title": "Take Home Exercise 1",
-    "section": "2 Running Code",
-    "text": "2 Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
+    "section": "3 Running Code",
+    "text": "3 Running Code\nWhen you click the Render button a document will be generated that includes both content and the output of embedded code. You can embed code like this:\n\n1 + 1\n\n[1] 2\n\n\nYou can add options to executable code like this\n\n\n[1] 4\n\n\nThe echo: false option disables the printing of code (only output is displayed)."
   },
   {
     "objectID": "In-class_Ex/In-class_Ex04/In-class_Ex04.html#convert-sf-data-to-sp-spatial-class",
@@ -460,5 +460,12 @@
     "title": "IS415",
     "section": "",
     "text": "<!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’>     dataset\n\n\n        0 0     false"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#quarto",
+    "href": "Take-home_Ex/Take-home_Ex01/Take-home_Ex01.html#quarto",
+    "title": "Take Home Exercise 1",
+    "section": "2 Quarto",
+    "text": "2 Quarto\nQuarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see https://quarto.org."
   }
 ]
