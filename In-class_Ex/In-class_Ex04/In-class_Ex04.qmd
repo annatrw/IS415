@@ -64,6 +64,28 @@ tm_shape(childcare_sf)+
 ```
 
 ```{r}
+tmap_mode('view')+
+tm_shape(childcare_sf)+
+  tm_dots(alph=0.5,
+          size= 0.01) +
+  tm_view(set.zoom.limits = c(11,24))
+```
+
+-   Plotted using tmap package and default comes with 3 map layers
+-   tm_shape() input can be in sf format
+-   tm_bubbles() can also be used, typically used to plot proportion symbol map
+-   setting zoom limits (zoom out value-small, zoom in value-large)
+-   Keep the 'view' mode of tmap to min (max 5 times) since it will be connecting to the open street map API
+
+```{r}
+tmap_mode('view')+
+tm_shape(childcare_sf)+
+  tm_bubbles(alph=0.5,
+          size= 0.01) +
+  tm_view(set.zoom.limits = c(11,24))
+```
+
+```{r}
 tmap_mode('plot')
 ```
 
@@ -137,4 +159,9 @@ Compute the number of locations with more than 1 point event
 
 ```{r}
 sum(multiplicity(childcare_ppp) >1)
+```
+
+
+```{r}
+
 ```
