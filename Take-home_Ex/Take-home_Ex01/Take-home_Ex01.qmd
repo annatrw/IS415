@@ -1,38 +1,258 @@
 ---
-title: "Take Home Exercise 1"
+title: "Take Home Exercise 1: Spatial Point Pattern Analysis on distribution of water points in Osun State, Nigeria"
+date: "12 Feb 2023"
+date-modified: "`r Sys.Date()`"
 format: html
+execute: 
+  message: true
+  warning: false
 editor: visual
 ---
 
-## Tasks
-1. Exploratory Spatial Data Analysis (ESDA)
-- Derive kernel density maps of functional and non-functional water points. Using appropriate tmap functions,
-- Display the kernel density maps on openstreetmap of Osub State, Nigeria.
-- Describe the spatial patterns revealed by the kernel density maps. Highlight the advantage of kernel density map over point map.
+# Overview
 
-2. Second-order Spatial Point Patterns Analysis
-- Formulate the null hypothesis and alternative hypothesis and select the confidence level.
-- Perform the test by using appropriate Second order spatial point patterns analysis technique.
-- With reference to the analysis results, draw statistical conclusions.
+Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world's accessible freshwater.
 
-3. Spatial Correlation Analysis
-Confirm statistically if the spatial distribution of functional and non-functional water points are independent from each other.
+Developing countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.
 
-- Formulate the null hypothesis and alternative hypothesis and select the confidence level.
-- Perform the test by using appropriate Second order spatial point patterns analysis technique.
-- With reference to the analysis results, draw statistical conclusions.
+To address the issue of providing clean and sustainable water supply to the rural community, a global Water Point Data Exchange (WPdx) project has been initiated. The main aim of this initiative is to collect water point related data from rural areas at the water point or small water scheme level and share the data via WPdx Data Repository, a cloud-based data library. What is so special of this project is that data are collected based on WPDx Data Standard.
 
-## Quarto
+# Objectives 
+Geospatial analytics hold tremendous potential to address complex problems facing society. In this study, you are tasked to apply appropriate spatial point patterns analysis methods to discover the geographical distribution of functional and non-function water points and their co-locations if any in Osun State, Nigeria.
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+# Tasks
 
-## Running Code
+1.  Exploratory Spatial Data Analysis (ESDA)
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+-   Derive kernel density maps of functional and non-functional water points. Using appropriate tmap functions,
+-   Display the kernel density maps on openstreetmap of Osun State, Nigeria.
+-   Describe the spatial patterns revealed by the kernel density maps. Highlight the advantage of kernel density map over point map.
+
+2.  Second-order Spatial Point Patterns Analysis
+
+-   Formulate the null hypothesis and alternative hypothesis and select the confidence level.
+-   Perform the test by using appropriate Second order spatial point patterns analysis technique.
+-   With reference to the analysis results, draw statistical conclusions.
+
+3.  Spatial Correlation Analysis Confirm statistically if the spatial distribution of functional and non-functional water points are independent from each other.
+
+-   Formulate the null hypothesis and alternative hypothesis and select the confidence level.
+-   Perform the test by using appropriate Second order spatial point patterns analysis technique.
+-   With reference to the analysis results, draw statistical conclusions.
+
+# Data
+
+## Aspatial data
+
+Data from <a href="https://www.waterpointdata.org/access-data/">WPdx Global Data Repositories</a> will be used. The **WPdx+** dataset will be used in this assignment.
+
+## Spatial data
+
+The state boundary data of Nigeria is obtained from <a href="https://data.humdata.org/"> Humanitarian Data Exchange</a> portal. Download the Nigeria - Subnational Administrative Boundaries zip file titled **nga_adm_osgof_20190417.zip**
+
+# Importing required R packages
 
 ```{r}
-1 + 1
+pacman::p_load(sf, tidyverse, funModeling, spatstat, tmap, maptools, raster, sfdep)
 ```
+
+```{r}
+
+```
+
+# Geospatial Data Wrangling
+
+## Importing NGA data
+```{r}
+NGA_adm2 <- st_read("data/geospatial/", layer = "nga_admbnda_adm2") %>% st_transform(crs = 26391)
+```
+
+```{r}
+NGA_adm1 <- st_read("data/geospatial/", layer = "nga_admbnda_adm1") %>% st_transform(crs = 26391)
+```
+
+## Retaining essential columns 
+
+```{r}
+NGA_adm2 <- NGA_adm2 %>%
+  select(c(3:4, 8:9))
+```
+
+## Managing duplicates 
+
+```{r}
+NGA_adm2$ADM2_EN[duplicated(NGA_adm2$ADM2_EN)==TRUE]
+```
+```{r}
+NGA_adm2$ADM2_EN[94] <- "Bassa, Kogi"
+NGA_adm2$ADM2_EN[95] <- "Bassa, Plateau"
+NGA_adm2$ADM2_EN[304] <- "Ifelodun, Kwara"
+NGA_adm2$ADM2_EN[305] <- "Ifelodun, Osun"
+NGA_adm2$ADM2_EN[355] <- "Irepodun, Kwara"
+NGA_adm2$ADM2_EN[356] <- "Irepodun, Osun"
+NGA_adm2$ADM2_EN[519] <- "Nasarawa, Kano"
+NGA_adm2$ADM2_EN[520] <- "Nasarawa, Nasarawa"
+NGA_adm2$ADM2_EN[546] <- "Obi, Benue"
+NGA_adm2$ADM2_EN[547] <- "Obi, Nasarawa"
+NGA_adm2$ADM2_EN[693] <- "Surulere, Lagos"
+NGA_adm2$ADM2_EN[694] <- "Surulere, Oyo"
+```
+
+```{r}
+NGA_adm2$ADM2_EN[duplicated(NGA_adm2$ADM2_EN)==TRUE]
+```
+
+## Extracting Osun study area
+```{r}
+osunT <- NGA_adm2 %>% filter(`ADM1_EN` == "Osun")
+osunT
+```
+```{r}
+
+```
+
+
+# Aspatial Data Wrangling
+
+## Importing water point data
+```{r}
+wp_nga <- read_csv("data/aspatial/WPdx-P.csv") %>%
+  filter(`#clean_country_name` == "Nigeria")
+```
+
+```{r}
+wp_nga$Geometry = st_as_sfc(wp_nga$`New Georeferenced Column`)
+wp_nga
+```
+
+```{r}
+wp_sf <- st_sf(wp_nga, crs=4326)
+wp_sf
+```
+
+```{r}
+wp_sf <- wp_sf %>% st_transform(crs=26391)
+```
+
+
+```{r}
+wp_osun <- wp_sf %>% filter(`#clean_adm1` == "Osun")
+wp_osun
+```
+
+https://dplyr.tidyverse.org/reference/if_else.html
+```{r}
+wp_osun$wp_status <- wp_osun %>% select(`#status_clean`) %>%
+mutate(wp_osun, if_else(`#status_clean`=="Functional", "Functional", "Non-Functional", "Unknown"))  
+wp_osun
+```
+
+ | "Functional but not in use" | "Functional but needs repair" | "Functional, needs repair" | "Functional, not in use"
+ 
+```{r}
+wp_osun %>% select(`#status_clean`)
+```
+
+```{r}
+sum(is.na(wp_osun$`#status_clean`))
+```
+
+
+```{r}
+osun_functional <- wp_osun %>%
+  filter(`#status_clean` %in%
+           c("Functional",
+             "Functional but not in use",
+             "Functional but needs repair",
+             "Functional, needs repair",
+             "Functional, not in use"))
+```
+
+```{r}
+osun_functional$cat <- "Functional"
+
+```
+
+```{r}
+osun_nonfunctional <- wp_osun %>%
+  filter(`#status_clean` %in%
+           c("Abandoned/Decommissioned",
+             "Abandoned",
+             "Non-Functional due to dry season",
+             "Non-Functional",
+             "Non functional due to dry season",
+             "Non-Functional, dry"))
+```
+
+```{r}
+osun_nonfunctional$wp_status <- mutate(osun_nonfunctional, "Non-Functional")
+```
+
+```{r}
+osun_nonfunctional$cat <- "Non-Functional"
+```
+
+
+```{r}
+tmap_mode("view")
+tm_shape(osun_functional)+
+  tm_dots(size = 0.01,
+          col = "green",
+          border.col="black",
+          border.lwd=0.5) 
+```
+```{r}
+tmap_mode("view")
+tm_shape(osun_nonfunctional) +
+  tm_dots(size = 0.01,
+          col = "red",
+          border.col="black",
+          border.lwd=0.5)
+```
+code not working
+```{r}
+rbind(osun_functional, osun_nonfunctional)
+```
+
+```{r}
+tmap_mode("plot")
+```
+functional and non on the same map
+code not working
+```{r}
+tmap_mode("view")
+tm_shape(osunT) +
+  tm_polygons() +
+tm_shape(osun_wp_status) +
+  tm_dots(col= "wp_status",
+          size = 0.01,
+          border.col="black",
+          border.lwd=0.5)
+```
+
+
+# Exploratory Spatial Data Analysis
+
+spatial class 
+```{r}
+
+```
+
+
+generic sp 
+
+
+spatstat's ppp format
+
+
+KDE
+
+# Second-order Spatial Poin Pattern Analysis
+
+
+#Spatial Correlation Analysis
+
+
 
 You can add options to executable code like this
 

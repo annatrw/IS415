@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2023-02-12">
 
-<title>IS415 - Take Home Exercise 1</title>
+<title>IS415 - Take Home Exercise 1: Spatial Point Pattern Analysis on distribution of water points in Osun State, Nigeria</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -220,9 +221,15 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks"><span class="toc-section-number">1</span>  Tasks</a></li>
-  <li><a href="#quarto" id="toc-quarto" class="nav-link" data-scroll-target="#quarto"><span class="toc-section-number">2</span>  Quarto</a></li>
-  <li><a href="#running-code" id="toc-running-code" class="nav-link" data-scroll-target="#running-code"><span class="toc-section-number">3</span>  Running Code</a></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><span class="toc-section-number">1</span>  Overview</a></li>
+  <li><a href="#tasks" id="toc-tasks" class="nav-link" data-scroll-target="#tasks"><span class="toc-section-number">2</span>  Tasks</a></li>
+  <li><a href="#data" id="toc-data" class="nav-link" data-scroll-target="#data"><span class="toc-section-number">3</span>  Data</a>
+  <ul class="collapse">
+  <li><a href="#aspatial-data" id="toc-aspatial-data" class="nav-link" data-scroll-target="#aspatial-data"><span class="toc-section-number">3.1</span>  Aspatial data</a></li>
+  <li><a href="#spatial-data" id="toc-spatial-data" class="nav-link" data-scroll-target="#spatial-data"><span class="toc-section-number">3.2</span>  Spatial data</a></li>
+  </ul></li>
+  <li><a href="#importing-required-r-packages" id="toc-importing-required-r-packages" class="nav-link" data-scroll-target="#importing-required-r-packages"><span class="toc-section-number">4</span>  Importing required R packages</a></li>
+  <li><a href="#geospatial-data-wrangling" id="toc-geospatial-data-wrangling" class="nav-link" data-scroll-target="#geospatial-data-wrangling"><span class="toc-section-number">5</span>  Geospatial Data Wrangling</a></li>
   </ul>
 </nav>
     </div>
@@ -231,7 +238,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Take Home Exercise 1</h1>
+<h1 class="title">Take Home Exercise 1: Spatial Point Pattern Analysis on distribution of water points in Osun State, Nigeria</h1>
 </div>
 
 
@@ -239,21 +246,40 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 12, 2023</p>
+    </div>
+  </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">February 7, 2023</p>
+    </div>
+  </div>
     
   </div>
   
 
 </header>
 
-<section id="tasks" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="tasks"><span class="header-section-number">1</span> Tasks</h2>
+<section id="overview" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Overview</h1>
+<p>Water is an important resource to mankind. Clean and accessible water is critical to human health. It provides a healthy environment, a sustainable economy, reduces poverty and ensures peace and security. Yet over 40% of the global population does not have access to sufficient clean water. By 2025, 1.8 billion people will be living in countries or regions with absolute water scarcity, according to UN-Water. The lack of water poses a major threat to several sectors, including food security. Agriculture uses about 70% of the world’s accessible freshwater.</p>
+<p>Developing countries are most affected by water shortages and poor water quality. Up to 80% of illnesses in the developing world are linked to inadequate water and sanitation. Despite technological advancement, providing clean water to the rural community is still a major development issues in many countries globally, especially countries in the Africa continent.</p>
+<p>To address the issue of providing clean and sustainable water supply to the rural community, a global Water Point Data Exchange (WPdx) project has been initiated. The main aim of this initiative is to collect water point related data from rural areas at the water point or small water scheme level and share the data via WPdx Data Repository, a cloud-based data library. What is so special of this project is that data are collected based on WPDx Data Standard.</p>
+<p>#Objectives Geospatial analytics hold tremendous potential to address complex problems facing society. In this study, you are tasked to apply appropriate spatial point patterns analysis methods to discover the geographical distribution of functional and non-function water points and their co-locations if any in Osun State, Nigeria.</p>
+</section>
+<section id="tasks" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Tasks</h1>
 <ol type="1">
 <li>Exploratory Spatial Data Analysis (ESDA)</li>
 </ol>
 <ul>
 <li>Derive kernel density maps of functional and non-functional water points. Using appropriate tmap functions,</li>
-<li>Display the kernel density maps on openstreetmap of Osub State, Nigeria.</li>
+<li>Display the kernel density maps on openstreetmap of Osun State, Nigeria.</li>
 <li>Describe the spatial patterns revealed by the kernel density maps. Highlight the advantage of kernel density map over point map.</li>
 </ul>
 <ol start="2" type="1">
@@ -273,13 +299,28 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>With reference to the analysis results, draw statistical conclusions.</li>
 </ul>
 </section>
-<section id="quarto" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="quarto"><span class="header-section-number">2</span> Quarto</h2>
-<p>Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <a href="https://quarto.org" class="uri">https://quarto.org</a>.</p>
+<section id="data" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Data</h1>
+<section id="aspatial-data" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="aspatial-data"><span class="header-section-number">3.1</span> Aspatial data</h2>
+<p>Data from <a href="https://www.waterpointdata.org/access-data/">WPdx Global Data Repositories</a> will be used. The <strong>WPdx+</strong> dataset will be used in this assignment.</p>
 </section>
-<section id="running-code" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="running-code"><span class="header-section-number">3</span> Running Code</h2>
-<p>When you click the <strong>Render</strong> button a document will be generated that includes both content and the output of embedded code. You can embed code like this:</p>
+<section id="spatial-data" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="spatial-data"><span class="header-section-number">3.2</span> Spatial data</h2>
+<p>The state boundary data of Nigeria is obtained from <a href="https://data.humdata.org/"> Humanitarian Data Exchange</a> portal. Download the Nigeria - Subnational Administrative Boundaries zip file titled <strong>nga_adm_osgof_20190417.zip</strong></p>
+</section>
+</section>
+<section id="importing-required-r-packages" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Importing required R packages</h1>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+</section>
+<section id="geospatial-data-wrangling" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Geospatial Data Wrangling</h1>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
