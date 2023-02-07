@@ -269,6 +269,8 @@ plot(childcare_jw_ppp.km, main="Jurong West")
 
 The G function measures the distribution of the distances from an arbitrary event to its nearest event. In this section, you will learn how to compute G-function estimation by using Gest() of spatstat package. You will also learn how to perform monta carlo simulation test using envelope() of spatstat package.
 
+### Choa Chu Kang planning area
+
 G function estimation
 ```{r}
 G_CK = Gest(childcare_ck_ppp, correction = "border")
@@ -282,11 +284,143 @@ H0 (null hypothesis) = The distribution of childcare services at Choa Chu Kang a
 
 H1 = The distribution of childcare services at Choa Chu Kang are not randomly distributed
 
-Reject the null hypothesis if p-value is smaller than alpha value of 0.001.
+Reject the null hypothesis if the p-value is smaller than the alpha value of 0.001.
 
+Monte Carlo test with G function
 ```{r}
 G_CK.csr <- envelope(childcare_ck_ppp, Gest, nsim = 999)
 ```
+
+```{r}
+plot(G_CK.csr)
+```
+
+### Tampines planning area
+
+G function estimation
+```{r}
+G_tm = Gest(childcare_tm_ppp, correction = "best")
+plot(G_tm)
+```
+
+
+Complete Spatial Randomness test
+
+H0 (null hypothesis) = The distribution of childcare services at Tampines are randomly distributed
+
+H1 = The distribution of childcare services at Tampines are not randomly distributed
+
+Reject the null hypothesis if the p-value is smaller than the alpha value of 0.001.
+
+Monte Carlo test with G function
+```{r}
+G_tm.csr <- envelope(childcare_tm_ppp, Gest, correction="all",nsim=999)
+```
+
+```{r}
+plot(G_tm.csr)
+```
+
+## Analysing Spatial Point Process using f-Function
+
+The F function estimates the empty space function F(r) or its hazard rate h(r) from a point pattern in a window of arbitrary shape. In this section, you will learn how to compute F-function estimation by using Fest() of spatstat package. You will also learn how to perform monta carlo simulation test using envelope() of spatstat package.
+
+### Choa Chu Kang planning area
+
+F function estimation
+```{r}
+F_CK =Fest(childcare_ck_ppp)
+plot(F_CK)
+```
+
+Complete Spatial Randomness test
+
+H0 (null hypothesis) = The distribution of childcare services at Choa Chu Kang are randomly distributed
+
+H1 = The distribution of childcare services at Choa Chu Kang are not randomly distributed
+
+Reject the null hypothesis if the p-value is smaller than the alpha value of 0.001.
+
+Monte Carlo test with F function
+```{r}
+F_CK.csr <- envelope(childcare_ck_ppp, Fest, nsim = 999)
+```
+
+```{r}
+plot(F_CK.csr)
+```
+
+### Tampines planning area
+
+F function estimation
+```{r}
+F_tm = Fest(childcare_tm_ppp, correction = "best")
+plot(F_tm)
+```
+
+
+Complete Spatial Randomness test
+
+H0 (null hypothesis) = The distribution of childcare services at Tampines are randomly distributed
+
+H1 = The distribution of childcare services at Tampines are not randomly distributed
+
+Reject the null hypothesis if the p-value is smaller than the alpha value of 0.001.
+
+Monte Carlo test with F function
+```{r}
+F_tm.csr <- envelope(childcare_tm_ppp, Fest, correction = "all", nsim = 999)
+```
+
+```{r}
+plot(F_tm.csr)
+```
+
+## Analysing Spatial Point using K function
+
+K-function measures the number of events found up to a given distance of any particular event. In this section, you will learn how to compute K-function estimates by using Kest() of spatstat package. You will also learn how to perform monta carlo simulation test using envelope() of spatstat package.
+
+### Choa Chu Kang planning area
+
+k function estimation
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+### Tampines planning area
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
 
 ```{r}
 

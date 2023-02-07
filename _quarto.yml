@@ -34,7 +34,7 @@ website:
 
 format:
   html:
-    theme: Flatly
+    theme: Journal
     css: styles.css
     toc: true
     number-sections: true
