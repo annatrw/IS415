@@ -75,7 +75,7 @@ NGA_adm1 <- st_read("data/geospatial/", layer = "nga_admbnda_adm1") %>% st_trans
 
 ```{r}
 NGA_adm2 <- NGA_adm2 %>%
-  select(c(3:4, 8:9))
+  dplyr::select(c(3:4, 8:9))
 ```
 
 ## Managing duplicates 
@@ -141,17 +141,14 @@ wp_osun
 ```
 
 https://dplyr.tidyverse.org/reference/if_else.html
-```{r}
+
 wp_osun$wp_status <- wp_osun %>% select(`#status_clean`) %>%
 mutate(wp_osun, if_else(`#status_clean`=="Functional", "Functional", "Non-Functional", "Unknown"))  
 wp_osun
-```
+
 
  | "Functional but not in use" | "Functional but needs repair" | "Functional, needs repair" | "Functional, not in use"
  
-```{r}
-wp_osun %>% select(`#status_clean`)
-```
 
 ```{r}
 sum(is.na(wp_osun$`#status_clean`))
@@ -209,17 +206,18 @@ tm_shape(osun_nonfunctional) +
           border.col="black",
           border.lwd=0.5)
 ```
+
 code not working
-```{r}
 rbind(osun_functional, osun_nonfunctional)
-```
+
 
 ```{r}
 tmap_mode("plot")
 ```
+
 functional and non on the same map
 code not working
-```{r}
+
 tmap_mode("view")
 tm_shape(osunT) +
   tm_polygons() +
@@ -228,26 +226,146 @@ tm_shape(osun_wp_status) +
           size = 0.01,
           border.col="black",
           border.lwd=0.5)
-```
+  
+
+compare functional non-functional side by side?
 
 
-# Exploratory Spatial Data Analysis
+# Exploratory Spatial Data Analysis - Kernel Density Estimation
 
+##Data preparation
 spatial class 
 ```{r}
+functional_spatial <- as_Spatial(osun_functional)
 
+nonfunctional_spatial <- as_Spatial(osun_nonfunctional)
+
+osun_spatial <-as_Spatial(osunT)
+```
+
+```{r}
+functional_spatial
+```
+
+```{r}
+nonfunctional_spatial
+```
+
+```{r}
+osun_spatial
 ```
 
 
 generic sp 
+```{r}
+functional_sp <- as(functional_spatial, "SpatialPoints")
+nonfunctional_sp <- as(nonfunctional_spatial, "SpatialPoints")
+osun_sp <- as(osun_spatial, "SpatialPolygons")
+```
 
 
 spatstat's ppp format
+```{r}
+functional_ppp <- as(functional_sp, "ppp")
+nonfunctional_ppp <- as(nonfunctional_sp, "ppp")
+```
+
+```{r}
+any(duplicated(functional_ppp))
+```
+```{r}
+any(duplicated(nonfunctional_ppp))
+
+```
+owin object
+```{r}
+osun_owin <- as(osun_sp, "owin")
+plot(osun_owin)
+```
+```{r}
+functionalOsun_ppp= functional_ppp[osun_owin]
+nonfunctionalOsun_ppp= nonfunctional_ppp[osun_owin]
+
+```
 
 
-KDE
+##Functional water points
+```{r}
+kde_functional_bw <- density(functionalOsun_ppp,
+                              sigma=bw.diggle,
+                              edge=TRUE,
+                            kernel="gaussian") 
+```
+
+```{r}
+plot(kde_functional_bw)
+```
+
+```{r}
+functionalOsun_ppp.km <- rescale(functionalOsun_ppp, 1000, "km")
+```
+
+```{r}
+kde_functional_bw <- density(functionalOsun_ppp.km, sigma=bw.diggle, edge=TRUE, kernel="gaussian")
+plot(kde_functional_bw)
+```
+
+compare pple and diggle methods
+```{r}
+kde_functional_ppl <- density(functionalOsun_ppp.km, sigma=bw.ppl, edge=TRUE, kernel="gaussian")
+
+par(mfrow=c(1,2))
+plot(kde_functional_bw, main="bw.diggle")
+plot(kde_functional_ppl , main="bw.ppl")
+```
+therefore use bw.ppl to visualise better
+
+
+##Non-functional water points
+
+```{r}
+nonfunctionalOsun_ppp.km <- rescale(nonfunctionalOsun_ppp, 1000, "km")
+```
+
+```{r}
+kde_nonfunctional_ppl <- density(nonfunctionalOsun_ppp.km,
+                              sigma=bw.ppl,
+                              edge=TRUE,
+                            kernel="gaussian") 
+```
+
+```{r}
+plot(kde_nonfunctional_ppl)
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(kde_functional_ppl, main="functional")
+plot(kde_nonfunctional_ppl , main="non-functional")
+```
+
+
+## Converting KDE output into raster
+```{r}
+gridded_kde_functional_ppl <- as.SpatialGridDataFrame.im(kde_functional_ppl)
+spplot(gridded_kde_functional_ppl)
+```
+
+```{r}
+gridded_kde_nonfunctional_ppl <- as.SpatialGridDataFrame.im(kde_nonfunctional_ppl)
+spplot(gridded_kde_nonfunctional_ppl)
+```
+
+
+## Comparing LGAs in Osun
+ 
+```{r}
+osun_functional
+```
+
 
 # Second-order Spatial Poin Pattern Analysis
+
 
 
 #Spatial Correlation Analysis
