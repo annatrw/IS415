@@ -17,7 +17,8 @@ Developing countries are most affected by water shortages and poor water quality
 
 To address the issue of providing clean and sustainable water supply to the rural community, a global Water Point Data Exchange (WPdx) project has been initiated. The main aim of this initiative is to collect water point related data from rural areas at the water point or small water scheme level and share the data via WPdx Data Repository, a cloud-based data library. What is so special of this project is that data are collected based on WPDx Data Standard.
 
-# Objectives 
+# Objectives
+
 Geospatial analytics hold tremendous potential to address complex problems facing society. In this study, you are tasked to apply appropriate spatial point patterns analysis methods to discover the geographical distribution of functional and non-function water points and their co-locations if any in Osun State, Nigeria.
 
 # Tasks
@@ -53,7 +54,7 @@ The state boundary data of Nigeria is obtained from <a href="https://data.humdat
 # Importing required R packages
 
 ```{r}
-pacman::p_load(sf, tidyverse, funModeling, spatstat, tmap, maptools, raster, sfdep)
+pacman::p_load(sf, tidyverse, funModeling, spatstat, tmap, maptools, raster)
 ```
 
 ```{r}
@@ -63,6 +64,7 @@ pacman::p_load(sf, tidyverse, funModeling, spatstat, tmap, maptools, raster, sfd
 # Geospatial Data Wrangling
 
 ## Importing NGA data
+
 ```{r}
 NGA_adm2 <- st_read("data/geospatial/", layer = "nga_admbnda_adm2") %>% st_transform(crs = 26391)
 ```
@@ -71,18 +73,19 @@ NGA_adm2 <- st_read("data/geospatial/", layer = "nga_admbnda_adm2") %>% st_trans
 NGA_adm1 <- st_read("data/geospatial/", layer = "nga_admbnda_adm1") %>% st_transform(crs = 26391)
 ```
 
-## Retaining essential columns 
+## Retaining essential columns
 
 ```{r}
 NGA_adm2 <- NGA_adm2 %>%
   dplyr::select(c(3:4, 8:9))
 ```
 
-## Managing duplicates 
+## Managing duplicates
 
 ```{r}
 NGA_adm2$ADM2_EN[duplicated(NGA_adm2$ADM2_EN)==TRUE]
 ```
+
 ```{r}
 NGA_adm2$ADM2_EN[94] <- "Bassa, Kogi"
 NGA_adm2$ADM2_EN[95] <- "Bassa, Plateau"
@@ -103,18 +106,20 @@ NGA_adm2$ADM2_EN[duplicated(NGA_adm2$ADM2_EN)==TRUE]
 ```
 
 ## Extracting Osun study area
+
 ```{r}
 osunT <- NGA_adm2 %>% filter(`ADM1_EN` == "Osun")
 osunT
 ```
+
 ```{r}
 
 ```
 
-
 # Aspatial Data Wrangling
 
 ## Importing water point data
+
 ```{r}
 wp_nga <- read_csv("data/aspatial/WPdx-P.csv") %>%
   filter(`#clean_country_name` == "Nigeria")
@@ -134,7 +139,6 @@ wp_sf
 wp_sf <- wp_sf %>% st_transform(crs=26391)
 ```
 
-
 ```{r}
 wp_osun <- wp_sf %>% filter(`#clean_adm1` == "Osun")
 wp_osun
@@ -142,18 +146,12 @@ wp_osun
 
 https://dplyr.tidyverse.org/reference/if_else.html
 
-wp_osun$wp_status <- wp_osun %>% select(`#status_clean`) %>%
-mutate(wp_osun, if_else(`#status_clean`=="Functional", "Functional", "Non-Functional", "Unknown"))  
+wp_osun\$wp_status \<- wp_osun %\>% select(`#status_clean`) %\>% mutate(wp_osun, if_else(`#status_clean`=="Functional", "Functional", "Non-Functional", "Unknown"))\
 wp_osun
-
-
- | "Functional but not in use" | "Functional but needs repair" | "Functional, needs repair" | "Functional, not in use"
- 
 
 ```{r}
 sum(is.na(wp_osun$`#status_clean`))
 ```
-
 
 ```{r}
 osun_functional <- wp_osun %>%
@@ -165,10 +163,6 @@ osun_functional <- wp_osun %>%
              "Functional, not in use"))
 ```
 
-```{r}
-osun_functional$cat <- "Functional"
-
-```
 
 ```{r}
 osun_nonfunctional <- wp_osun %>%
@@ -185,10 +179,6 @@ osun_nonfunctional <- wp_osun %>%
 osun_nonfunctional$wp_status <- mutate(osun_nonfunctional, "Non-Functional")
 ```
 
-```{r}
-osun_nonfunctional$cat <- "Non-Functional"
-```
-
 
 ```{r}
 tmap_mode("view")
@@ -198,6 +188,11 @@ tm_shape(osun_functional)+
           border.col="black",
           border.lwd=0.5) 
 ```
+
+```{r}
+tmap_mode("plot")
+```
+
 ```{r}
 tmap_mode("view")
 tm_shape(osun_nonfunctional) +
@@ -207,34 +202,21 @@ tm_shape(osun_nonfunctional) +
           border.lwd=0.5)
 ```
 
-code not working
-rbind(osun_functional, osun_nonfunctional)
-
+code not working rbind(osun_functional, osun_nonfunctional)
 
 ```{r}
 tmap_mode("plot")
 ```
 
-functional and non on the same map
-code not working
+functional and non on the same map code not working
 
-tmap_mode("view")
-tm_shape(osunT) +
-  tm_polygons() +
-tm_shape(osun_wp_status) +
-  tm_dots(col= "wp_status",
-          size = 0.01,
-          border.col="black",
-          border.lwd=0.5)
-  
 
 compare functional non-functional side by side?
 
-
 # Exploratory Spatial Data Analysis - Kernel Density Estimation
 
-##Data preparation
-spatial class 
+##Data preparation spatial class
+
 ```{r}
 functional_spatial <- as_Spatial(osun_functional)
 
@@ -255,16 +237,16 @@ nonfunctional_spatial
 osun_spatial
 ```
 
+generic sp
 
-generic sp 
 ```{r}
 functional_sp <- as(functional_spatial, "SpatialPoints")
 nonfunctional_sp <- as(nonfunctional_spatial, "SpatialPoints")
 osun_sp <- as(osun_spatial, "SpatialPolygons")
 ```
 
-
 spatstat's ppp format
+
 ```{r}
 functional_ppp <- as(functional_sp, "ppp")
 nonfunctional_ppp <- as(nonfunctional_sp, "ppp")
@@ -273,23 +255,27 @@ nonfunctional_ppp <- as(nonfunctional_sp, "ppp")
 ```{r}
 any(duplicated(functional_ppp))
 ```
+
 ```{r}
 any(duplicated(nonfunctional_ppp))
 
 ```
+
 owin object
+
 ```{r}
 osun_owin <- as(osun_sp, "owin")
 plot(osun_owin)
 ```
+
 ```{r}
 functionalOsun_ppp= functional_ppp[osun_owin]
 nonfunctionalOsun_ppp= nonfunctional_ppp[osun_owin]
 
 ```
 
-
 ##Functional water points
+
 ```{r}
 kde_functional_bw <- density(functionalOsun_ppp,
                               sigma=bw.diggle,
@@ -311,6 +297,7 @@ plot(kde_functional_bw)
 ```
 
 compare pple and diggle methods
+
 ```{r}
 kde_functional_ppl <- density(functionalOsun_ppp.km, sigma=bw.ppl, edge=TRUE, kernel="gaussian")
 
@@ -318,8 +305,8 @@ par(mfrow=c(1,2))
 plot(kde_functional_bw, main="bw.diggle")
 plot(kde_functional_ppl , main="bw.ppl")
 ```
-therefore use bw.ppl to visualise better
 
+therefore use bw.ppl to visualise better
 
 ##Non-functional water points
 
@@ -344,8 +331,8 @@ plot(kde_functional_ppl, main="functional")
 plot(kde_nonfunctional_ppl , main="non-functional")
 ```
 
-
 ## Converting KDE output into raster
+
 ```{r}
 gridded_kde_functional_ppl <- as.SpatialGridDataFrame.im(kde_functional_ppl)
 spplot(gridded_kde_functional_ppl)
@@ -356,23 +343,146 @@ gridded_kde_nonfunctional_ppl <- as.SpatialGridDataFrame.im(kde_nonfunctional_pp
 spplot(gridded_kde_nonfunctional_ppl)
 ```
 
+## KDE on openstreetmap of Osun
 
-## Comparing LGAs in Osun
- 
+
+
+tmap_mode("view")
+tm_shape(osunT) +
+  tm_polygons() +
+tm_shape(kde_functional_ppl) 
+
+
 ```{r}
-osun_functional
+
+```
+
+```{r}
 ```
 
 
+
+## Selection of study areas for second order
+
+
+### Selection of study areas
+```{r}
+plot(osunT["ADM2_EN"])
+```
+left join
+```{r}
+osunT_join_wp <- st_join(osunT, wp_osun,
+                          by = c("#clean_adm2" = "ADM2_EN"))
+```
+
+https://www.ijera.com/papers/Vol4_issue12/Part%20-%201/P04120194104.pdf
+osogbo - low density
+Ola-oluwa - medium residential density
+
+
+```{r}
+A = osun_spatial[osun_spatial@data$ADM2_EN == "Aiyedade",]
+B = osun_spatial[osun_spatial@data$ADM2_EN == "Egbedore",]
+C = osun_spatial[osun_spatial@data$ADM2_EN == "Ife Central",]
+
+```
+
+
+
+```{r}
+par(mfrow=c(2,2))
+plot(A, main = "Aiyedade")
+plot(B, main = "Egbedore")
+plot(C, main = "Ife Central")
+
+```
+```{r}
+A_sp = as(A, "SpatialPolygons")
+B_sp = as(B, "SpatialPolygons")
+C_sp = as(C, "SpatialPolygons")
+```
+
+```{r}
+A_owin = as(A_sp, "owin")
+B_owin = as(B_sp, "owin")
+C_owin = as(C_sp, "owin")
+```
+
+```{r}
+A_ppp = functional_ppp[A_owin]
+B_ppp = functional_ppp[B_owin]
+C_ppp = functional_ppp[C_owin]
+```
+
+```{r}
+par(mfrow=c(2,2))
+plot(A_ppp, main="A")
+plot(B_ppp, main="B")
+plot(C_ppp, main="C")
+
+```
+
 # Second-order Spatial Poin Pattern Analysis
 
+## Functional water points
+h0 [null hypothesis] = functional water points are randomly distributed in Osun state
+
+h1 = functional water points are not randomly distributed in Osun state
+
+if p value < 0.05 [alpha value/ test statistic at 95% confidence level] = reject null hypothesis [which assumes a random distribution
+
+if p > 0.05 = insufficient evidence to reject null hypothesis 
+
+### using L function
+```{r}
+L_functional = Lest(functionalOsun_ppp, correction = "Ripley")
+plot(L_functional, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)")
+```
+### Complete Spatial Rnadomness test
+
+```{r}
+L_functional.csr <- envelope(functionalOsun_ppp, Lest, nsim = 39, rank = 1, glocal=TRUE)
+```
+
+```{r}
+plot(L_functional.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+```
+
+
+
+- L function is more than 0, signs of clustering 
+- 
+ 
+
+## Non-functional water points
+
+h0 [null hypothesis] = non-functional water points are randomly distributed in Osun state
+
+h1 = non-functional water points are not randomly distributed in Osun state
+
+```{r}
+L_nonfunctional = Lest(nonfunctionalOsun_ppp, correction = "Ripley")
+plot(L_nonfunctional, . -r ~ r, 
+     ylab= "L(d)-r", xlab = "d(m)")
+```
+
+
+L_nonfunctional.csr <- envelope(nonfunctionalOsun_ppp, Lest, nsim = 39, rank = 1, glocal=TRUE)
+
+
+
+plot(L_nonfunctional.csr, . - r ~ r, xlab="d", ylab="L(d)-r")
+
+
+```{r}
+
+``` 
 
 
 #Spatial Correlation Analysis
 
 
-
-You can add options to executable code like this
 
 ```{r}
 #| echo: false
