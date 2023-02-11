@@ -30,16 +30,44 @@ Geospatial definition
 
 :   some definition here
 
-<p class="text-muted">text here</p>
+<p class="text-muted">
 
-<p class="text-primary">text here</p>
+text here
 
-<p class="text-secondary">text here</p>
+</p>
 
-<p class="text-warning">text here</p>
+<p class="text-primary">
 
-<p class="text-danger">text here</p>
+text here
 
-<p class="text-success">text here</p>
+</p>
 
-<p class="text-info">text here</p>
+<p class="text-secondary">
+
+text here
+
+</p>
+
+<p class="text-warning">
+
+text here
+
+</p>
+
+<p class="text-danger">
+
+text here
+
+</p>
+
+<p class="text-success">
+
+text here
+
+</p>
+
+<p class="text-info">
+
+text here
+
+</p>
