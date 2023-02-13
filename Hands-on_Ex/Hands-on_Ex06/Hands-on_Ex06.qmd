@@ -1,0 +1,11 @@
+---
+title: "Hands-on Exercise 6: Spatial Weights and Applications"
+date: "___ 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true
+  warning: false
+editor: visual
+---
+
