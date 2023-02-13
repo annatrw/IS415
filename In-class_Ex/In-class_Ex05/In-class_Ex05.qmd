@@ -1,5 +1,5 @@
 ---
-title: "In-class Exercise 5"
+title: "In-class Exercise 5: Local Colocation Quotient Analysis"
 date: "6 Feb 2023"
 date-modified: "`r Sys.Date()`"
 format: html
@@ -10,6 +10,8 @@ editor: visual
 ---
 
 # Getting Started
+
+Using Taiwanese convenience stores as a use case.
 
 # Installing and loading R packages
 
