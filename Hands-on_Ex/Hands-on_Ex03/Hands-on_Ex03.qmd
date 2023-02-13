@@ -109,9 +109,8 @@ childcare_sp
 sg_sp
 ```
 
-:::{callout-note}
-Difference between Spatial classes and generic sp objects:
-- the generic sp objects (spatial polygons) will only store the spatial component of the data
+::: {callout-note}
+Difference between Spatial classes and generic sp objects: - the generic sp objects (spatial polygons) will only store the spatial component of the data
 :::
 
 ## Converting generic spatial sp format to spatstat ppp format
@@ -183,7 +182,7 @@ any(duplicated(childcare_ppp_jit))
 
 ## Creating owin object
 
-In spatstat, owin objects are used to represent polygonal region (Singapore boundary). This helps explicitly define the required specific study area to prevent randomised points from falling out of the study area. 
+In spatstat, owin objects are used to represent polygonal region (Singapore boundary). This helps explicitly define the required specific study area to prevent randomised points from falling out of the study area.
 
 ```{r}
 sg_owin <- as(sg_sp, "owin")
@@ -262,8 +261,9 @@ childcareSG_ppp.km <- rescale(childcareSG_ppp, 1000, "km")
 kde_childcareSG.bw <- density(childcareSG_ppp.km, sigma=bw.diggle, edge=TRUE, kernel="gaussian")
 plot(kde_childcareSG.bw)
 ```
-- blue: there are 0 to 5 childcare centers per 1km square
-- yellow: 20 to 25 childcare centers per 1m square
+
+-   blue: there are 0 to 5 childcare centers per 1km square
+-   yellow: 20 to 25 childcare centers per 1m square
 
 Notice that the legend is changed.
 
@@ -341,7 +341,8 @@ plot(kde_childcareSG_600)
 ::: {callout-note}
 sigma value is 0.6 as unit for childcareSG_ppp.km object is in kilometer (0.6km = 600m).
 :::
-- for example- primary school buffer of 1km
+
+-   for example- primary school buffer of 1km
 
 ## Computing KDE by Adaptive bandwidth
 
@@ -350,17 +351,15 @@ kde_childcareSG_adaptive <- adaptive.density(childcareSG_ppp.km, method="kernel"
 plot(kde_childcareSG_adaptive)
 ```
 
-
 ```{r}
 par(mfrow=c(1,2))
 plot(kde_childcareSG.bw, main = "Fixed bandwidth")
 plot(kde_childcareSG_adaptive, main = "Adaptive bandwidth")
 ```
-- the kernel size is shorter, KDE will appear more pixelised 
 
+-   the kernel size is shorter, KDE will appear more pixelised
 
-Converting KDE outputs to grid object to be suitable for mapping
-- Grid output allows conversion to raster format
+Converting KDE outputs to grid object to be suitable for mapping - Grid output allows conversion to raster format
 
 ```{r}
 gridded_kde_childcareSG_bw <- as.SpatialGridDataFrame.im(kde_childcareSG.bw)
