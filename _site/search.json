@@ -263,14 +263,56 @@
     "href": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-choa-chu-kang",
     "title": "Hands-on Exercise 3: 1st Order Spatial Point Patterns Analysis Methods",
     "section": "7.2 Clark and Evans test on Choa Chu Kang",
-    "text": "7.2 Clark and Evans test on Choa Chu Kang\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.93418, p-value = 0.092\nalternative hypothesis: two-sided"
+    "text": "7.2 Clark and Evans test on Choa Chu Kang\n\nclarkevans.test(childcare_ck_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_ck_ppp\nR = 0.94868, p-value = 0.156\nalternative hypothesis: two-sided"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-tampines",
     "href": "Hands-on_Ex/Hands-on_Ex03/Hands-on_Ex03.html#clark-and-evans-test-on-tampines",
     "title": "Hands-on Exercise 3: 1st Order Spatial Point Patterns Analysis Methods",
     "section": "7.3 Clark and Evans test on Tampines",
-    "text": "7.3 Clark and Evans test on Tampines\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.79939, p-value = 0.002\nalternative hypothesis: two-sided"
+    "text": "7.3 Clark and Evans test on Tampines\n\nclarkevans.test(childcare_tm_ppp,\n                correction=\"none\",\n                clipregion=NULL,\n                alternative=c(\"two.sided\"),\n                nsim=999)\n\n\n    Clark-Evans test\n    No edge correction\n    Monte Carlo test based on 999 simulations of CSR with fixed n\n\ndata:  childcare_tm_ppp\nR = 0.76952, p-value = 0.002\nalternative hypothesis: two-sided"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "",
+    "text": "pacman:: p_load(sf, spdep, tmap, tidyverse, knitr)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-shapefile-of-hunan",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-shapefile-of-hunan",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "2.1 Import shapefile of Hunan",
+    "text": "2.1 Import shapefile of Hunan\n\nhunan <- st_read(dsn=\"data/geospatial\",\n                     layer=\"Hunan\") \n\nReading layer `Hunan' from data source \n  `C:\\annatrw\\IS415\\Hands-on_Ex\\Hands-on_Ex06\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-csv-of-hunan-population",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-csv-of-hunan-population",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "2.2 Import csv of Hunan population",
+    "text": "2.2 Import csv of Hunan population\n\nhunan2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#relational-join",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#relational-join",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "2.3 Relational join",
+    "text": "2.3 Relational join\n\nhunan <- left_join(hunan,hunan2012)%>%\n  select(1:4, 7, 15)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#queen-contiguity-based-neighbours",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#queen-contiguity-based-neighbours",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "4.1 QUEEN contiguity based neighbours",
+    "text": "4.1 QUEEN contiguity based neighbours\n\nwm_q <- poly2nb(hunan, queen=TRUE)\nsummary(wm_q)\n\nNeighbour list object:\nNumber of regions: 88 \nNumber of nonzero links: 448 \nPercentage nonzero weights: 5.785124 \nAverage number of links: 5.090909 \nLink number distribution:\n\n 1  2  3  4  5  6  7  8  9 11 \n 2  2 12 16 24 14 11  4  2  1 \n2 least connected regions:\n30 65 with 1 link\n1 most connected region:\n85 with 11 links"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#visualising-contiguity-weights",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#visualising-contiguity-weights",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "4.2 Visualising contiguity weights",
+    "text": "4.2 Visualising contiguity weights"
   },
   {
     "objectID": "In-class_Ex/In-class_Ex02/In-class_Ex02.html",
@@ -483,6 +525,48 @@
     "text": "1 Getting Started\nUsing Taiwanese convenience stores as a use case.\n\n\n2 Installing and loading R packages\nsfdep package allows us to perform colocation methods\n\npacman::p_load(sf, tmap, tidyverse, sfdep)\n\n\nstudyArea <- st_read(dsn=\"data\",\n                     layer=\"study_area\") %>% st_transform(crs=3829)\n\nReading layer `study_area' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex05\\data' using driver `ESRI Shapefile'\nSimple feature collection with 7 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 121.4836 ymin: 25.00776 xmax: 121.592 ymax: 25.09288\nGeodetic CRS:  TWD97\n\n\n\nstores <- st_read(dsn=\"data\",\n                     layer=\"stores\") %>% st_transform(crs=3829)\n\nReading layer `stores' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex05\\data' using driver `ESRI Shapefile'\nSimple feature collection with 1409 features and 4 fields\nGeometry type: POINT\nDimension:     XY\nBounding box:  xmin: 121.4902 ymin: 25.01257 xmax: 121.5874 ymax: 25.08557\nGeodetic CRS:  TWD97\n\n\n[reference this for take home 1] [always plot polygon then points so points will not be blocked by polygon] [plotting functional and non-functional water point]\n\ntmap_mode(\"view\")\ntm_shape(studyArea) +\n  tm_polygons() +\ntm_shape(stores) +\n  tm_dots(col = \"Name\", \n          size = 0.01,\n          border.col=\"black\",\n          border.lwd=0.5  )\n\n\n\n\n\ntm_view(set.zoom.limits = c(12,16))\n\n$tm_layout\n$tm_layout$set.zoom.limits\n[1] 12 16\n\n$tm_layout$style\n[1] NA\n\n\nattr(,\"class\")\n[1] \"tm\"\n\n\nSearching for the 6 nearest neighbours (using adaptive kernel density method) - choosing 6 nearest since the target point is included in function as well (total 7 and will not get an even split)\n\nnb <- include_self(st_knn(st_geometry(stores), 6))\n\n\nwt <- st_kernel_weights(nb, stores, \"gaussian\", adaptive=TRUE)\n\nFiltering out stores that are family marts and convert into a dataframe, before saving into a variable A\n\nFamilyMart <- stores %>% filter(Name==\"Family Mart\")\nA <-FamilyMart$Name\n\n\nSevenEleven <- stores %>% filter(Name==\"7-Eleven\")\nB <-SevenEleven$Name\n\nA is target, B is neighbour category at 50 simulations outputs the p value directly\n\nLCLQ <- local_colocation(A,B,nb,wt,49)\n\n\nLCLQ_stores <- cbind(stores,LCLQ)\n\n\ncannot do relational join on LCLQ and LCLQ_stores since there is no unique identifier of LCLQ\nusing cbind function only works if you do not sort the original input data\ncbind inherits the properties of the first parameter\n\n\ntmap_mode(\"view\")\ntm_shape(studyArea) +\n  tm_polygons() +\ntm_shape(LCLQ_stores) +\n  tm_dots(col = \"X7.Eleven\",\n          size = 0.01,\n          border.col=\"black\",\n          border.lwd=0.5  )\n\n\n\n\n\ntm_view(set.zoom.limits = c(12,16))\n\n$tm_layout\n$tm_layout$set.zoom.limits\n[1] 12 16\n\n$tm_layout$style\n[1] NA\n\n\nattr(,\"class\")\n[1] \"tm\""
   },
   {
+    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#geospatial-data",
+    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#geospatial-data",
+    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
+    "section": "3.1 Geospatial data",
+    "text": "3.1 Geospatial data\n\nhunan <- st_read(dsn=\"data/geospatial\",\n                     layer=\"Hunan\") %>% st_transform(crs=4480)\n\nReading layer `Hunan' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex06\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#aspatial-data",
+    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#aspatial-data",
+    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
+    "section": "3.2 Aspatial data",
+    "text": "3.2 Aspatial data\n\npop2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")\n\n\nhead( list(pop2012), n=10)\n\n[[1]]\n# A tibble: 88 × 29\n   County    City     avg_w…¹ depos…²    FAI Gov_Rev Gov_Exp    GDP GDPPC    GIO\n   <chr>     <chr>      <dbl>   <dbl>  <dbl>   <dbl>   <dbl>  <dbl> <dbl>  <dbl>\n 1 Anhua     Yiyang     30544  10967   6832.    457.   2703  13225  14567  9277.\n 2 Anren     Chenzhou   28058   4599.  6386.    221.   1455.  4941. 12761  4189.\n 3 Anxiang   Changde    31935   5517.  3541     244.   1780. 12482  23667  5109.\n 4 Baojing   Hunan W…   30843   2250   1005.    193.   1379.  4088. 14563  3624.\n 5 Chaling   Zhuzhou    31251   8241.  6508.    620.   1947  11585  20078  9158.\n 6 Changning Hengyang   28518  10860   7920     770.   2632. 19886  24418 37392 \n 7 Changsha  Changsha   54540  24332  33624    5350    7886. 88009  88656 51361 \n 8 Chengbu   Shaoyang   28597   2581.  1922.    161.   1192.  2570. 10132  1681.\n 9 Chenxi    Huaihua    33580   4990   5818.    460.   1724.  7755. 17026  6644.\n10 Cili      Zhangji…   33099   8117.  4498.    500.   2306. 11378  18714  5843.\n# … with 78 more rows, 19 more variables: Loan <dbl>, NIPCR <dbl>, Bed <dbl>,\n#   Emp <dbl>, EmpR <dbl>, EmpRT <dbl>, Pri_Stu <dbl>, Sec_Stu <dbl>,\n#   Household <dbl>, Household_R <dbl>, NOIP <dbl>, Pop_R <dbl>, RSCG <dbl>,\n#   Pop_T <dbl>, Agri <dbl>, Service <dbl>, Disp_Inc <dbl>, RORP <dbl>,\n#   ROREmp <dbl>, and abbreviated variable names ¹​avg_wage, ²​deposite"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method",
+    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method",
+    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
+    "section": "6.1 Queen method",
+    "text": "6.1 Queen method\n\n\n\n\n\n\nNote\n\n\n\n.before = 1 places the newly created field in the first column of hunan_join dataframe.\n\n\n\ncn_queen <- hunan_join %>% mutate(nb= st_contiguity(geometry), .before=1)\n\n\nthe generated output cn_queen ’s nb column shows the nearest neighbours that are referenced by the index\nie: the first data point Anxiang county has the following nearest neighbours: c(2,3,57,85) which refers to Hanshou, Jinshi, Li, Nan and Taoyuan."
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method",
+    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method",
+    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
+    "section": "6.2 Rook method",
+    "text": "6.2 Rook method\n\ncn_rook <- hunan_join %>% mutate(nb= st_contiguity(geometry), queen=FALSE, .before=1)"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method-1",
+    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method-1",
+    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
+    "section": "7.1 Queen method",
+    "text": "7.1 Queen method\n\nwm_q <- hunan_join %>% \n  mutate(nb= st_contiguity(geometry), \n         wt = st_weights(nb),\n         .before=1)\n\n\nthis code chunk allow the running of nearest neighbour using queen method and calculation of the weights\ngenerated output will include both the nearest neighbours and weights in the same dataframe"
+  },
+  {
+    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method-1",
+    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method-1",
+    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
+    "section": "7.2 Rook method",
+    "text": "7.2 Rook method\n\nwm_r <- hunan_join %>% \n  mutate(nb= st_contiguity(geometry),\n         queen= FALSE,\n         wt = st_weights(nb),\n         .before=1)"
+  },
+  {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Anna’s IS415 journey",
@@ -691,96 +775,5 @@
     "title": "Take Home Exercise 1: Spatial Point Pattern Analysis on distribution of water points in Osun State, Nigeria",
     "section": "12.5 Visualising LCLQ",
     "text": "12.5 Visualising LCLQ\n\ntmap_mode(\"view\")\ntm_shape(osunT) +\n  tm_polygons() +\ntm_shape(LCLQ_wp) +\n  tm_dots(col = \"p_sim_Non.Functional\",\n          size = 0.01,\n          border.col=\"black\",\n          border.lwd=0.5  )\n\n\n\n\n\ntm_view(set.zoom.limits = c(5,20))\n\n$tm_layout\n$tm_layout$set.zoom.limits\n[1]  5 20\n\n$tm_layout$style\n[1] NA\n\n\nattr(,\"class\")\n[1] \"tm\"\n\n\n\ntmap_mode(\"plot\")\n\nFrom the above map, we can conclude that for water points with simulated p values less than 0.05, reject the null hypothesis that functional and non-functional water points are independent of each other. While for those with values greater than 0.05, there is insufficient evidence to reject the null hypothesis."
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html",
-    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html",
-    "title": "In-class Exercise 6:",
-    "section": "",
-    "text": "1 Getting Started\n\n\n2 Installing and loading R packages\n\npacman::p_load(sf, tmap, tidyverse, spdep)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#geospatial-data",
-    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#geospatial-data",
-    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
-    "section": "3.1 Geospatial data",
-    "text": "3.1 Geospatial data\n\nhunan <- st_read(dsn=\"data/geospatial\",\n                     layer=\"Hunan\") %>% st_transform(crs=4480)\n\nReading layer `Hunan' from data source \n  `C:\\annatrw\\IS415\\In-class_Ex\\In-class_Ex06\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#aspatial-data",
-    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#aspatial-data",
-    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
-    "section": "3.2 Aspatial data",
-    "text": "3.2 Aspatial data\n\npop2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")\n\n\nhead( list(pop2012), n=10)\n\n[[1]]\n# A tibble: 88 × 29\n   County    City     avg_w…¹ depos…²    FAI Gov_Rev Gov_Exp    GDP GDPPC    GIO\n   <chr>     <chr>      <dbl>   <dbl>  <dbl>   <dbl>   <dbl>  <dbl> <dbl>  <dbl>\n 1 Anhua     Yiyang     30544  10967   6832.    457.   2703  13225  14567  9277.\n 2 Anren     Chenzhou   28058   4599.  6386.    221.   1455.  4941. 12761  4189.\n 3 Anxiang   Changde    31935   5517.  3541     244.   1780. 12482  23667  5109.\n 4 Baojing   Hunan W…   30843   2250   1005.    193.   1379.  4088. 14563  3624.\n 5 Chaling   Zhuzhou    31251   8241.  6508.    620.   1947  11585  20078  9158.\n 6 Changning Hengyang   28518  10860   7920     770.   2632. 19886  24418 37392 \n 7 Changsha  Changsha   54540  24332  33624    5350    7886. 88009  88656 51361 \n 8 Chengbu   Shaoyang   28597   2581.  1922.    161.   1192.  2570. 10132  1681.\n 9 Chenxi    Huaihua    33580   4990   5818.    460.   1724.  7755. 17026  6644.\n10 Cili      Zhangji…   33099   8117.  4498.    500.   2306. 11378  18714  5843.\n# … with 78 more rows, 19 more variables: Loan <dbl>, NIPCR <dbl>, Bed <dbl>,\n#   Emp <dbl>, EmpR <dbl>, EmpRT <dbl>, Pri_Stu <dbl>, Sec_Stu <dbl>,\n#   Household <dbl>, Household_R <dbl>, NOIP <dbl>, Pop_R <dbl>, RSCG <dbl>,\n#   Pop_T <dbl>, Agri <dbl>, Service <dbl>, Disp_Inc <dbl>, RORP <dbl>,\n#   ROREmp <dbl>, and abbreviated variable names ¹​avg_wage, ²​deposite"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method",
-    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method",
-    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
-    "section": "6.1 Queen method",
-    "text": "6.1 Queen method\n\n\n\n\n\n\nNote\n\n\n\n.before = 1 places the newly created field in the first column of hunan_join dataframe.\n\n\n\ncn_queen <- hunan_join %>% mutate(nb= st_contiguity(geometry), .before=1)\n\n\nthe generated output cn_queen ’s nb column shows the nearest neighbours that are referenced by the index\nie: the first data point Anxiang county has the following nearest neighbours: c(2,3,57,85) which refers to Hanshou, Jinshi, Li, Nan and Taoyuan."
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method",
-    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method",
-    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
-    "section": "6.2 Rook method",
-    "text": "6.2 Rook method\n\ncn_rook <- hunan_join %>% mutate(nb= st_contiguity(geometry), queen=FALSE, .before=1)"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method-1",
-    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#queen-method-1",
-    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
-    "section": "7.1 Queen method",
-    "text": "7.1 Queen method\n\nwm_q <- hunan_join %>% \n  mutate(nb= st_contiguity(geometry), \n         wt = st_weights(nb),\n         .before=1)\n\n\nthis code chunk allow the running of nearest neighbour using queen method and calculation of the weights\ngenerated output will include both the nearest neighbours and weights in the same dataframe"
-  },
-  {
-    "objectID": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method-1",
-    "href": "In-class_Ex/In-class_Ex06/In-class_Ex06.html#rook-method-1",
-    "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
-    "section": "7.2 Rook method",
-    "text": "7.2 Rook method\n\nwm_r <- hunan_join %>% \n  mutate(nb= st_contiguity(geometry),\n         queen= FALSE,\n         wt = st_weights(nb),\n         .before=1)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
-    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
-    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
-    "section": "",
-    "text": "pacman:: p_load(sf, spdep, tmap, tidyverse, knitr)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-shapefile-of-hunan",
-    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-shapefile-of-hunan",
-    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
-    "section": "2.1 Import shapefile of Hunan",
-    "text": "2.1 Import shapefile of Hunan\n\nhunan <- st_read(dsn=\"data/geospatial\",\n                     layer=\"Hunan\") \n\nReading layer `Hunan' from data source \n  `C:\\annatrw\\IS415\\Hands-on_Ex\\Hands-on_Ex06\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-csv-of-hunan-population",
-    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-csv-of-hunan-population",
-    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
-    "section": "2.2 Import csv of Hunan population",
-    "text": "2.2 Import csv of Hunan population\n\nhunan2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#relational-join",
-    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#relational-join",
-    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
-    "section": "2.3 Relational join",
-    "text": "2.3 Relational join\n\nhunan <- left_join(hunan,hunan2012)%>%\n  select(1:4, 7, 15)"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#queen-contiguity-based-neighbours",
-    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#queen-contiguity-based-neighbours",
-    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
-    "section": "4.1 QUEEN contiguity based neighbours",
-    "text": "4.1 QUEEN contiguity based neighbours\n\nwm_q <- poly2nb(hunan, queen=TRUE)\nsummary(wm_q)\n\nNeighbour list object:\nNumber of regions: 88 \nNumber of nonzero links: 448 \nPercentage nonzero weights: 5.785124 \nAverage number of links: 5.090909 \nLink number distribution:\n\n 1  2  3  4  5  6  7  8  9 11 \n 2  2 12 16 24 14 11  4  2  1 \n2 least connected regions:\n30 65 with 1 link\n1 most connected region:\n85 with 11 links"
-  },
-  {
-    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#visualising-contiguity-weights",
-    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#visualising-contiguity-weights",
-    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
-    "section": "4.2 Visualising contiguity weights",
-    "text": "4.2 Visualising contiguity weights"
   }
 ]
