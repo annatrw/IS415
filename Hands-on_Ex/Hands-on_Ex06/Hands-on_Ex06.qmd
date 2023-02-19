@@ -1,6 +1,6 @@
 ---
 title: "Hands-on Exercise 6: Spatial Weights and Applications"
-date: "___ 2023"
+date: "12 Feb 2023"
 date-modified: "`r Sys.Date()`"
 format: html
 execute: 
@@ -8,4 +8,103 @@ execute:
   warning: false
 editor: visual
 ---
+
+# Getting started
+
+
+```{r}
+pacman:: p_load(sf, spdep, tmap, tidyverse, knitr)
+```
+
+
+# Study area
+
+## Import shapefile of Hunan
+```{r}
+hunan <- st_read(dsn="data/geospatial",
+                     layer="Hunan") 
+```
+
+## Import csv of Hunan population
+```{r}
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+
+## Relational join
+```{r}
+hunan <- left_join(hunan,hunan2012)%>%
+  select(1:4, 7, 15)
+```
+
+# Regional development - GPD
+```{r}
+basemap <- tm_shape(hunan) +
+  tm_polygons() +
+  tm_text("NAME_3", size=0.5)
+
+gdppc <- qtm(hunan, "GDPPC")
+tmap_arrange(basemap, gdppc, asp=1, ncol=2)
+```
+
+# Contiguity Spatial Weights
+
+## QUEEN contiguity based neighbours
+```{r}
+wm_q <- poly2nb(hunan, queen=TRUE)
+summary(wm_q)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+## Visualising contiguity weights
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+# Distance based neighbours
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
 
