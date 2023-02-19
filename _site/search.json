@@ -740,5 +740,47 @@
     "title": "In-class Exercise 6: Spatial Weights and Applications using sfdep",
     "section": "7.2 Rook method",
     "text": "7.2 Rook method\n\nwm_r <- hunan_join %>% \n  mutate(nb= st_contiguity(geometry),\n         queen= FALSE,\n         wt = st_weights(nb),\n         .before=1)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "",
+    "text": "pacman:: p_load(sf, spdep, tmap, tidyverse, knitr)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-shapefile-of-hunan",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-shapefile-of-hunan",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "2.1 Import shapefile of Hunan",
+    "text": "2.1 Import shapefile of Hunan\n\nhunan <- st_read(dsn=\"data/geospatial\",\n                     layer=\"Hunan\") \n\nReading layer `Hunan' from data source \n  `C:\\annatrw\\IS415\\Hands-on_Ex\\Hands-on_Ex06\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-csv-of-hunan-population",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#import-csv-of-hunan-population",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "2.2 Import csv of Hunan population",
+    "text": "2.2 Import csv of Hunan population\n\nhunan2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#relational-join",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#relational-join",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "2.3 Relational join",
+    "text": "2.3 Relational join\n\nhunan <- left_join(hunan,hunan2012)%>%\n  select(1:4, 7, 15)"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#queen-contiguity-based-neighbours",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#queen-contiguity-based-neighbours",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "4.1 QUEEN contiguity based neighbours",
+    "text": "4.1 QUEEN contiguity based neighbours\n\nwm_q <- poly2nb(hunan, queen=TRUE)\nsummary(wm_q)\n\nNeighbour list object:\nNumber of regions: 88 \nNumber of nonzero links: 448 \nPercentage nonzero weights: 5.785124 \nAverage number of links: 5.090909 \nLink number distribution:\n\n 1  2  3  4  5  6  7  8  9 11 \n 2  2 12 16 24 14 11  4  2  1 \n2 least connected regions:\n30 65 with 1 link\n1 most connected region:\n85 with 11 links"
+  },
+  {
+    "objectID": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#visualising-contiguity-weights",
+    "href": "Hands-on_Ex/Hands-on_Ex06/Hands-on_Ex06.html#visualising-contiguity-weights",
+    "title": "Hands-on Exercise 6: Spatial Weights and Applications",
+    "section": "4.2 Visualising contiguity weights",
+    "text": "4.2 Visualising contiguity weights"
   }
 ]
