@@ -8,3 +8,21 @@ execute:
   warning: false
 editor: visual
 ---
+
+# Getting Started
+
+## Analytical question
+In spatial policy, one of the main development objective of the local government and planners is to ensure equal distribution of development in the province. Our task in this study, hence, is to apply appropriate spatial statistical methods to discover if development are even distributed geographically. If No, our next question will be “is there sign of spatial clustering?”. And, if yes,  our next question will be “where are these clusters?”
+
+In this case study, we are interested to examine the spatial pattern of a selected development indicator (i.e. GDP per capita) of Hunan Provice, </a href="https://en.wikipedia.org/wiki/Hunan">People Republic of China </a>.
+
+## Study area
+
+```{r}
+
+```
+
+```{r}
+
+```
+
