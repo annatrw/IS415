@@ -1,0 +1,10 @@
+---
+title: "Take Home Exercise 3"
+date: "__ 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true
+  warning: false
+editor: visual
+---
