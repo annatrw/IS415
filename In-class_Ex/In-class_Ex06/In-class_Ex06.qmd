@@ -52,6 +52,7 @@ columns selected are based on the output produced after the join, thereafter sel
 hunan_join <- left_join(hunan, pop2012)%>%
   select(1:4, 7, 15)
 ```
+
 # Choropleth map of Hunan, GDP per capita
 
 ```{r}
@@ -75,24 +76,27 @@ tm_shape(hunan_join) +
 
 # Contiguity neighbours method
 
-Read the `st-contiguity()` method documentation <ahref="https://sfdep.josiahparry.com/reference/st_contiguity.html"> here</a>.
+Read the `st-contiguity()` method documentation \<ahref="https://sfdep.josiahparry.com/reference/st_contiguity.html"\> here</a>.
 
-:::callout-note
+::: callout-note
 This method is equivalent to the spdep package function poly2nb() used in Hands-On 6.
 :::
 
 ## Queen method
-:::callout-note
+
+::: callout-note
 .before = 1 places the newly created field in the first column of hunan_join dataframe.
 :::
 
 ```{r}
 cn_queen <- hunan_join %>% mutate(nb= st_contiguity(geometry), .before=1)
 ```
-- the generated output cn_queen 's nb column shows the nearest neighbours that are referenced by the index 
-- ie: the first data point Anxiang county has the following nearest neighbours: c(2,3,57,85) which refers to Hanshou, Jinshi, Li, Nan and Taoyuan.
+
+-   the generated output cn_queen 's nb column shows the nearest neighbours that are referenced by the index
+-   ie: the first data point Anxiang county has the following nearest neighbours: c(2,3,57,85) which refers to Hanshou, Jinshi, Li, Nan and Taoyuan.
 
 ## Rook method
+
 ```{r}
 cn_rook <- hunan_join %>% mutate(nb= st_contiguity(geometry), queen=FALSE, .before=1)
 ```
@@ -100,17 +104,19 @@ cn_rook <- hunan_join %>% mutate(nb= st_contiguity(geometry), queen=FALSE, .befo
 # Contiguity weight matrix
 
 ## Queen method
+
 ```{r}
 wm_q <- hunan_join %>% 
   mutate(nb= st_contiguity(geometry), 
          wt = st_weights(nb),
          .before=1)
 ```
-- this code chunk allow the running of nearest neighbour using queen method and calculation of the weights
-- generated output will include both the nearest neighbours and weights in the same dataframe
 
+-   this code chunk allow the running of nearest neighbour using queen method and calculation of the weights
+-   generated output will include both the nearest neighbours and weights in the same dataframe
 
 ## Rook method
+
 ```{r}
 wm_r <- hunan_join %>% 
   mutate(nb= st_contiguity(geometry),
