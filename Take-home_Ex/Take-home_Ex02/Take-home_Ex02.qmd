@@ -8,3 +8,521 @@ execute:
   warning: false
 editor: visual
 ---
+
+# Setting the scene
+Since late December 2019, an outbreak of a novel coronavirus disease (COVID-19; previously known as 2019-nCoV) was reported in Wuhan, China, which had subsequently affected 210 countries worldwide. In general, COVID-19 is an acute resolved disease but it can also be deadly, with a 2% case fatality rate.
+
+The COVID-19 vaccination in Indonesia is an ongoing mass immunisation in response to the COVID-19 pandemic in Indonesia. On 13 January 2021, the program commenced when President Joko Widodo was vaccinated at the presidential palace. In terms of total doses given, Indonesia ranks third in Asia and fifth in the world.
+
+According to wikipedia, as of 5 February 2023 at 18:00 WIB (UTC+7), 204,266,655 people had received the first dose of the vaccine and 175,131,893 people had been fully vaccinated; 69,597,474 of them had been inoculated with the booster or the third dose, while 1,585,164 had received the fourth dose. Jakarta has the highest percentage of population fully vaccinated with 103.46%, followed by Bali and Special Region of Yogyakarta with 85.45% and 83.02% respectively.
+
+Despite its compactness, the cumulative vaccination rate are not evenly distributed within DKI Jakarta. The question is where are the sub-districts with relatively higher number of vaccination rate and how they changed over time.
+
+# Objectives
+Exploratory Spatial Data Analysis (ESDA) hold tremendous potential to address complex problems facing society. In this study, you are tasked to apply appropriate Local Indicators of Spatial Association (LISA) and Emerging Hot Spot Analysis (EHSA) to undercover the spatio-temporal trends of COVID-19 vaccination in DKI Jakarta.
+
+# Tasks
+Choropleth Mapping and Analysis
+- Compute the monthly vaccination rate from July 2021 to June 2022 at sub-district (also known as kelurahan in Bahasa Indonesia) level,
+- Prepare the monthly vaccination rate maps by using appropriate tmap functions,
+- Describe the spatial patterns revealed by the choropleth maps (not more than 200 words).
+
+Local Gi* Analysis
+With reference to the vaccination rate maps prepared in ESDA:
+
+- Compute local Gi* values of the monthly vaccination rate,
+Display the Gi* maps of the monthly vaccination rate. The maps should only display the significant (i.e. p-value < 0.05)
+- With reference to the analysis results, draw statistical conclusions (not more than 250 words). 
+
+Emerging Hot Spot Analysis(EHSA)
+With reference to the local Gi* values of the vaccination rate maps prepared in the previous section:
+
+- Perform Mann-Kendall Test by using the spatio-temporal local Gi* values,
+- Select three sub-districts and describe the temporal trends revealed (not more than 250 words), and
+- Prepared a EHSA map of the Gi* values of vaccination rate. The maps should only display the significant (i.e. p-value < 0.05).
+- With reference to the EHSA map prepared, describe the spatial patterns revelaed. (not more than 250 words).
+
+# The Data
+
+## Aspatial
+For the purpose of this assignment, data from <a href="https://riwayat-file-vaksinasi-dki-jakarta-jakartagis.hub.arcgis.com/" > Riwayat File Vaksinasi DKI Jakarta </a> will be used. Daily vaccination data is provided. 
+
+
+## Geospatial
+For the purposes of this study, DKI Jakarta administration boundary 2019 will be used downloaded from Indonesia Geospatial <a href="https://www.indonesia-geospasial.com/2020/04/download-shapefile-shp-batas-desa.html" > portal here</a>.
+
+
+# Importing required R packages 
+
+```{r}
+pacman::p_load(sf, tidyverse, tmap, spdep, sfdep, readxl, plyr)
+```
+
+
+# Geospatial Data Wrangling 
+
+## Importing geospatial data
+```{r}
+jakarta <- st_read(dsn="data/geospatial",
+                      layer="BATAS_DESA_DESEMBER_2019_DUKCAPIL_DKI_JAKARTA") 
+```
+removing missing values
+[credit megan]
+```{r}
+jakarta[rowSums(is.na(jakarta))!=0,]
+
+```
+
+```{r}
+jakarta <- na.omit(jakarta,c("DESA_KELUR"))
+
+```
+
+changing crs
+```{r}
+st_crs(jakarta)
+```
+
+https://epsg.io/23845
+```{r}
+jakarta <- st_transform(jakarta, 23845)
+```
+
+```{r}
+st_crs(jakarta)
+```
+
+## Removal of outer islands [creds megan]
+
+```{r}
+plot(st_geometry(jakarta))
+```
+
+```{r}
+tm_shape(jakarta) + 
+  tm_polygons("KAB_KOTA")
+```
+
+```{r}
+jakarta <- filter(jakarta, KAB_KOTA != "KEPULAUAN SERIBU")
+```
+
+## Retain first nine fields of DKI Jakarta sf data frame
+
+as per assignment requirement
+```{r}
+jakarta <- jakarta[, 0:9]
+
+```
+
+## translation of column names
+using google translate and dplyr rename function [https://dplyr.tidyverse.org/reference/rename.html] 
+<insert image of google translate>
+```{r}
+jakarta <- jakarta %>% dplyr::rename(
+                  village_code=KODE_DESA,
+                  village = DESA,
+                  code = KODE,
+                  province= PROVINSI,
+                  city = KAB_KOTA,
+                  district = KECAMATAN,
+                  subdistrict = DESA_KELUR,
+                  total_population = JUMLAH_PEN
+                  )
+jakarta
+```
+```{r}
+plot(st_geometry(jakarta))
+```
+
+
+further brief eda?
+```{r}
+
+```
+
+
+# Aspatial Data Wrangling
+
+
+##Importing aspatial data 
+
+```{r}
+#feb22 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (27 Februari 2022).xlsx")
+
+```
+
+keep until to be vaccinated population, remove first row 
+
+```{r}
+#feb22 <- feb22 [-1, 0:6]
+```
+
+[testing]
+```{r}
+#str = "smth (dd month yyyy)"
+#start = gregexpr(pattern="smth", str)[[1]] + 6
+#  end = gregexpr(pattern=")", str)[[1]] -1
+```
+
+
+
+## Create aspatial data pre-processing function
+```{r}
+aspatialfunc <- function(filepath){
+  final_file <- read_xlsx(filepath)
+  final_file <- final_file[-1,0:6]
+  
+  
+  
+  start = gregexpr(pattern="Kelurahan", filepath)[[1]] + 11
+  end = gregexpr(pattern=")", filepath)[[1]] -1
+  final_file$date <- substr(filepath, start, end)
+
+
+  return(final_file)
+}
+```
+
+[creds megan]
+
+using <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply"> lapply</a> function
+```{r}
+fileslist <-list.files(path = "data/aspatial", pattern = "*.xlsx", full.names=TRUE)
+
+# afterwards, for every element in fileslist, apply aspatial_process function
+dflist <- lapply(seq_along(fileslist), function(x) aspatialfunc(fileslist[x]))
+```
+
+
+```{r}
+head(dflist)
+```
+```{r}
+vacc_jakarta <- ldply(dflist, data.frame)
+```
+
+##Formatting date column 
+
+[creds megan]
+https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/locales 
+
+https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime
+```{r}
+Sys.setlocale(locale="ind")
+```
+
+```{r}
+vacc_jakarta$date <- c(vacc_jakarta$date) %>% 
+  as.Date(vacc_jakarta$date, format ="%d %B %Y")
+
+glimpse(vacc_jakarta)
+```
+
+```{r}
+vacc_jakarta <- vacc_jakarta %>% dplyr::rename(
+                  village_code= KODE.KELURAHAN,
+                  city = WILAYAH.KOTA,
+                  district = KECAMATAN,
+                  subdistrict = KELURAHAN,
+                  target = SASARAN,
+                tobe_vaccinated = BELUM.VAKSIN)
+  
+vacc_jakarta$vaccinated <- with(vacc_jakarta, target-tobe_vaccinated)
+```
+
+```{r}
+glimpse(vacc_jakarta)
+```
+
+
+# Combining geospatial and aspatial data
+
+```{r}
+colnames(jakarta)
+```
+```{r}
+colnames(vacc_jakarta)
+```
+```{r}
+combined_jakarta <- left_join(jakarta, vacc_jakarta,
+                              by=c("village_code" = "village_code",
+                                   "district" = "district",
+                                "subdistrict"="subdistrict",
+                                "city"="city")
+                              )
+```
+
+[kiv]
+```{r}
+combined_jakarta$vacc_rate <- combined_jakarta$vaccinated/combined_jakarta$total_population*100
+```
+
+# Choropleth Mapping and Analysis
+
+```{r}
+tmap_mode("plot")
+tm_shape(combined_jakarta) +
+  tm_fill('vacc_rate',
+          style= "quantile",
+          palette = "Blues",
+          title= "target") +
+  tm_layout(main.title = "Population by sub-district, Jakarta",
+            main.title.position= "center",
+            main.title.size = 1.2,
+            legend.height=0.45,
+            legend.width=0.35,
+            frame=TRUE)+
+  tm_borders(alpha=0.5)+
+  tm_compass(type='8star', size =2) +
+  tm_scale_bar()+
+  tm_grid(alpha=0.2)
+```
+
+https://www.biostars.org/p/180451/ 
+```{r}
+jakarta_subdistrict <-jakarta$subdistrict
+vacc_subdistrict <- vacc_jakarta$subdistrict
+
+```
+
+
+values in aspatial vacc_jakarta that are not in geospatial jakarta
+```{r}
+unique(vacc_subdistrict[!(vacc_subdistrict %in% jakarta_subdistrict)])
+```
+
+```{r}
+unique(jakarta_subdistrict[!(jakarta_subdistrict %in% vacc_subdistrict)])
+
+```
+there is a mismatch, check values on coarser level - city
+
+seribu city from aspatial not inside jakarta geospatial?
+```{r}
+jakarta_city <-jakarta$city
+vacc_city <- vacc_jakarta$city
+
+```
+
+```{r}
+unique(vacc_city[!(vacc_city %in% jakarta_city)])
+```
+
+```{r}
+unique(jakarta_city[!(jakarta_city %in% vacc_city)])
+
+```
+
+^see that seribu is islands[insert png]
+
+removing seribu islands
+```{r}
+vacc_jakarta <- filter(vacc_jakarta, city != "KAB.ADM.KEP.SERIBU")
+```
+
+rejoin- clean up combined
+
+```{r}
+combined_jakarta <- left_join(jakarta, vacc_jakarta,
+                              by=c("village_code" = "village_code",
+                                   "district" = "district",
+                                "subdistrict"="subdistrict",
+                                "city"="city")
+                              )
+```
+
+
+
+run again, have same number of mismatched subdistricts
+```{r}
+jakarta_subdistrict <-jakarta$subdistrict
+vacc_subdistrict <- vacc_jakarta$subdistrict
+```
+
+```{r}
+unique(vacc_subdistrict[!(vacc_subdistrict %in% jakarta_subdistrict)])
+```
+
+```{r}
+unique(jakarta_subdistrict[!(jakarta_subdistrict %in% vacc_subdistrict)])
+
+```
+
+re-alignment of mismatched subdistricts
+```{r}
+jakarta$subdistrict[jakarta$subdistrict == 'BALEKAMBANG'] <- 'BALE KAMBANG'
+jakarta$subdistrict[jakarta$subdistrict == 'HALIM PERDANA KUSUMA'] <- 'HALIM PERDANA KUSUMAH'
+jakarta$subdistrict[jakarta$subdistrict == 'JATIPULO'] <- 'JATI PULO'
+jakarta$subdistrict[jakarta$subdistrict == 'TENGAH'] <- 'KAMPUNG TENGAH'
+jakarta$subdistrict[jakarta$subdistrict == 'KRENDANG'] <- 'KERENDANG'
+jakarta$subdistrict[jakarta$subdistrict == 'KRAMATJATI'] <- 'KRAMAT JATI'
+jakarta$subdistrict[jakarta$subdistrict == 'PALMERIAM'] <- 'PAL MERIAM'
+jakarta$subdistrict[jakarta$subdistrict == 'PINANGRANTI'] <- 'PINANG RANTI'
+jakarta$subdistrict[jakarta$subdistrict == 'RAWAJATI'] <- 'RAWA JATI'
+
+```
+
+```{r}
+combined_jakarta <- left_join(jakarta, vacc_jakarta, by=c( "subdistrict"="subdistrict")
+                              )
+```
+
+^done handling mismatched subdistricts - should not have missing vaccination rates 
+
+[kiv]
+style values: https://www.rdocumentation.org/packages/tmap/versions/3.3-3/topics/tm_fill 
+
+use jenks- natural groupings of data/ good if relatively big differences in data
+
+tmap_mode("plot")
+tm_shape(combined_jakarta) +
+  tm_fill('vacc_rate',
+          style= "jenks",
+          palette = "Blues",
+          title= "population") +
+  tm_layout(main.title = "Distribution of vaccination rate by sub-district, Jakarta",
+            main.title.position= "center",
+            main.title.size = 1.2,
+            legend.height=0.45,
+            legend.width=0.35,
+            frame=TRUE)+
+  tm_borders(alpha=0.5)+
+  tm_compass(type='8star', size =2) +
+  tm_scale_bar()+
+  tm_grid(alpha=0.2)
+
+
+
+## Visualising Monthly Vaccination Rate
+
+
+```{r}
+combined_jakarta$vacc_rate <- combined_jakarta$vaccinated/combined_jakarta$total_population*100
+```
+
+```{r}
+vaccine_rate <- combined_jakarta %>% select(8, 15, 18) %>% group_by(subdistrict, date) %>% ungroup() %>% pivot_wider(names_from= "date", values_from= "vacc_rate")
+```
+
+```{r}
+tmap_mode("plot")
+tm_shape(vaccine_rate)+
+  tm_fill("2021-07-31", 
+          n= 6,
+          style = "jenks", 
+          title = "Vaccine Rate") +
+  tm_layout(main.title = "Distribution of vaccination rates in July 2021",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.height = 0.5, 
+            legend.width = 0.4,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5)
+```
+
+```{r}
+monthly_maps <- function(df, varname) {
+  tm_shape(vaccine_rate) +
+    tm_polygons() +
+  tm_shape(df) +
+    tm_fill(varname, 
+          style = "jenks", 
+          title = "Vaccination Rate") +
+    tm_layout(main.title = varname,
+          main.title.position = "center",
+          main.title.size = 1.2,
+          legend.height = 0.45, 
+          legend.width = 0.35,
+          frame = TRUE) +
+    tm_borders(alpha = 0.5)
+}
+```
+
+
+```{r}
+tmap_mode("plot")
+tmap_arrange(
+  monthly_maps(vaccine_rate, "2021-07-31"),
+  monthly_maps(vaccine_rate, "2021-08-31"),
+  monthly_maps(vaccine_rate, "2021-09-30"),
+  monthly_maps(vaccine_rate, "2021-10-31"),
+  monthly_maps(vaccine_rate, "2021-11-30"),
+  monthly_maps(vaccine_rate, "2021-12-31"))
+```
+
+```{r}
+tmap_mode("plot")
+tmap_arrange(
+  monthly_maps(vaccine_rate, "2022-01-31"),
+  monthly_maps(vaccine_rate, "2022-02-27"),
+  monthly_maps(vaccine_rate, "2022-03-31"),
+  monthly_maps(vaccine_rate, "2022-04-30"),
+  monthly_maps(vaccine_rate, "2022-05-31"),
+  monthly_maps(vaccine_rate, "2022-06-30"))
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+# Local Gi* Analysis
+num 10 hands on
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+# Emerging Hot Spot Analysis (EHSA)
+inclass 7
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
