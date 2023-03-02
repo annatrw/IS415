@@ -579,8 +579,13 @@ The local spatial statistic G is calculated for each zone based on spatial weigh
 ```{r}
 fips <- order(combined_jakarta$subdistrict)
 gi.fixed <- localG(combined_jakarta$vacc_rate, wm62_lw)
-gi.fixed
+
 ```
+
+```{r}
+head(gi.fixed, n=10)
+```
+
 
 ### Joining sf data with Gi Values
 ```{r}
