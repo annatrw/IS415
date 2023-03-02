@@ -9,12 +9,12 @@ execute:
 editor: visual
 ---
 
-:::callout-note
+::: callout-note
 Apologies Prof, I was unable to complete the EHSA component of this take home exercise, and am prepared to be appropriately penalised. Thank you.
-
 :::
 
 # Setting the scene
+
 Since late December 2019, an outbreak of a novel coronavirus disease (COVID-19; previously known as 2019-nCoV) was reported in Wuhan, China, which had subsequently affected 210 countries worldwide. In general, COVID-19 is an acute resolved disease but it can also be deadly, with a 2% case fatality rate.
 
 The COVID-19 vaccination in Indonesia is an ongoing mass immunisation in response to the COVID-19 pandemic in Indonesia. On 13 January 2021, the program commenced when President Joko Widodo was vaccinated at the presidential palace. In terms of total doses given, Indonesia ranks third in Asia and fifth in the world.
@@ -24,63 +24,63 @@ According to wikipedia, as of 5 February 2023 at 18:00 WIB (UTC+7), 204,266,655 
 Despite its compactness, the cumulative vaccination rate are not evenly distributed within DKI Jakarta. The question is where are the sub-districts with relatively higher number of vaccination rate and how they changed over time.
 
 # Objectives
+
 Exploratory Spatial Data Analysis (ESDA) hold tremendous potential to address complex problems facing society. In this study, you are tasked to apply appropriate Local Indicators of Spatial Association (LISA) and Emerging Hot Spot Analysis (EHSA) to undercover the spatio-temporal trends of COVID-19 vaccination in DKI Jakarta.
 
 # Tasks
-Choropleth Mapping and Analysis
-- Compute the monthly vaccination rate from July 2021 to June 2022 at sub-district (also known as kelurahan in Bahasa Indonesia) level,
-- Prepare the monthly vaccination rate maps by using appropriate tmap functions,
-- Describe the spatial patterns revealed by the choropleth maps (not more than 200 words).
 
-Local Gi* Analysis
-With reference to the vaccination rate maps prepared in ESDA:
+Choropleth Mapping and Analysis - Compute the monthly vaccination rate from July 2021 to June 2022 at sub-district (also known as kelurahan in Bahasa Indonesia) level, - Prepare the monthly vaccination rate maps by using appropriate tmap functions, - Describe the spatial patterns revealed by the choropleth maps (not more than 200 words).
 
-- Compute local Gi* values of the monthly vaccination rate,
-Display the Gi* maps of the monthly vaccination rate. The maps should only display the significant (i.e. p-value < 0.05)
-- With reference to the analysis results, draw statistical conclusions (not more than 250 words). 
+Local Gi\* Analysis With reference to the vaccination rate maps prepared in ESDA:
 
-Emerging Hot Spot Analysis(EHSA)
-With reference to the local Gi* values of the vaccination rate maps prepared in the previous section:
+-   Compute local Gi\* values of the monthly vaccination rate, Display the Gi\* maps of the monthly vaccination rate. The maps should only display the significant (i.e. p-value \< 0.05)
+-   With reference to the analysis results, draw statistical conclusions (not more than 250 words).
 
-- Perform Mann-Kendall Test by using the spatio-temporal local Gi* values,
-- Select three sub-districts and describe the temporal trends revealed (not more than 250 words), and
-- Prepared a EHSA map of the Gi* values of vaccination rate. The maps should only display the significant (i.e. p-value < 0.05).
-- With reference to the EHSA map prepared, describe the spatial patterns revelaed. (not more than 250 words).
+Emerging Hot Spot Analysis(EHSA) With reference to the local Gi\* values of the vaccination rate maps prepared in the previous section:
+
+-   Perform Mann-Kendall Test by using the spatio-temporal local Gi\* values,
+-   Select three sub-districts and describe the temporal trends revealed (not more than 250 words), and
+-   Prepared a EHSA map of the Gi\* values of vaccination rate. The maps should only display the significant (i.e. p-value \< 0.05).
+-   With reference to the EHSA map prepared, describe the spatial patterns revelaed. (not more than 250 words).
 
 # The Data
 
 ## Aspatial
-For the purpose of this assignment, data from <a href="https://riwayat-file-vaksinasi-dki-jakarta-jakartagis.hub.arcgis.com/" > Riwayat File Vaksinasi DKI Jakarta </a> will be used. Daily vaccination data is provided. 
 
+For the purpose of this assignment, data from <a href="https://riwayat-file-vaksinasi-dki-jakarta-jakartagis.hub.arcgis.com/" > Riwayat File Vaksinasi DKI Jakarta </a> will be used. Daily vaccination data is provided.
 
 ## Geospatial
+
 For the purposes of this study, DKI Jakarta administration boundary 2019 will be used downloaded from Indonesia Geospatial <a href="https://www.indonesia-geospasial.com/2020/04/download-shapefile-shp-batas-desa.html" > portal here</a>.
 
+# Importing required R packages
 
-# Importing required R packages 
 We will import the following R packages to begin our analysis.
 
 ```{r}
 pacman::p_load(sf, tidyverse, tmap, spdep, sfdep, readxl, plyr)
 ```
 
-
-# Geospatial Data Wrangling 
+# Geospatial Data Wrangling
 
 ## Importing geospatial data
+
 Use the st_read function to import the geospatial data of Jakarta.
 
 ```{r}
 jakarta <- st_read(dsn="data/geospatial",
                       layer="BATAS_DESA_DESEMBER_2019_DUKCAPIL_DKI_JAKARTA") 
 ```
+
 ## Check for missing values
-This step checks for any missing values in the geospatial dataset, with reference to senior - Megan's - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#missing-values"> here </a>. 
+
+This step checks for any missing values in the geospatial dataset, with reference to senior - Megan's - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#missing-values"> here </a>.
 
 ```{r}
 jakarta[rowSums(is.na(jakarta))!=0,]
 
 ```
+
 We see that there are null values for KAB_KOTA and KECAMATAN columns for Object_ID 25645 and 25646, and since we are interested in the sub-district level, the following code removes missing values.
 
 ```{r}
@@ -91,18 +91,21 @@ jakarta <- na.omit(jakarta,c("DESA_KELUR"))
 ## Transforming Coordinate Sytem
 
 Check the CRS of the geospatial data using the st_crs() function.
+
 ```{r}
 st_crs(jakarta)
 ```
+
 We see it is projected using EPSG4326.
 
-
 With reference to <a href="https://epsg.io/2384" >link </a>, the national coordinate system for Jakarta, Indonesia TM-3 zone 54.1 is EPSG:23845, hence we use st_transform to transform the corrdinate system.
+
 ```{r}
 jakarta <- st_transform(jakarta, 23845)
 ```
 
 Upon checking, coordinate systems have been correctly transformed.
+
 ```{r}
 st_crs(jakarta)
 ```
@@ -112,22 +115,26 @@ st_crs(jakarta)
 With reference to senior - Megan's - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#removal-of-outer-islands"> here </a>, this section will remove the outer islands, leaving the main land of Jakarta.
 
 First, visualise the geospatial data where we observe the outer islands are included in the data.
+
 ```{r}
 plot(st_geometry(jakarta))
 ```
 
-By visualising Jakarta on the city level, we observe that the outer islands are labelled with the prefix "KEPULAUAN SERIBU" - meaning 'Thousand Islands'.  
+By visualising Jakarta on the city level, we observe that the outer islands are labelled with the prefix "KEPULAUAN SERIBU" - meaning 'Thousand Islands'.
+
 ```{r}
 tm_shape(jakarta) + 
   tm_polygons("KAB_KOTA")
 ```
 
 Therefore, filtering out the records with the prefix "KEPULAUAN SERIBU" removes the outer islands.
+
 ```{r}
 jakarta <- filter(jakarta, KAB_KOTA != "KEPULAUAN SERIBU")
 ```
 
 Successfully removed the outer islands, by re-plotting the geospatial data below
+
 ```{r}
 plot(st_geometry(jakarta))
 ```
@@ -140,12 +147,12 @@ As required, we will only retain the first 9 fields of the DKI Jakarta sf datafr
 jakarta <- jakarta[, 0:9]
 ```
 
-
 ## Translate Column names
 
 Using google translate and dplyr <a href="https://dplyr.tidyverse.org/reference/rename.html"> rename function </a>, rename the columns for easier reference.
 
 ![](img/google_translate.png)
+
 ```{r}
 jakarta <- jakarta %>% dplyr::rename(
                   village_code=KODE_DESA,
@@ -160,29 +167,26 @@ jakarta <- jakarta %>% dplyr::rename(
 jakarta
 ```
 
-
 # Aspatial Data Wrangling
 
+## Importing Aspatial Data
 
-## Importing Aspatial Data 
 Read the excel file of 27 Feb 2022 to visualise the data.
 
 ```{r}
 feb22 <- read_xlsx("data/aspatial/Data Vaksinasi Berbasis Kelurahan (27 Februari 2022).xlsx")
 head(feb22)
 ```
-There are a total of 27 columns, with target and yet-to-be vaccinated population shown as total and breakdown of individual age groups. 
+
+There are a total of 27 columns, with target and yet-to-be vaccinated population shown as total and breakdown of individual age groups.
 
 We are interested in the total vaccination numbers, hence we retain the first 6 columns and remove the first row with null values.
+
 ```{r}
 feb22 <- feb22 [-1, 0:6]
 ```
 
-
-Aspatial data pre-processing requires the following:
-1. Retaining relevant columns and rows
-2. Extracting the date from the filepath
-3. Reformating of date and organising column names 
+Aspatial data pre-processing requires the following: 1. Retaining relevant columns and rows 2. Extracting the date from the filepath 3. Reformating of date and organising column names
 
 However, since there are 12 files to iterate through, we can create a function to perform steps 1 and 2.
 
@@ -203,8 +207,8 @@ aspatialfunc <- function(filepath){
 }
 ```
 
+Referencing senior - Megan's - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#feeding-files-into-our-aspatial_preprocess-function">here</a> and using <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply">lapply</a> function, aspatial files are fed into the pre-processing function and outputs are stored in the variable dflist.
 
-Referencing senior - Megan's - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#feeding-files-into-our-aspatial_preprocess-function" > here </a> and using <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply"> lapply</a> function, aspatial files are fed into the pre-processing function and outputs are stored in the variable dflist.
 ```{r}
 fileslist <-list.files(path = "data/aspatial", pattern = "*.xlsx", full.names=TRUE)
 
@@ -212,21 +216,24 @@ dflist <- lapply(seq_along(fileslist), function(x) aspatialfunc(fileslist[x]))
 ```
 
 Checking dflist
+
 ```{r}
 head(dflist)
 ```
 
 This converts dflist - a list object - into a dataframe.
+
 ```{r}
 vacc_jakarta <- ldply(dflist, data.frame)
 ```
 
-
-##Formatting Date Column 
+## Formatting Date Column
 
 Referencing senior - Megan's - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#formatting-date-column"> here </a>, re-formatting of the date column from Bahasa Indonesian to standard datetime format is done using the following references to account for timezone:
-- https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/locales 
-- https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime
+
+-   https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/locales
+
+-   https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime
 
 ```{r}
 Sys.setlocale(locale="ind")
@@ -238,9 +245,11 @@ vacc_jakarta$date <- c(vacc_jakarta$date) %>%
 
 glimpse(vacc_jakarta)
 ```
+
 ## Rename columns
 
 Using google translate, rename the columns of vacc_jakarta for easy reference.
+
 ```{r}
 vacc_jakarta <- vacc_jakarta %>% dplyr::rename(
                   village_code= KODE.KELURAHAN,
@@ -251,14 +260,16 @@ vacc_jakarta <- vacc_jakarta %>% dplyr::rename(
                 tobe_vaccinated = BELUM.VAKSIN)
 ```
 
-
 Columns have been successfully renamed:
+
 ```{r}
 glimpse(vacc_jakarta)
 ```
+
 ## Vaccinated population
 
 In preparation for calculating vaccination rate, add a new column to store the vaccinated population by subtracting tobe_vaccinated from target population.
+
 ```{r}
 vacc_jakarta$vaccinated <- with(vacc_jakarta, target-tobe_vaccinated)
 ```
@@ -267,7 +278,6 @@ vacc_jakarta$vaccinated <- with(vacc_jakarta, target-tobe_vaccinated)
 glimpse(vacc_jakarta)
 ```
 
-
 # Combining Geospatial and Aspatial Data
 
 Let's verify which columns jakarta (geospatial data) and vacc_jakarta (aspatial data) have in common for the join:
@@ -275,10 +285,13 @@ Let's verify which columns jakarta (geospatial data) and vacc_jakarta (aspatial 
 ```{r}
 colnames(jakarta)
 ```
+
 ```{r}
 colnames(vacc_jakarta)
 ```
+
 'village_code', 'district', 'subdistrict' and 'city' are common columns, use a left_join on the geospatial data to combine them.
+
 ```{r}
 combined_jakarta <- left_join(jakarta, vacc_jakarta,
                               by=c("village_code" = "village_code",
@@ -291,16 +304,16 @@ combined_jakarta <- left_join(jakarta, vacc_jakarta,
 ## Calculate Vaccintation Rate
 
 Create a new column to store the vaccination rate calculated as shown below:
+
 ```{r}
 combined_jakarta$vacc_rate <- combined_jakarta$vaccinated/combined_jakarta$target*100
 ```
-
 
 # Choropleth Mapping and Analysis
 
 Using tmap's mapping functions, visualise the vaccination rate by sub-district using the jenks data classification method.
 
-<a href="https://pro.arcgis.com/en/pro-app/latest/help/mapping/layer-properties/data-classification-methods.htm"> Jenks </a> classifcation is based on natural groupings inherent in the data where best similar values are grouped together, maximising the differences between the classes. 
+<a href="https://pro.arcgis.com/en/pro-app/latest/help/mapping/layer-properties/data-classification-methods.htm"> Jenks </a> classifcation is based on natural groupings inherent in the data where best similar values are grouped together, maximising the differences between the classes.
 
 ```{r}
 tmap_mode("plot")
@@ -323,28 +336,31 @@ tm_shape(combined_jakarta) +
 
 However, there are missing values for certain subdistricts.
 
-## Handling Missing Values for Subdistricts  
+## Handling Missing Values for Subdistricts
 
 We check if there is a mismatch between geospatial and aspatial data on the subdistrict level.
+
 ```{r}
 jakarta_subdistrict <-jakarta$subdistrict
 vacc_subdistrict <- vacc_jakarta$subdistrict
 
 ```
 
-With reference to this  <a href="https://www.biostars.org/p/180451/"> link </a>, mismatched values can be identified; 
-Returns values in aspatial vacc_jakarta that are not in geospatial jakarta:
+With reference to this <a href="https://www.biostars.org/p/180451/"> link </a>, mismatched values can be identified; Returns values in aspatial vacc_jakarta that are not in geospatial jakarta:
+
 ```{r}
 unique(vacc_subdistrict[!(vacc_subdistrict %in% jakarta_subdistrict)])
 ```
+
 Returns values in geospatial jakarta that are not in aspatial vacc_jakarta:
+
 ```{r}
 unique(jakarta_subdistrict[!(jakarta_subdistrict %in% vacc_subdistrict)])
 
 ```
+
 There are different number of mismatched records (15 and 9 respectively), hence let us check values on coarser level - city.
 
-seribu city from aspatial not inside jakarta geospatial?
 ```{r}
 jakarta_city <-jakarta$city
 vacc_city <- vacc_jakarta$city
@@ -364,10 +380,10 @@ It is revealed that the aspatial data contains records on Seribu region that is 
 ![](img/seribu_remove.png)
 
 
-
 ## Removing Seribu Islands
 
-Filter out records of Seribu islands 
+Filter out records of Seribu islands
+
 ```{r}
 vacc_jakarta <- filter(vacc_jakarta, city != "KAB.ADM.KEP.SERIBU")
 ```
@@ -383,8 +399,8 @@ combined_jakarta <- left_join(jakarta, vacc_jakarta,
                               )
 ```
 
-
 Upon checking again, both aspatial and geospatial data now have the same number of mismatched subdistricts.
+
 ```{r}
 jakarta_subdistrict <-jakarta$subdistrict
 vacc_subdistrict <- vacc_jakarta$subdistrict
@@ -399,10 +415,10 @@ unique(jakarta_subdistrict[!(jakarta_subdistrict %in% vacc_subdistrict)])
 
 ```
 
-
 ## Re-assignment of mismatched subdistricts
 
 Re-assign the values in geospaital data to match records in aspatial data for the 9 mismatched subdistricts.
+
 ```{r}
 jakarta$subdistrict[jakarta$subdistrict == 'BALEKAMBANG'] <- 'BALE KAMBANG'
 jakarta$subdistrict[jakarta$subdistrict == 'HALIM PERDANA KUSUMA'] <- 'HALIM PERDANA KUSUMAH'
@@ -417,6 +433,7 @@ jakarta$subdistrict[jakarta$subdistrict == 'RAWAJATI'] <- 'RAWA JATI'
 ```
 
 Rejoin the data by subdistrict
+
 ```{r}
 combined_jakarta <- left_join(jakarta, vacc_jakarta, by=c( "subdistrict"="subdistrict")
                               )
@@ -429,17 +446,19 @@ Successfully handled mismatched subdistricts.
 ## Re-organisation of data
 
 Calculate vaccination rate with the newly processed data - combined_jakarta
+
 ```{r}
 combined_jakarta$vacc_rate <- combined_jakarta$vaccinated/combined_jakarta$target*100
 ```
 
 Here, select the date, subdistrict and vacc_rate columns and save it as a new variable called vaccine_rate. Group by subdistrict and date before pivoting the table for the date to be used as columns with the vaccination rate as values.
+
 ```{r}
 vaccine_rate <- combined_jakarta %>% select(8, 15, 18) %>% group_by(subdistrict, date) %>% ungroup() %>% pivot_wider(names_from= "date", values_from= "vacc_rate")
 ```
 
-
 Visualise the vaccination rate of 31 July 2021 using tmap:
+
 ```{r}
 tmap_mode("plot")
 tm_shape(vaccine_rate)+
@@ -459,6 +478,7 @@ tm_shape(vaccine_rate)+
 ## Create a Mapping Function
 
 Since there are 12 maps to visualise, create a function that takes in the data and date, and outputs the resultant choropleth map
+
 ```{r}
 monthly_maps <- function(df, varname) {
   tm_shape(vaccine_rate) +
@@ -477,10 +497,10 @@ monthly_maps <- function(df, varname) {
 }
 ```
 
-
 ## Visualise Vaccination Rates for 2021
 
 Feed the data into the mapping function and visualise maps for 2021
+
 ```{r}
 tmap_mode("plot")
 tmap_arrange(
@@ -493,6 +513,7 @@ tmap_arrange(
 ```
 
 ### Analysis (2021)
+
 Overall, we see a largely consistent vaccination rate across Jakarta where subdistricts in the West and East have lower vaccination rates - between 78% to 81% - compared to those in the central, North and Southern regions - between 83 to 87%. Vaccination rates have increased for the Southern subdistricts from 44.80 - 49.33% range to 64.45 - 67.28% range in just a month (from July to August 2021), and even up to 88.60% in October. Vaccination rates have also increased for subdistricts in the Northeastern region of Jakarta, from about 53 - 65% in July 2021 to 84 - 88.34% in December 2021.
 
 ## Visualise Vaccination Rates for 2022
@@ -510,14 +531,12 @@ tmap_arrange(
 
 ### Analysis (2022)
 
-An overall trend of the Southern and central regions having higher vaccination rates compared to the extreme Western and Eastern regions. Although subtle, there is a gradual increase in vaccination rates from Janurary 2022 to April 2022. Western regions had a vaccination rate of 76.8% to 82.88 - 84.12%. Consistently high vaccination rates are observed in the Southern regions, maintaining rates in the 85.10 - 89.78% range. 
+An overall trend of the Southern and central regions having higher vaccination rates compared to the extreme Western and Eastern regions. Although subtle, there is a gradual increase in vaccination rates from Janurary 2022 to April 2022. Western regions had a vaccination rate of 76.8% to 82.88 - 84.12%. Consistently high vaccination rates are observed in the Southern regions, maintaining rates in the 85.10 - 89.78% range.
 
-
-
-# Local Gi* Analysis
+# Local Gi\* Analysis
 num 10 hands on - hot and cold mapping
 
-## Obtaining Centroids 
+## Obtaining Centroids
 
 Using the map_dbl function from purrr package, associate geospatial points with each polygon for build a connectivity graph. The mapping function achieves this by extracting the longitude and latitude coordinates and storing them as a separate dataframe using st_centroid().
 
@@ -533,12 +552,9 @@ latitude <- map_dbl(combined_jakarta$geometry, ~st_centroid(.x)[[2]])
 coords <- cbind(longitude, latitude)
 ```
 
+## Determining Cut-off Distance
 
-## Determining Cut-off Distance 
-This will determine the upper threshold for the distance band with the following steps:
-- Using knearneigh() from spdep package, return a matrix with points that are the k nearest neighbours of each other.
-- Convert the matrix into a neighbours list if integer vectors using knn2nb() function. 
-- Obtain length of neighbours list using nbdists()
+This will determine the upper threshold for the distance band with the following steps: - Using knearneigh() from spdep package, return a matrix with points that are the k nearest neighbours of each other. - Convert the matrix into a neighbours list if integer vectors using knn2nb() function. - Obtain length of neighbours list using nbdists()
 
 ```{r}
 #coords <- coordinates(hunan) --  jakarta 
@@ -546,10 +562,10 @@ k1 <- knn2nb(knearneigh(coords))
 k1dists <- unlist(nbdists(k1, coords, longlat = TRUE))
 summary(k1dists)
 ```
- 
 
 ## Fixed Distance Matrix
-Obtain the distance weight matrix using <a href="https://r-spatial.github.io/spdep/reference/dnearneigh.html> dnearneigh() </a> which identifies neighbours of region points by Euclidean distance between lower and upper bounds.
+
+Obtain the distance weight matrix using \<a href="https://r-spatial.github.io/spdep/reference/dnearneigh.html\> dnearneigh() </a> which identifies neighbours of region points by Euclidean distance between lower and upper bounds.
 
 ```{r}
 wm_d62 <- dnearneigh(coords, 0, 0, longlat = TRUE)
@@ -557,21 +573,23 @@ wm_d62
 ```
 
 Spatial Weights Object: Convert the neighbours object into spatial weights object needed for computing GI statistics later.
+
 ```{r}
 wm62_lw <- nb2listw(wm_d62, style = 'B')
 summary(wm62_lw)
 ```
 
-
 ## Adaptive Distance Weight Matrix
 
-Using adaptive distance weight matrix, we can set the number of k nearest neighbours for adaptive distance 
+Using adaptive distance weight matrix, we can set the number of k nearest neighbours for adaptive distance.
+
 ```{r}
 knn <- knn2nb(knearneigh(coords, k=8))
 knn
 ```
 
 Spatial Weights Object: convert the neighbours list into a spatial weights object
+
 ```{r}
 knn_lw <- nb2listw(knn, style = 'B')
 summary(knn_lw)
@@ -581,7 +599,7 @@ summary(knn_lw)
 
 ## Fixed Distance
 
-The output of localG() is a vector of G or Gstar values, with attributes “gstari” set to TRUE or FALSE, “call” set to the function call, and class “localG”.
+The output of localG() is a vector of G or Gstar values, with attributes "gstari" set to TRUE or FALSE, "call" set to the function call, and class "localG".
 
 The local spatial statistic G is calculated for each zone based on spatial weights object. It returns a Z-value where high positive Z scores indicate greater intensity of clustering while low Z scores indicate similar clusters of low values. The localG() function is used with combined_jakarta sf dataframe and the spatial weights object list.
 
@@ -595,15 +613,17 @@ gi.fixed <- localG(combined_jakarta$vacc_rate, wm62_lw)
 head(gi.fixed, n=10)
 ```
 
-
 ### Joining sf data with Gi Values
+
 ```{r}
 jakarta.gi <- cbind(combined_jakarta, as.matrix(gi.fixed)) %>%
   dplyr::rename(gstat_fixed = as.matrix.gi.fixed.)
 ```
 
-### Mapping Gi Values 
+### Mapping Gi Values
+
 Gi stat with spatial weights
+
 ```{r}
 vacc_rate_map <- qtm(combined_jakarta, "vacc_rate")
 
@@ -618,8 +638,8 @@ Gimap_fixed <-tm_shape(jakarta.gi) +
 tmap_arrange(vacc_rate_map, Gimap_fixed, asp=1, ncol=2)
 ```
 
-
 ## Adaptive Distance
+
 ```{r}
 fips <- order(combined_jakarta$subdistrict)
 gi.adaptive <- localG(combined_jakarta$vacc_rate, knn_lw)
@@ -627,8 +647,8 @@ jakarta.gi <- cbind(combined_jakarta, as.matrix(gi.adaptive)) %>%
   dplyr::rename(gstat_adaptive = as.matrix.gi.adaptive.)
 ```
 
-
 ## Mapping Gi Values
+
 ```{r}
 vacc_rate_map <- qtm(combined_jakarta, "vacc_rate")
 
@@ -644,41 +664,29 @@ tmap_arrange(vacc_rate_map, Gimap_adapt, asp=1, ncol=2)
 ```
 
 ## Analysis of Gi Values
+
 ```{r}
 tmap_arrange(Gimap_fixed, Gimap_adapt, asp=1 , ncol=2)
 ```
 
-For both local Gi fixed and adaptive spatial weights, the subdistrict with the highest Gi value of 2 to 3 is Halim Perdana Kusumah located in East Jakarta from the code block below.  
+For both local Gi fixed and adaptive spatial weights, the subdistrict with the highest Gi value of 2 to 3 is Halim Perdana Kusumah located in East Jakarta from the code block below.
 
 ```{r}
 jakarta.gi$subdistrict[which.max(jakarta.gi$gstat_adaptive)]
 ```
-This indicates there is spatial clustering of high vaccination rates surrounding the subdistrict of Halim Perdana Kusumah; indicating it as a hot spot. 
+
+This indicates there is spatial clustering of high vaccination rates surrounding the subdistrict of Halim Perdana Kusumah; indicating it as a hot spot.
 
 Referencing <a href="https://pro.arcgis.com/en/pro-app/latest/tool-reference/spatial-statistics/modeling-spatial-relationships.htm#GUID-F063A8F5-9459-42F9-BF41-4E66FBBCC415 " > this </a> source on modeling spatial relationships, using the fixed distance band is more appropriate when there is large variation in polygon size. Jakarta has large polygons on the edge and small polygons at the center, hence using fixed distance spatial weights will ensure consistent scale of analysis.
 
-Hence, focusing on analysis of fixed distance spatial weights, the subdistrict of Kebon Melati in central Jakarta has the lowest Gi value in the range of -3 to -2. 
+Hence, focusing on analysis of fixed distance spatial weights, the subdistrict of Kebon Melati in central Jakarta has the lowest Gi value in the range of -3 to -2.
 
 ```{r}
 jakarta.gi$subdistrict[which.min(jakarta.gi$gstat_adaptive)]
 ```
+
 This indicates Kebon Melati is a cold spot, where surrounding subdistricts have low vaccination rates and are clustered together.
 
 Majority of subdistricts in Western Jakarta are in the -1 to 0 Gi value range, indicating that there is slight clustering of subdistricts with low vaccination rates. Similarly, subdistricts in Northeast and Southern Jakarta have 0 to 1 Gi value, indicating slight clustering of subdistricts with high vaccination rates.
 
 
-[to delete]
-The Gi* statistic returned for each feature in the dataset is a z-score. For statistically significant positive z-scores, the larger the z-score is, the more intense the clustering of high values (hot spot). For statistically significant negative z-scores, the smaller the z-score is, the more intense the clustering of low values (cold spot). For more information about determining statistical significance and correcting for multiple testing and spatial dependency, see What is a z-score? What is a p-value?
-
-
-
-
-
-
-```{r}
-
-```
-
-```{r}
-
-```
