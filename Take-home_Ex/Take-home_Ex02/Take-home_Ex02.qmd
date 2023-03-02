@@ -9,6 +9,11 @@ execute:
 editor: visual
 ---
 
+:::callout-note
+Apologies Prof, I was unable to complete the EHSA component of this take home exercise, and am prepared to be appropriately penalised. Thank you.
+
+:::
+
 # Setting the scene
 Since late December 2019, an outbreak of a novel coronavirus disease (COVID-19; previously known as 2019-nCoV) was reported in Wuhan, China, which had subsequently affected 210 countries worldwide. In general, COVID-19 is an acute resolved disease but it can also be deadly, with a 2% case fatality rate.
 
@@ -663,7 +668,6 @@ The Gi* statistic returned for each feature in the dataset is a z-score. For sta
 
 
 
- 
 
 
 
