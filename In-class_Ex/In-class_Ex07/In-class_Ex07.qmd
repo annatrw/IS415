@@ -22,7 +22,7 @@ Emerging Hot Spot Analysis (EHSA) is a spatio-temporal analysis method for revea
 -   Evaluating these hot and cold spot trends by using Mann-Kendall trend test,
 -   Categorising each study area location by referring to the resultant trend z-score and p-value for each location with data, and with the hot spot z-score and p-value for each bin.
 
- # Getting started
+\# Getting started
 
 ## Installing and Loading the R Packages
 
@@ -259,24 +259,23 @@ Figure above shows that sporadic cold spots class has the high numbers of county
 
 In this section, you will learn how to visualise the geographic distribution EHSA classes. However, before we can do so, we need to join both *hunan* and *ehsa* together by using the code chunk below.
 
+
+BELOW 2 CODE BLOCKS GIVING ERROR - CANNOT FIND FUNCTION JOIN_BY
+
+1)
 ::: {style="font-size: 1.2em"}
-```{r}
+
 hunan_ehsa <- hunan %>%
   left_join(ehsa,
             by = join_by(County == location))
-```
+
 :::
 
-```{r}
-hunan_ehsa <- hunan %>%
-  dplyr::left_join(ehsa,
-            by = (GDPPC$County == hunan$location))
-```
 
 Next, tmap functions will be used to plot a categorical choropleth map by using the code chunk below.
 
-::: {style="font-size: 1.2em"}
-```{r}
+
+2)
 ehsa_sig <- hunan_ehsa  %>%
   filter(p_value < 0.05)
 tmap_mode("plot")
@@ -287,4 +286,4 @@ tm_shape(ehsa_sig) +
   tm_fill("classification") + 
   tm_borders(alpha = 0.4)
 ```
-:::
+
