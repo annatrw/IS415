@@ -269,9 +269,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   </ul></li>
   <li><a href="#aspatial-data-wrangling" id="toc-aspatial-data-wrangling" class="nav-link" data-scroll-target="#aspatial-data-wrangling"><span class="toc-section-number">7</span>  Aspatial Data Wrangling</a>
   <ul class="collapse">
-  <li><a href="#aspatial-data-pre-processing-function" id="toc-aspatial-data-pre-processing-function" class="nav-link" data-scroll-target="#aspatial-data-pre-processing-function"><span class="toc-section-number">7.1</span>  Aspatial Data Pre-processing Function</a></li>
-  <li><a href="#rename-columns" id="toc-rename-columns" class="nav-link" data-scroll-target="#rename-columns"><span class="toc-section-number">7.2</span>  Rename columns</a></li>
-  <li><a href="#vaccinated-population" id="toc-vaccinated-population" class="nav-link" data-scroll-target="#vaccinated-population"><span class="toc-section-number">7.3</span>  Vaccinated population</a></li>
+  <li><a href="#importing-aspatial-data" id="toc-importing-aspatial-data" class="nav-link" data-scroll-target="#importing-aspatial-data"><span class="toc-section-number">7.1</span>  Importing Aspatial Data</a></li>
+  <li><a href="#aspatial-data-pre-processing-function" id="toc-aspatial-data-pre-processing-function" class="nav-link" data-scroll-target="#aspatial-data-pre-processing-function"><span class="toc-section-number">7.2</span>  Aspatial Data Pre-processing Function</a></li>
+  <li><a href="#rename-columns" id="toc-rename-columns" class="nav-link" data-scroll-target="#rename-columns"><span class="toc-section-number">7.3</span>  Rename columns</a></li>
+  <li><a href="#vaccinated-population" id="toc-vaccinated-population" class="nav-link" data-scroll-target="#vaccinated-population"><span class="toc-section-number">7.4</span>  Vaccinated population</a></li>
   </ul></li>
   <li><a href="#combining-geospatial-and-aspatial-data" id="toc-combining-geospatial-and-aspatial-data" class="nav-link" data-scroll-target="#combining-geospatial-and-aspatial-data"><span class="toc-section-number">8</span>  Combining Geospatial and Aspatial Data</a>
   <ul class="collapse">
@@ -623,7 +624,7 @@ PROJCRS["DGN95 / Indonesia TM-3 zone 54.1",
 <section id="translate-column-names" class="level2" data-number="6.6">
 <h2 data-number="6.6" class="anchored" data-anchor-id="translate-column-names"><span class="header-section-number">6.6</span> Translate Column names</h2>
 <p>Using google translate and dplyr <a href="https://dplyr.tidyverse.org/reference/rename.html"> rename function </a>, rename the columns for easier reference.</p>
-<p><img src="figure-html/google_translate.png" class="img-fluid"></p>
+<p><img src="img/google_translate.png" class="img-fluid"></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>jakarta <span class="ot">&lt;-</span> jakarta <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">village_code=</span>KODE_DESA,</span>
@@ -682,7 +683,9 @@ First 10 features:
 </section>
 <section id="aspatial-data-wrangling" class="level1" data-number="7">
 <h1 data-number="7"><span class="header-section-number">7</span> Aspatial Data Wrangling</h1>
-<p>##Importing Aspatial Data Read the excel file of 27 Feb 2022 to visualise the data.</p>
+<section id="importing-aspatial-data" class="level2" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="importing-aspatial-data"><span class="header-section-number">7.1</span> Importing Aspatial Data</h2>
+<p>Read the excel file of 27 Feb 2022 to visualise the data.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>feb22 <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="st">"data/aspatial/Data Vaksinasi Berbasis Kelurahan (27 Februari 2022).xlsx"</span>)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(feb22)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -712,8 +715,9 @@ First 10 features:
 </div>
 <p>Aspatial data pre-processing requires the following: 1. Retaining relevant columns and rows 2. Extracting the date from the filepath 3. Reformating of date and organising column names</p>
 <p>However, since there are 12 files to iterate through, we can create a function to perform steps 1 and 2.</p>
-<section id="aspatial-data-pre-processing-function" class="level2" data-number="7.1">
-<h2 data-number="7.1" class="anchored" data-anchor-id="aspatial-data-pre-processing-function"><span class="header-section-number">7.1</span> Aspatial Data Pre-processing Function</h2>
+</section>
+<section id="aspatial-data-pre-processing-function" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="aspatial-data-pre-processing-function"><span class="header-section-number">7.2</span> Aspatial Data Pre-processing Function</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>aspatialfunc <span class="ot">&lt;-</span> <span class="cf">function</span>(filepath){</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  final_file <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(filepath)</span>
@@ -871,8 +875,8 @@ $ date           &lt;date&gt; 2022-02-27, 2022-02-27, 2022-02-27, 2022-02-27, 20
 </div>
 </div>
 </section>
-<section id="rename-columns" class="level2" data-number="7.2">
-<h2 data-number="7.2" class="anchored" data-anchor-id="rename-columns"><span class="header-section-number">7.2</span> Rename columns</h2>
+<section id="rename-columns" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="rename-columns"><span class="header-section-number">7.3</span> Rename columns</h2>
 <p>Using google translate, rename the columns of vacc_jakarta for easy reference.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>vacc_jakarta <span class="ot">&lt;-</span> vacc_jakarta <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(</span>
@@ -899,8 +903,8 @@ $ date            &lt;date&gt; 2022-02-27, 2022-02-27, 2022-02-27, 2022-02-27, 2
 </div>
 </div>
 </section>
-<section id="vaccinated-population" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="vaccinated-population"><span class="header-section-number">7.3</span> Vaccinated population</h2>
+<section id="vaccinated-population" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="vaccinated-population"><span class="header-section-number">7.4</span> Vaccinated population</h2>
 <p>In preparation for calculating vaccination rate, add a new column to store the vaccinated population by subtracting tobe_vaccinated from target population.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>vacc_jakarta<span class="sc">$</span>vaccinated <span class="ot">&lt;-</span> <span class="fu">with</span>(vacc_jakarta, target<span class="sc">-</span>tobe_vaccinated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1029,7 +1033,7 @@ $ vaccinated      &lt;dbl&gt; 19355, 24062, 23171, 8103, 22255, 17616, 20542, 38
 </div>
 </div>
 <p>It is revealed that the aspatial data contains records on Seribu region that is not included in the geospatial data. Upon checking, we see that Seribu includes the outer islands</p>
-<p><img src="figure-html/seribu-remove.png" class="img-fluid"></p>
+<p><img src="img/seribu_remove.png" class="img-fluid"></p>
 </section>
 <section id="removing-seribu-islands" class="level2" data-number="9.2">
 <h2 data-number="9.2" class="anchored" data-anchor-id="removing-seribu-islands"><span class="header-section-number">9.2</span> Removing Seribu Islands</h2>

@@ -145,7 +145,7 @@ jakarta <- jakarta[, 0:9]
 
 Using google translate and dplyr <a href="https://dplyr.tidyverse.org/reference/rename.html"> rename function </a>, rename the columns for easier reference.
 
-![](figure-html/google_translate.png)
+![](img/google_translate.png)
 ```{r}
 jakarta <- jakarta %>% dplyr::rename(
                   village_code=KODE_DESA,
@@ -164,7 +164,7 @@ jakarta
 # Aspatial Data Wrangling
 
 
-##Importing Aspatial Data 
+## Importing Aspatial Data 
 Read the excel file of 27 Feb 2022 to visualise the data.
 
 ```{r}
@@ -361,7 +361,7 @@ unique(jakarta_city[!(jakarta_city %in% vacc_city)])
 
 It is revealed that the aspatial data contains records on Seribu region that is not included in the geospatial data. Upon checking, we see that Seribu includes the outer islands
 
-![](figure-html/seribu-remove.png)
+![](img/seribu_remove.png)
 
 
 
