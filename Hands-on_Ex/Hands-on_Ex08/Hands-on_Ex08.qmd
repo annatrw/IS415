@@ -15,11 +15,15 @@ Geographically weighted regression (GWR) is a spatial statistical technique that
 
 # Data
 
-Data used are 1. URA Master Plan subzone boundary in shapefile format (i.e. MP14_SUBZONE_WEB_PL) 2. condo_resale_2015 in csv format (i.e. condo_resale_2015.csv)
+Data used are
 
-#Getting Started
+1.  URA Master Plan subzone boundary in shapefile format (i.e. MP14_SUBZONE_WEB_PL)
 
-Import the following R pacakages
+2.  condo_resale_2015 in csv format (i.e. condo_resale_2015.csv)
+
+# Getting Started
+
+Import the following R packages
 
 ```{r}
 pacman::p_load(olsrr, corrplot, ggpubr, GWmodel, gtsummary)
@@ -80,6 +84,9 @@ head(condo_resale$LATITUDE) #see the data in YCOORD column
 ```{r}
 summary(condo_resale)
 ```
+
+* to identify the missing values, ensure that there are no NA values 
+* get a sense of the spread of data (are the values mainly 0 or similar to each other?)
 
 ## Convert Aspatial Datafram into sf Object
 
@@ -176,6 +183,8 @@ ggarrange(AREA_SQM, AGE, PROX_CBD, PROX_CHILDCARE, PROX_ELDERLYCARE,
           ncol = 3, nrow = 4)
 ```
 
+* understand the data and variables have a distribution, not having 1 bar which might indicate it is a categorical variable and cannot be used 
+
 ## Statistical Point Map
 
 Reveal the geospatial distribution condominium resale prices in Singapore. The map will be prepared by using tmap package.
@@ -264,6 +273,8 @@ corrplot(cor(condo_resale[, 5:23]), diag = FALSE, order = "AOE",
          tl.pos = "td", tl.cex = 0.5, method = "number", type = "upper")
 ```
 
+* avoid variables with 0.8 and above (can be positive or negative values), indicating high correlation 
+
 Matrix reorder is very important for mining the hiden structure and patter in the matrix. There are four methods in corrplot (parameter order), named "AOE", "FPC", "hclust", "alphabet". In the code chunk above, AOE order is used. It orders the variables by using the angular order of the eigenvectors method suggested by <a href="https://www.datavis.ca/papers/corrgram.pdf">Michael Friendly</a>.
 
 From the scatterplot matrix, it is clear that Freehold is highly correlated to LEASE_99YEAR. In view of this, it is wiser to only include either one of them in the subsequent model building. As a result, LEASE_99YEAR is excluded in the subsequent model building.
@@ -283,6 +294,9 @@ condo.mlr <- lm(formula = SELLING_PRICE ~ AREA_SQM + AGE    +
 summary(condo.mlr)
 ```
 
+* outputs an lm object which is a list with coefficients of variables
+* need to use residuals for later calculations 
+
 ## Prep Publication Quality Table: olsrr method
 
 With reference to the report above, it is clear that not all the independent variables are statistically significant. We will revised the model by removing those variables which are not statistically significant.
@@ -298,6 +312,7 @@ condo.mlr1 <- lm(formula = SELLING_PRICE ~ AREA_SQM + AGE +
                  data=condo_resale.sf)
 ols_regress(condo.mlr1)
 ```
+
 
 ## Prep Publication Quality Table: gtsummary method
 
@@ -328,31 +343,36 @@ In the code chunk below, the <a href="https://olsrr.rsquaredacademy.com/referenc
 ols_vif_tol(condo.mlr1)
 ```
 
-Output interpretation: 
+Output interpretation:
 
-#### Test for Non-Linearity 
+#### Test for Non-Linearity
+
 In multiple linear regression, it is important for us to test the assumption that linearity and additivity of the relationship between dependent and independent variables.
 
 In the code chunk below, the ols_plot_resid_fit() of olsrr package is used to perform linearity assumption test.
 
-
 ```{r}
 ols_plot_resid_fit(condo.mlr1)
 ```
-Ouput interpretation: The figure above reveals that most of the data poitns are scattered around the 0 line, hence we can safely conclude that the relationships between the dependent variable and independent variables are linear.
+
+Ouput interpretation: The figure above reveals that most of the data point are scattered around the 0 line, hence we can safely conclude that the relationships between the dependent variable and independent variables are linear.
 
 #### Test for Normality Assumption
-Using <ahref= "https://olsrr.rsquaredacademy.com/reference/ols_plot_resid_hist.html">ols_plot_resid_hist() </a> to perform normality assumption test.
- 
+
+Using <a href="https://olsrr.rsquaredacademy.com/reference/ols_plot_resid_hist.html"> ols_plot_resid_hist() </a> to perform normality assumption test.
+
 ```{r}
 ols_plot_resid_hist(condo.mlr1)
 ```
+
 Output interpretation:The figure reveals that the residual of the multiple linear regression model (i.e. condo.mlr1) is resemble normal distribution.
 
-
 ```{r}
-
+ols_test_normality(condo.mlr1)
 ```
+
+Output interpretation: The summary table above reveals that the p-values of the four tests are way smaller than the alpha value of 0.05. Hence we will reject the null hypothesis and infer that there is statistical evidence that the residual are not normally distributed.
+
 
 ```{r}
 
@@ -409,6 +429,9 @@ Output interpretation:The figure reveals that the residual of the multiple linea
 ```
 
 # Building Hedonic Pricing Models using GWmodel
+
+lm() function is from base r
+glm() generic linear regression model is a larger umbrella package
 
 ```{r}
 

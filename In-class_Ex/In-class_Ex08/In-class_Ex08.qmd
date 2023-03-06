@@ -1,0 +1,215 @@
+---
+title: "In-class Exercise 8: Building Hedonic Pricing Model with GWR"
+date: "6 Mar 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true
+  warning: false
+editor: visual
+---
+
+# Data
+
+Data used are
+
+1.  URA Master Plan subzone boundary in shapefile format (i.e. MP14_SUBZONE_WEB_PL)
+
+2.  condo_resale_2015 in csv format (i.e. condo_resale_2015.csv)
+
+# Getting Started
+
+Import the following R packages
+
+```{r}
+pacman::p_load(olsrr, corrplot, ggpubr, GWmodel, gtsummary)
+```
+
+-   corrplot might have conflicts with tidyverse, might want to try manually / separately installing it
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse)
+```
+
+::: callout-note
+Troubleshooting corrplot package error, add "corrplot::" to specifically read from that package.
+
+corrplot::corrplot(cor(condo_resale\[, 5:23\]), diag = FALSE, order = "AOE", tl.pos = "td", tl.cex = 0.5, method = "number", type = "upper")
+:::
+
+# Geospatial Data Wrangling
+
+## Import Geospatial Data
+
+```{r}
+mpsz = st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_WEB_PL")
+```
+
+## Update CRS
+
+```{r}
+mpsz_svy21 <- st_transform(mpsz, 3414)
+```
+
+Verify transformed layer
+
+```{r}
+st_crs(mpsz_svy21)
+```
+
+Reveal extent of mpsz_svy21 layer
+
+```{r}
+st_bbox(mpsz_svy21) #view extent
+```
+
+*date field (if it is actual date) will be treated as continuous data causing trouble on spacetime cube
+* good to always view the data and look what it is consisting of 
+
+# Aspatial Data Wrangling
+
+## Import Aspatial Data
+
+```{r}
+condo_resale = read_csv("data/aspatial/Condo_resale_2015.csv")
+```
+
+```{r}
+glimpse(condo_resale)
+```
+
+```{r}
+head(condo_resale$LONGITUDE) #see the data in XCOORD column
+```
+
+```{r}
+head(condo_resale$LATITUDE) #see the data in YCOORD column
+```
+
+```{r}
+summary(condo_resale)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
