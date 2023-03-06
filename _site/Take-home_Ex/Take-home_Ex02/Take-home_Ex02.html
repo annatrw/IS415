@@ -172,6 +172,26 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex07/Hands-on_Ex07_2.html">
  <span class="dropdown-text">Hands-on Exercise 7 (pt 2)</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex08/Hands-on_Ex08.html">
+ <span class="dropdown-text">Hands-on Exercise 8</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex09/Hands-on_Ex09.html">
+ <span class="dropdown-text">Hands-on Exercise 9</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex10/Hands-on_Ex10.html">
+ <span class="dropdown-text">Hands-on Exercise 10</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex11/Hands-on_Ex11.html">
+ <span class="dropdown-text">Hands-on Exercise 11</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../Hands-on_Ex/Hands-on_Ex12/Hands-on_Ex12.html">
+ <span class="dropdown-text">Hands-on Exercise 12</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -202,6 +222,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <li>
     <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex07/In-class_Ex07.html">
  <span class="dropdown-text">In-class Exercise 7</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex08/In-class_Ex08.html">
+ <span class="dropdown-text">In-class Exercise 8</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex09/In-class_Ex09.html">
+ <span class="dropdown-text">In-class Exercise 9</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex10/In-class_Ex10.html">
+ <span class="dropdown-text">In-class Exercise 10</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../In-class_Ex/In-class_Ex11/In-class_Ex11.html">
+ <span class="dropdown-text">In-class Exercise 11</span></a>
   </li>  
     </ul>
   </li>
@@ -271,8 +307,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <ul class="collapse">
   <li><a href="#importing-aspatial-data" id="toc-importing-aspatial-data" class="nav-link" data-scroll-target="#importing-aspatial-data"><span class="toc-section-number">7.1</span>  Importing Aspatial Data</a></li>
   <li><a href="#aspatial-data-pre-processing-function" id="toc-aspatial-data-pre-processing-function" class="nav-link" data-scroll-target="#aspatial-data-pre-processing-function"><span class="toc-section-number">7.2</span>  Aspatial Data Pre-processing Function</a></li>
-  <li><a href="#rename-columns" id="toc-rename-columns" class="nav-link" data-scroll-target="#rename-columns"><span class="toc-section-number">7.3</span>  Rename columns</a></li>
-  <li><a href="#vaccinated-population" id="toc-vaccinated-population" class="nav-link" data-scroll-target="#vaccinated-population"><span class="toc-section-number">7.4</span>  Vaccinated population</a></li>
+  <li><a href="#formatting-date-column" id="toc-formatting-date-column" class="nav-link" data-scroll-target="#formatting-date-column"><span class="toc-section-number">7.3</span>  Formatting Date Column</a></li>
+  <li><a href="#rename-columns" id="toc-rename-columns" class="nav-link" data-scroll-target="#rename-columns"><span class="toc-section-number">7.4</span>  Rename columns</a></li>
+  <li><a href="#vaccinated-population" id="toc-vaccinated-population" class="nav-link" data-scroll-target="#vaccinated-population"><span class="toc-section-number">7.5</span>  Vaccinated population</a></li>
   </ul></li>
   <li><a href="#combining-geospatial-and-aspatial-data" id="toc-combining-geospatial-and-aspatial-data" class="nav-link" data-scroll-target="#combining-geospatial-and-aspatial-data"><span class="toc-section-number">8</span>  Combining Geospatial and Aspatial Data</a>
   <ul class="collapse">
@@ -341,7 +378,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">March 2, 2023</p>
+      <p class="date-modified">March 6, 2023</p>
     </div>
   </div>
     
@@ -732,7 +769,7 @@ First 10 features:
 <span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(final_file)</span>
 <span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Referencing senior - Megan’s - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#feeding-files-into-our-aspatial_preprocess-function"> here </a> and using <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply"> lapply</a> function, aspatial files are fed into the pre-processing function and outputs are stored in the variable dflist.</p>
+<p>Referencing senior - Megan’s - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#feeding-files-into-our-aspatial_preprocess-function">here</a> and using <a href="https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/lapply">lapply</a> function, aspatial files are fed into the pre-processing function and outputs are stored in the variable dflist.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>fileslist <span class="ot">&lt;-</span><span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"data/aspatial"</span>, <span class="at">pattern =</span> <span class="st">"*.xlsx"</span>, <span class="at">full.names=</span><span class="cn">TRUE</span>)</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -849,8 +886,14 @@ First 10 features:
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>vacc_jakarta <span class="ot">&lt;-</span> <span class="fu">ldply</span>(dflist, data.frame)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>##Formatting Date Column</p>
-<p>Referencing senior - Megan’s - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#formatting-date-column"> here </a>, re-formatting of the date column from Bahasa Indonesian to standard datetime format is done using the following references to account for timezone: - https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/locales - https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime</p>
+</section>
+<section id="formatting-date-column" class="level2" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="formatting-date-column"><span class="header-section-number">7.3</span> Formatting Date Column</h2>
+<p>Referencing senior - Megan’s - work <a href="https://is415-msty.netlify.app/posts/2021-09-10-take-home-exercise-1/#formatting-date-column"> here </a>, re-formatting of the date column from Bahasa Indonesian to standard datetime format is done using the following references to account for timezone:</p>
+<ul>
+<li><p>https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/locales</p></li>
+<li><p>https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/strptime</p></li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setlocale</span>(<span class="at">locale=</span><span class="st">"ind"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -875,8 +918,8 @@ $ date           &lt;date&gt; 2022-02-27, 2022-02-27, 2022-02-27, 2022-02-27, 20
 </div>
 </div>
 </section>
-<section id="rename-columns" class="level2" data-number="7.3">
-<h2 data-number="7.3" class="anchored" data-anchor-id="rename-columns"><span class="header-section-number">7.3</span> Rename columns</h2>
+<section id="rename-columns" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="rename-columns"><span class="header-section-number">7.4</span> Rename columns</h2>
 <p>Using google translate, rename the columns of vacc_jakarta for easy reference.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>vacc_jakarta <span class="ot">&lt;-</span> vacc_jakarta <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(</span>
@@ -903,8 +946,8 @@ $ date            &lt;date&gt; 2022-02-27, 2022-02-27, 2022-02-27, 2022-02-27, 2
 </div>
 </div>
 </section>
-<section id="vaccinated-population" class="level2" data-number="7.4">
-<h2 data-number="7.4" class="anchored" data-anchor-id="vaccinated-population"><span class="header-section-number">7.4</span> Vaccinated population</h2>
+<section id="vaccinated-population" class="level2" data-number="7.5">
+<h2 data-number="7.5" class="anchored" data-anchor-id="vaccinated-population"><span class="header-section-number">7.5</span> Vaccinated population</h2>
 <p>In preparation for calculating vaccination rate, add a new column to store the vaccinated population by subtracting tobe_vaccinated from target population.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>vacc_jakarta<span class="sc">$</span>vaccinated <span class="ot">&lt;-</span> <span class="fu">with</span>(vacc_jakarta, target<span class="sc">-</span>tobe_vaccinated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1015,7 +1058,6 @@ $ vaccinated      &lt;dbl&gt; 19355, 24062, 23171, 8103, 22255, 17616, 20542, 38
 </div>
 </div>
 <p>There are different number of mismatched records (15 and 9 respectively), hence let us check values on coarser level - city.</p>
-<p>seribu city from aspatial not inside jakarta geospatial?</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>jakarta_city <span class="ot">&lt;-</span>jakarta<span class="sc">$</span>city</span>
 <span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>vacc_city <span class="ot">&lt;-</span> vacc_jakarta<span class="sc">$</span>city</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1262,7 +1304,7 @@ B 3132 9809424 34452 68904 1515888</code></pre>
 </section>
 <section id="adaptive-distance-weight-matrix" class="level2" data-number="11.4">
 <h2 data-number="11.4" class="anchored" data-anchor-id="adaptive-distance-weight-matrix"><span class="header-section-number">11.4</span> Adaptive Distance Weight Matrix</h2>
-<p>Using adaptive distance weight matrix, we can set the number of k nearest neighbours for adaptive distance</p>
+<p>Using adaptive distance weight matrix, we can set the number of k nearest neighbours for adaptive distance.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>knn <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(coords, <span class="at">k=</span><span class="dv">8</span>))</span>
 <span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>knn</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1403,13 +1445,6 @@ B 3132 9809424 25056 43848 870696</code></pre>
 </div>
 <p>This indicates Kebon Melati is a cold spot, where surrounding subdistricts have low vaccination rates and are clustered together.</p>
 <p>Majority of subdistricts in Western Jakarta are in the -1 to 0 Gi value range, indicating that there is slight clustering of subdistricts with low vaccination rates. Similarly, subdistricts in Northeast and Southern Jakarta have 0 to 1 Gi value, indicating slight clustering of subdistricts with high vaccination rates.</p>
-<p>[to delete] The Gi* statistic returned for each feature in the dataset is a z-score. For statistically significant positive z-scores, the larger the z-score is, the more intense the clustering of high values (hot spot). For statistically significant negative z-scores, the smaller the z-score is, the more intense the clustering of low values (cold spot). For more information about determining statistical significance and correcting for multiple testing and spatial dependency, see What is a z-score? What is a p-value?</p>
-<div class="cell">
-
-</div>
-<div class="cell">
-
-</div>
 
 
 </section>
