@@ -8,3 +8,175 @@ execute:
   warning: false
 editor: visual
 ---
+
+```{r}
+pacman::p_load(tidygeocoder, sf, tidyverse, tmap, jsonlite )
+```
+
+
+# aspatial data
+```{r}
+resale_all <- read_csv("data/aspatial/resale-flat-prices-based-on-registration-date-from-jan-2017-onwards.csv")
+```
+
+```{r}
+glimpse(resale_all)
+```
+::: 
+if (grepl('2017', resale_all$month)==TRUE & grepl('2018', resale_all$month)==TRUE & grepl('2019', resale_all$month)==TRUE ){
+  resale17 <- resale_all %>% filter(resale_all, month!='2017')
+:::
+
+using grepl() function [https://www.programiz.com/r/examples/check-if-character-present-in-string]
+```{r}
+resale2122 <- filter(resale_all, grepl('2021', month)|grepl('2022', month))
+```
+
+```{r}
+resale23_test <- filter(resale_all, grepl('2023', month))
+```
+
+```{r}
+n_distinct(resale2122$flat_type)
+```
+```{r}
+unique(resale2122$flat_type)
+```
+
+
+```{r}
+nrow(resale2122[resale2122$flat_type == '2 ROOM',])
+```
+```{r}
+nrow(resale_all[resale_all$flat_type == '3 ROOM',])
+```
+```{r}
+nrow(resale_all[resale_all$flat_type == '4 ROOM',])
+```
+```{r}
+nrow(resale_all[resale_all$flat_type == '5 ROOM',])
+```
+```{r}
+resale2122_5r <- filter(resale2122, flat_type == '5 ROOM')
+```
+
+geocode resale data using tidygeocoder package
+https://cran.r-project.org/web/packages/tidygeocoder/readme/README.html 
+```{r}
+geocoded <- resale2122_5r %>%
+  geocode(street_name, method = 'osm', lat = latitude , long = longitude)
+geocoded
+```
+
+```{r}
+sum(is.na(geocoded$longitude))
+```
+
+
+geocoding using onemap API
+```{r}
+resale2122_5r$street_name <- gsub("ST\\.", "SAINT", resale2122_5r$street_name)
+
+```
+
+```{r}
+library(httr)
+geocode_function <- function(block, street_name) {
+  base_url <- "https://developers.onemap.sg/commonapi/search"
+  address <- paste(block, street_name, sep = " ")
+  query <- list("searchVal" = address, 
+                "returnGeom" = "Y",
+                "getAddrDetails" = "N",
+                "pageNum" = "1")
+  
+  res <- GET(base_url, query = query)
+  restext<-content(res, as="text")
+  
+  output <- fromJSON(restext)  %>% 
+    as.data.frame %>%
+    select(results.LATITUDE, results.LONGITUDE)
+
+  return(output)
+}
+```
+
+
+```{r}
+resale2122_5r$LATITUDE <- 0
+resale2122_5r$LONGITUDE <- 0
+
+for (i in 1:nrow(resale2122_5r)){
+  temp_output <- geocode_function(resale2122_5r[i, 4], resale2122_5r[i, 5])
+  
+  resale2122_5r$LATITUDE[i] <- temp_output$results.LATITUDE
+  resale2122_5r$LONGITUDE[i] <- temp_output$results.LONGITUDE
+}
+```
+
+```{r}
+sum(is.na(resale2122_5r$LATITUDE))
+
+```
+
+```{r}
+sum(is.na(resale2122_5r$LONGITUDE))
+```
+
+```{r}
+
+```
+
+# geospatial data
+
+locational factors
+
+- MRT stations [lta datamall]
+- bus stops [lta datamall]
+- supermarkets 
+- parks
+- hawker centre
+- eldercare services
+- primary schools within 1km
+- good primary schools from <a href="https://www.salary.sg/2022/best-primary-schools-2022-by-popularity/">link</a> top 20 schools
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
