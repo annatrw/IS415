@@ -1,0 +1,213 @@
+---
+title: "In-class Exercise 9: Geographical Segmentation with Spatially Constrained Clustering Techniques"
+date: "13 Mar 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true 
+  warning: false
+editor: visual
+---
+
+
+# Getting Started
+ggpubr - stitch maps together, displaying outputs
+olsrr - introduced in hands on 8/ in class 8 for checking multicolinearity etc
+
+
+```{r}
+pacman::p_load(sf, GWmodel, SpatialML, tidyverse, tmap, ggpubr, olsrr, devtools, tidymodels)
+```
+
+
+# Prepaing the Data
+
+```{r}
+mdata <- read_rds("data/aspatial/mdata.rds")
+```
+
+<taken from HDB resale dataset>
+
+
+```{r}
+set.seed(1234)
+resale_split <- initial_split(mdata, 
+                              prop = 6.5/10,)
+train_data <- training(resale_split)
+test_data <- testing(resale_split)
+```
+
+```{r}
+#| eval: false
+write_rds(train_data, "data/model/train_data.rds")
+write_rds(test_data, "data/model/test_data.rds")
+```
+
+
+# Computing Correlation Matrix
+
+
+```{r}
+mdata_nogeo <- mdata %>% 
+  st_drop_geometry()
+corrplot::corrplot
+```
+
+
+
+# Retrieving Stored Data
+
+```{r}
+
+```
+
+```{r}
+price_mlr <- lm(resale_price ~ floor_area_sqm + storey_order + remaining_lease_mths + PROX_CBD + WITHIN_350M_CHILDCARE + PROX_ELDERLYCARE +
+               PROX_HAWKER + WITHIN_350M_KINDERGARTEN + 
+                  PROX_MRT  + PROX_PARK + WITHIN_1KM_PRISCH + PROX_MALL + PROX_SUPERMARKET + WITHIN_350M_BUS,
+                data=train_data)
+```
+
+^note difference between hands on 8/9 and this: mlr is loading the training data instead of whole dataset 
+
+
+
+```{r}
+train_data_sp <- as_Spatial(train_data)
+train_data_sp
+```
+
+
+bw.adaptive methods : same as hands on 8 but only difference is loading the training data 
+
+
+# Preparing Coordinates Data
+for using package ranger - fast implementation of random forest
+https://cran.r-project.org/web/packages/ranger/index.html
+
+
+```{r}
+
+coords <- st_coordinates(mdata)
+coords_train <- st_coordinates(train_data)
+coords_test <- st_coordinates(test_data)
+```
+
+```{r}
+
+coords_train <- write_rds(coords_train, "data/model/coords_train.rds")
+coords_test <- write_rds(coords_test, "data/model/coords_test.rds")
+
+```
+
+
+# Dropping Geometry Columns
+
+```{r}
+train_data <- train_data %>% st_drop_geometry()
+```
+
+
+
+# Calibrating Random Forest
+(using base ranger)
+
+
+```{r}
+set.seed(1234)
+rf <- ranger(resale_price ~ floor_area_sqm + storey_order + remaining_lease_mths + PROX_CBD + WITHIN_350M_CHILDCARE + PROX_ELDERLYCARE +
+               PROX_HAWKER + WITHIN_350M_KINDERGARTEN + 
+                  PROX_MRT  + PROX_PARK + WITHIN_1KM_PRISCH + PROX_MALL + PROX_SUPERMARKET + WITHIN_350M_BUS,
+                data=train_data)
+```
+
+```{r}
+rf
+```
+
+rf results:
+- OOB prediction error MSE = mean square error which is a squared value (need to square root before using this value) 
+- lm model residuals are already square rooted 
+- target node size: 5 subsets of original data
+
+
+# Calibrating random forest - adaptive 
+- should not take more than 10min to run
+- re-running of this code without clearing environment will increase computational time
+- need to free away unused memory
+
+
+```{r}
+set.seed(1234)
+gwRF_adaptive <- grf(formula = resale_price ~  floor_area_sqm + storey_order + remaining_lease_mths + PROX_CBD + WITHIN_350M_CHILDCARE + PROX_ELDERLYCARE +
+               PROX_HAWKER + WITHIN_350M_KINDERGARTEN + 
+                  PROX_MRT  + PROX_PARK + WITHIN_1KM_PRISCH + PROX_MALL + PROX_SUPERMARKET + WITHIN_350M_BUS,
+               dframe=train_data,
+               bw = 55,
+               kernel = "adaptive",
+               coords=coords_train)
+```
+
+
+- AIC and AICc should be quite close in value if there is no bias in the data
+- determining the bandwidth
+    - using from geographically weighted method
+    - or using grf.bw (https://cran.r-project.org/web/packages/SpatialML/SpatialML.pdf)
+    
+- finding out which models are contributing most, type on console> gwRF_adaptive$Global.Model$variable.importance
+- display var importance as a dataframe, type on console or code chunk> vi_df <- as.data.frame(gwRF_adaptive$Global.Model$variable.importance)
+
+# Predicting using Test Data
+
+
+```{r}
+test_data <- cbind(test_data, coords_test) %>% st_drop_geometry()
+```
+
+- combine back the coordinate data with the test data and drop geometry column from test data
+
+
+```{r}
+gwRF_pred <- predict.grf(gwRF_adaptive, 
+                         test_data,
+                         x.var.name="X",
+                         y.var.name="Y",
+                         local.w= 1,
+                         global.w=0)
+```
+
+- this code will take time to run
+- local.w = 1 means calibrate the local version 
+- output is a vector 
+
+
+
+```{r}
+
+```
+
+- using ggplot to plot the predict_grf output; see the fit of the model
+- compare random forest and lm (least square model) output 
+
+
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
