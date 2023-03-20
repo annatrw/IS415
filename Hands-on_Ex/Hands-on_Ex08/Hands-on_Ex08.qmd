@@ -225,7 +225,6 @@ tmap_mode("plot")
 
 This section utilises the <a href="https://www.rdocumentation.org/packages/stats/versions/3.5.2/topics/lm"> lm()</a> from R base.
 
-
 ## Simple Linear Regression Method
 
 First, we will build a simple linear regression model by using SELLING_PRICE as the dependent variable and AREA_SQM as the independent variable.
@@ -325,9 +324,8 @@ In the code chunk below, <a href="https://www.danieldsjoberg.com/gtsummary/refer
 tbl_regression(condo.mlr1, intercept = TRUE)
 ```
 
-Using gtsummary package, model statistics are included in the report by using 
-* add_glace_table() that appends them to the report table
-* add_glance_source_note() that adds statistics as a table source note as shown below
+Using gtsummary package, model statistics are included in the report by using \* add_glace_table() that appends them to the report table \* add_glance_source_note() that adds statistics as a table source note as shown below
+
 ```{r}
 tbl_regression(condo.mlr1, 
                intercept = TRUE) %>% 
@@ -337,9 +335,6 @@ tbl_regression(condo.mlr1,
                 AIC, statistic,
                 p.value, sigma))
 ```
-
-
-
 
 ### Check for Multicolinearity
 
@@ -361,8 +356,6 @@ ols_vif_tol(condo.mlr1)
 ```
 
 Output interpretation: Since the VIF of the independent variables are less than 10. We can safely conclude that there are no sign of multicollinearity among the independent variables.
-
-
 
 #### Test for Non-Linearity
 
@@ -386,16 +379,14 @@ ols_plot_resid_hist(condo.mlr1)
 
 Output interpretation: The figure reveals that the residual of the multiple linear regression model (i.e. condo.mlr1) is resemble normal distribution.
 
-
 ```{r}
 ols_test_normality(condo.mlr1)
 ```
 
 Output interpretation: The summary table above reveals that the p-values of the four tests are way smaller than the alpha value of 0.05. Hence we will reject the null hypothesis and infer that there is statistical evidence that the residual are not normally distributed.
 
-
-
 #### Test for Spatial Autocorrelation
+
 The hedonic model we try to build are using geographically referenced attributes, hence it is also important for us to visualise the residual of the hedonic pricing model.
 
 In order to perform spatial autocorrelation test, we need to convert condo_resale.sf from sf data frame into a SpatialPointsDataFrame.
@@ -422,6 +413,7 @@ The code chunk below will be used to perform the data conversion process.
 condo_resale.sp <- as_Spatial(condo_resale.res.sf)
 condo_resale.sp
 ```
+
 Next, we will use tmap package to display the distribution of the residuals on an interactive map.
 
 ```{r}
@@ -442,34 +434,41 @@ tm_shape(condo_resale.res.sf) +
 ```{r}
 tmap_mode("plot")
 ```
+
 Output interpretation: The figure above reveal that there is sign of spatial autocorrelation.
 
 Using Moran I test to confirm signs of spatial autocorrelation
 
-Compute distance-based weight matrix 
+Compute distance-based weight matrix
+
 ```{r}
 nb <- dnearneigh(coordinates(condo_resale.sp), 0, 1500, longlat = FALSE)
 summary(nb)
 ```
+
 Convert the output neighbours list to spatial weights
+
 ```{r}
 nb_lw <- nb2listw(nb, style = 'W')
 summary(nb_lw)
 ```
+
 Perform Moran I test for residual spatial autocorrelation
+
 ```{r}
 lm.morantest(condo.mlr1, nb_lw)
 ```
-Output interpretation: The Global Moran’s I test for residual spatial autocorrelation shows that it’s p-value is less than 0.00000000000000022 which is less than the alpha value of 0.05. Hence, we will reject the null hypothesis that the residuals are randomly distributed.
+
+Output interpretation: The Global Moran's I test for residual spatial autocorrelation shows that it's p-value is less than 0.00000000000000022 which is less than the alpha value of 0.05. Hence, we will reject the null hypothesis that the residuals are randomly distributed.
 
 Since the Observed Global Moran I = 0.1424418 which is greater than 0, we can infer than the residuals resemble cluster distribution.
 
-
 # Building Hedonic Pricing Models using GWmodel
 
-[lm() function is from base r glm() generic linear regression model is a larger umbrella package]
+\[lm() function is from base r glm() generic linear regression model is a larger umbrella package\]
 
 ## Fixed Bandwidth GWR Model
+
 In the code chunk below bw.gwr() of GWModel package is used to determine the optimal fixed bandwidth to use in the model. Notice that the argument adaptive is set to FALSE indicates that we are interested to compute the fixed bandwidth.
 
 There are two possible approaches can be uused to determine the stopping rule, they are: CV cross-validation approach and AIC corrected (AICc) approach. We define the stopping rule using approach argeement.
@@ -486,6 +485,7 @@ bw.fixed <- bw.gwr(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD +
                    adaptive=FALSE, 
                    longlat=FALSE)
 ```
+
 The recommended bandwidth is 971.3405 meters.
 
 ### GWR Model method for fixed bandwidth
@@ -503,13 +503,12 @@ gwr.fixed <- gwr.basic(formula = SELLING_PRICE ~ AREA_SQM + AGE + PROX_CBD +
 ```
 
 The output is saved to a list of class "gwrm"
+
 ```{r}
 gwr.fixed
 ```
 
 Output interpretation: The report shows that the AICc of the gwr is 42263.61 which is significantly smaller than the globel multiple linear regression model of 42967.1.
-
-
 
 ## Adaptive Bandwidth GWR Model
 
@@ -529,6 +528,7 @@ bw.adaptive <- bw.gwr(formula = SELLING_PRICE ~ AREA_SQM + AGE  +
                       adaptive=TRUE, 
                       longlat=FALSE)
 ```
+
 30 meters is the recommended bandwidth to be used.
 
 ### GWR Model for adaptive bandwidth
@@ -552,21 +552,23 @@ gwr.adaptive
 Output interpretation:The report shows that the AICc the adaptive distance gwr is 41982.22 which is even smaller than the AICc of the fixed distance gwr of 42263.61.
 
 ## Visualising GWR Output
+
 In addition to regression residuals, the output feature class table includes fields for observed and predicted y values, condition number (cond), Local R2, residuals, and explanatory variable coefficients and standard errors:
 
-*Condition Number: this diagnostic evaluates local collinearity. In the presence of strong local collinearity, results become unstable. Results associated with condition numbers larger than 30, may be unreliable.
+\*Condition Number: this diagnostic evaluates local collinearity. In the presence of strong local collinearity, results become unstable. Results associated with condition numbers larger than 30, may be unreliable.
 
-*Local R2: these values range between 0.0 and 1.0 and indicate how well the local regression model fits observed y values. Very low values indicate the local model is performing poorly. Mapping the Local R2 values to see where GWR predicts well and where it predicts poorly may provide clues about important variables that may be missing from the regression model.
+\*Local R2: these values range between 0.0 and 1.0 and indicate how well the local regression model fits observed y values. Very low values indicate the local model is performing poorly. Mapping the Local R2 values to see where GWR predicts well and where it predicts poorly may provide clues about important variables that may be missing from the regression model.
 
-*Predicted: these are the estimated (or fitted) y values 3. computed by GWR.
+\*Predicted: these are the estimated (or fitted) y values 3. computed by GWR.
 
-*Residuals: to obtain the residual values, the fitted y values are subtracted from the observed y values. Standardized residuals have a mean of zero and a standard deviation of 1. A cold-to-hot rendered map of standardized residuals can be produce by using these values.
+\*Residuals: to obtain the residual values, the fitted y values are subtracted from the observed y values. Standardized residuals have a mean of zero and a standard deviation of 1. A cold-to-hot rendered map of standardized residuals can be produce by using these values.
 
-*Coefficient Standard Error: these values measure the reliability of each coefficient estimate. Confidence in those estimates are higher when standard errors are small in relation to the actual coefficient values. Large standard errors may indicate problems with local collinearity.
+\*Coefficient Standard Error: these values measure the reliability of each coefficient estimate. Confidence in those estimates are higher when standard errors are small in relation to the actual coefficient values. Large standard errors may indicate problems with local collinearity.
 
-They are all stored in a SpatialPointsDataFrame or SpatialPolygonsDataFrame object integrated with fit.points, GWR coefficient estimates, y value, predicted values, coefficient standard errors and t-values in its “data” slot in an object called SDF of the output list.
+They are all stored in a SpatialPointsDataFrame or SpatialPolygonsDataFrame object integrated with fit.points, GWR coefficient estimates, y value, predicted values, coefficient standard errors and t-values in its "data" slot in an object called SDF of the output list.
 
 ### Converting SDF into sf Dataframe
+
 ```{r}
 condo_resale.sf.adaptive <- st_as_sf(gwr.adaptive$SDF) %>%
   st_transform(crs=3414)
@@ -590,6 +592,7 @@ glimpse(condo_resale.sf.adaptive)
 ```{r}
 summary(gwr.adaptive$SDF$yhat)
 ```
+
 ### Visualising Local R2
 
 ```{r}
@@ -606,7 +609,8 @@ tm_shape(condo_resale.sf.adaptive) +
 ```{r}
 tmap_mode("plot")
 ```
-### Visualising Coefficient estimates 
+
+### Visualising Coefficient estimates
 
 ```{r}
 tmap_mode("view")
@@ -634,7 +638,9 @@ tmap_arrange(AREA_SQM_SE, AREA_SQM_TV,
 ```{r}
 tmap_mode("plot")
 ```
+
 By URA Planning region
+
 ```{r}
 tm_shape(mpsz_svy21[mpsz_svy21$REGION_N=="CENTRAL REGION", ])+
   tm_polygons()+
@@ -656,4 +662,3 @@ tm_shape(condo_resale.sf.adaptive) +
 ```{r}
 
 ```
-

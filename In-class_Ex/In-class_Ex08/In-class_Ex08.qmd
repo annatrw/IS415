@@ -63,8 +63,7 @@ Reveal extent of mpsz_svy21 layer
 st_bbox(mpsz_svy21) #view extent
 ```
 
-*date field (if it is actual date) will be treated as continuous data causing trouble on spacetime cube
-* good to always view the data and look what it is consisting of 
+*date field (if it is actual date) will be treated as continuous data causing trouble on spacetime cube* good to always view the data and look what it is consisting of
 
 # Aspatial Data Wrangling
 
