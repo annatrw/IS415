@@ -118,6 +118,7 @@ rf results:
 - need to free away unused memory
 
 ```{r}
+#| eval: false
 set.seed(1234)
 gwRF_adaptive <- grf(formula = resale_price ~  floor_area_sqm + storey_order + remaining_lease_mths + PROX_CBD + WITHIN_350M_CHILDCARE + PROX_ELDERLYCARE +
                PROX_HAWKER + WITHIN_350M_KINDERGARTEN + 
@@ -139,11 +140,13 @@ gwRF_adaptive <- grf(formula = resale_price ~  floor_area_sqm + storey_order + r
 # Predicting using Test Data
 
 ```{r}
+#| eval: false
 test_data <- cbind(test_data, coords_test) %>% st_drop_geometry()
 ```
 - combine back the coordinate data with the test data and drop geometry column from test data
 
 ```{r}
+#| eval: false
 gwRF_pred <- predict.grf(gwRF_adaptive, 
                          test_data,
                          x.var.name="X",

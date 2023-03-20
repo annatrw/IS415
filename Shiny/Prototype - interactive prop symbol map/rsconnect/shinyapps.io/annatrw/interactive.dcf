@@ -1,0 +1,13 @@
+name: interactive
+title: interactive
+username:
+account: annatrw
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8419696
+bundleId: 6891682
+url: https://annatrw.shinyapps.io/interactive/
+when: 1677483460.49122
+lastSyncTime: 1677483460.49126
+asMultiple: FALSE
+asStatic: FALSE

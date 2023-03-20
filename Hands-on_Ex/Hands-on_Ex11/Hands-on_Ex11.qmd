@@ -1,0 +1,140 @@
+---
+title: "Hands-on Exercise 11: Modelling Geographical Accessibility"
+date: "20 Mar 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true 
+  warning: false
+editor: visual
+---
+
+# Getting Started
+
+New package: </a href="https://cran.r-project.org/web/packages/SpatialAcc/SpatialAcc.pdf"> SpatialAcc <a>
+
+```{r}
+pacman::p_load(tmap, SpatialAcc, sf, 
+               ggstatsplot, reshape2,
+               tidyverse)
+```
+
+# The Data
+
+Four data sets will be used in this hands-on exercise, they are:
+
+MP14_SUBZONE_NO_SEA_PL: URA Master Plan 2014 subzone boundary GIS data. This data set is downloaded from data.gov.sg.
+
+hexagons: A 250m radius hexagons GIS data. This data set was created by using st_make_grid() of sf package. It is in ESRI shapefile format.
+
+ELDERCARE: GIS data showing location of eldercare service. <a href="https://data.gov.sg/dataset/eldercare-services"> This data</a> is downloaded from data.gov.sg. There are two versions. One in ESRI shapefile format. The other one in Google kml file format. For the purpose of this hands-on exercise, ESRI shapefile format is provided.
+
+OD_Matrix: a distance matrix in csv format. There are six fields in the data file. They are:
+
+-   origin_id: the unique id values of the origin (i.e. fid of hexagon data set.),
+
+-   destination_id: the unique id values of the destination (i.e. fid of ELDERCARE data set.),
+
+-   entry_cost: the perpendicular distance between the origins and the nearest road),
+
+-   network_cost: the actual network distance from the origin and destination,
+
+-   exit_cost: the perpendicular distance between the destination and the nearest road),
+
+-   and total_cost: the summation of entry_cost, network_cost and exit_cost.
+
+:::call-out
+The OD matrix will take a long time to run if using road network.
+:::
+
+
+All the values of the cost related fields are in metres.
+
+Reminder: Except MP14_SUBZONE_NO_SEA_PL data set, the other three data set are specially prepared by Prof. Kam for teaching and research purpose. Students taking IS415 Geospatial Analytics and Applications are allowed to use them for hands-on exercise purpose. Please obtain formal approval from Prof. Kam if you want to use them for other courses or usage.
+
+# Geospatial Data Wrangling
+
+Importing geospatial masterplan subzone layer from 2014
+
+```{r}
+mpsz <- st_read(dsn = "data/geospatial", layer = "MP14_SUBZONE_NO_SEA_PL")
+```
+
+Importing in the hexagon layer
+
+```{r}
+hexagons <- st_read(dsn = "data/geospatial", layer = "hexagons") 
+```
+
+Import the eldercare services layer
+
+```{r}
+eldercare <- st_read(dsn = "data/geospatial", layer = "ELDERCARE") 
+```
+
+## Update CRS Information
+
+```{r}
+mpsz <- st_transform(mpsz, 3414)
+hezagons <- st_transform(hexagons, 3414)
+eldercare <- st_transform(eldercare, 3414)
+```
+
+```{r}
+st_crs(mpsz)
+```
+
+# Aspatial Data Wrangling
+
+```{r}
+ODMatrix <- read_csv("data/aspatial/OD_Matrix.csv", skip = 0)
+```
+
+The rows represent origins (i.e. also know as from field) and the columns represent destination (i.e. also known as to field.)
+
+The code chunk below uses spread() of tidyr package is used to transform the O-D matrix from a thin format into a fat format.
+
+```{r}
+distmat <- ODMatrix %>%
+  select(origin_id, destination_id, total_cost) %>%
+  spread(destination_id, total_cost)%>%
+  select(c(-c('origin_id')))
+```
+
+Note: Since tidyr version 1.0 a new function called pivot_wider() is introduce. You should use pivot_wider() instead of spread()
+
+Currently, the distance is measured in metre because SVY21 projected coordinate system is used. The code chunk below will be used to convert the unit f measurement from metre to kilometre.
+
+```{r}
+distmat_km <- as.matrix(distmat/1000)
+```
+
+# Modelling Accessibility using Hansen Method
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+## Visualising Model Output
+
+```{r}
+
+```
+
+# Modelling Accessibility using KD2SFCA Method
+
+```{r}
+
+```
+
+```{r}
+
+```

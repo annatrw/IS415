@@ -379,7 +379,6 @@ It is revealed that the aspatial data contains records on Seribu region that is 
 
 ![](img/seribu_remove.png)
 
-
 ## Removing Seribu Islands
 
 Filter out records of Seribu islands
@@ -534,6 +533,7 @@ tmap_arrange(
 An overall trend of the Southern and central regions having higher vaccination rates compared to the extreme Western and Eastern regions. Although subtle, there is a gradual increase in vaccination rates from Janurary 2022 to April 2022. Western regions had a vaccination rate of 76.8% to 82.88 - 84.12%. Consistently high vaccination rates are observed in the Southern regions, maintaining rates in the 85.10 - 89.78% range.
 
 # Local Gi\* Analysis
+
 num 10 hands on - hot and cold mapping
 
 ## Obtaining Centroids
@@ -688,5 +688,3 @@ jakarta.gi$subdistrict[which.min(jakarta.gi$gstat_adaptive)]
 This indicates Kebon Melati is a cold spot, where surrounding subdistricts have low vaccination rates and are clustered together.
 
 Majority of subdistricts in Western Jakarta are in the -1 to 0 Gi value range, indicating that there is slight clustering of subdistricts with low vaccination rates. Similarly, subdistricts in Northeast and Southern Jakarta have 0 to 1 Gi value, indicating slight clustering of subdistricts with high vaccination rates.
-
-

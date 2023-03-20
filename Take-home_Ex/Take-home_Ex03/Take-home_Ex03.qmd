@@ -1,85 +1,211 @@
 ---
 title: "Take Home Exercise 3"
-date: "__ 2023"
+date: "26 March 2023"
 date-modified: "`r Sys.Date()`"
 format: html
 execute: 
+  eval: true
+  echo: true 
   message: true
   warning: false
 editor: visual
 ---
 
+# Setting The Scene
+
+Housing is an essential component of household wealth worldwide. Buying a housing has always been a major investment for most people. The price of housing is affected by many factors. Some of them are global in nature such as the general economy of a country or inflation rate. Others can be more specific to the properties themselves. These factors can be further divided to structural and locational factors. Structural factors are variables related to the property themselves such as the size, fitting, and tenure of the property. Locational factors are variables related to the neighbourhood of the properties such as proximity to childcare centre, public transport service and shopping centre.
+
+Conventional, housing resale prices predictive models were built by using <a href="https://en.wikipedia.org/wiki/Ordinary_least_squares">Ordinary Least Square (OLS)</a> method. However, this method failed to take into consideration that spatial autocorrelation and spatial heterogeneity exist in geographic data sets such as housing transactions. With the existence of spatial autocorrelation, the OLS estimation of predictive housing resale pricing models could lead to biased, inconsistent, or inefficient results (Anselin 1998). In view of this limitation, Geographical Weighted Models were introduced for calibrating predictive model for housing resale prices.
+
+# The Task
+
+In this take-home exercise, you are tasked to predict HDB resale prices at the sub-market level (i.e. HDB 3-room, HDB 4-room and HDB 5-room) for the month of January and February 2023 in Singapore. The predictive models must be built by using by using conventional OLS method and GWR methods. You are also required to compare the performance of the conventional OLS method versus the geographical weighted methods.
+
+# The Data
+
+Structural and Locational factors will be extracted:
+
+-   Structural factors
+
+    -   Area of the unit
+
+    -   Floor level
+
+    -   Remaining lease
+
+    -   Age of the unit
+
+-   Locational factors
+
+    -   Proxomity to CBD
+
+    -   Proximity to eldercare
+
+    -   Proximity to hawker centres
+
+    -   Proximity to MRT
+
+    -   Proximity to park
+
+    -   Proximity to good primary school
+
+    -   Proximity to shopping mall
+
+    -   Proximity to supermarket
+
+    -   Number of kindergartens within 350m
+
+    -   Number of childcare centres within 350m
+
+    -   Number of bus stop within 350m
+
+    -   Number of primary schools within 1km
+
+The following table describes the data sources used in this assignment.
+
 ```{r}
-pacman::p_load(tidygeocoder, sf, tidyverse, tmap, jsonlite )
+datasets <- data.frame(
+  Type=c("Aspatial",
+         "Geospatial",
+         "Geospatial - Extracted",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial - Extracted",
+         "Geospatial - Extracted",
+         "Geospatial - Extracted",
+         "Geospatial - Extracted",
+         "Geospatial",
+         "Geospatial",
+         "Geospatial"
+         ),
+  
+  Name=c("Resale Flat Prices",
+         "Master Plan 2019 Subzone Boundary (Web)",
+         "Central Business District Coordinates",
+         "Eldercare Services",
+         "Hawker Centres",
+         "MRT Stations",
+         "Parks",
+         "Good Primary Schools",
+         "Shopping Mall",
+         "Supermarkets",
+         "Kindergartens",
+         "Childcare Services",
+         "Bus Stops",
+         "Primary Schools"),
+  
+  Format=c(".csv", 
+           ".shp", 
+           ".shp", 
+           ".shp", 
+           ".geojson",
+           ".shp", 
+           ".kml", 
+           ".shp", 
+           ".geojson",
+           ".geojson", 
+           ".shp",
+           ".geojson",
+           ".shp",
+           ".xlsx"
+           ),
+  
+  Source=c("[data.gov.sg](https://data.gov.sg/dataset/resale-flat-prices)",
+           "[In-Class Ex 9](https://data.gov.sg/dataset/master-plan-2019-subzone-boundary-no-sea)",
+           "[latlong.net](https://www.latlong.net/place/downtown-core-singapore-20616.html)",
+           "[data.gov.sg](https://data.gov.sg/dataset/eldercare-services)",
+           "[data.gov.sg](https://data.gov.sg/dataset/hawker-centres)",
+           "[Datamall](https://datamall.lta.gov.sg/content/dam/datamall/datasets/Geospatial/TrainStationExit.zip)",
+           "[data.gov.sg](https://data.gov.sg/dataset/parks)",
+           
+           "[salary.sg](https://www.salary.sg/2022/best-primary-schools-2022-by-popularity/)",
+           "[Mall SVY21 Coordinates Web Scaper](https://github.com/ValaryLim/Mall-Coordinates-Web-Scraper)",
+           "[data.gov.sg](https://data.gov.sg/dataset/supermarkets)",
+           "[OneMap API](https://www.onemap.gov.sg/docs/)",
+           "[Hands-on Ex 3](https://annatrw-is415.netlify.app/hands-on_ex/hands-on_ex03/hands-on_ex03)",
+           "[Datamall](https://datamall.lta.gov.sg/content/dam/datamall/datasets/Geospatial/BusStopLocation.zip)",
+           "[data.gov.sg](https://data.gov.sg/dataset/school-directory-and-information)"
+           )
+  )
+
+# with reference to this guide on kableExtra:
+# https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html
+# kable_material is the name of the kable theme
+# 'hover' for to highlight row when hovering, 'scale_down' to adjust table to fit page width
+library(knitr)
+library(kableExtra)
+kable(datasets, caption="Datasets Used") %>%
+  kable_material("hover", latex_options="scale_down")
 ```
 
+# Importing Required R Packages
 
-# aspatial data
+<introduce the packages>
+
+[GWmodel](https://www.jstatsoft.org/article/view/v063i17)
+
 ```{r}
+pacman::p_load(tidygeocoder, sf, tidyverse, tmap, jsonlite, rvest, onemapsgapi, olsrr, corrplot, ggpubr, spdep, GWmodel, gtsummary, ggthemes, zoo, SpatialML, tmap, rsample, Metrics)
+```
+
+# Structural Factors
+
+## Import HDB Resale Prices Data
+
+Using read_csv(), import the HDB resale price data.
+
+```{r}
+#| eval: false
 resale_all <- read_csv("data/aspatial/resale-flat-prices-based-on-registration-date-from-jan-2017-onwards.csv")
 ```
 
+This is how the resale data looks like.
+
 ```{r}
+#| eval: false
 glimpse(resale_all)
 ```
-::: 
-if (grepl('2017', resale_all$month)==TRUE & grepl('2018', resale_all$month)==TRUE & grepl('2019', resale_all$month)==TRUE ){
-  resale17 <- resale_all %>% filter(resale_all, month!='2017')
-:::
 
-using grepl() function [https://www.programiz.com/r/examples/check-if-character-present-in-string]
+Filter out 2021 and 2022 data as per assignment requirement using [grepl()](https://www.programiz.com/r/examples/check-if-character-present-in-string).
+
 ```{r}
+#| eval: false 
 resale2122 <- filter(resale_all, grepl('2021', month)|grepl('2022', month))
 ```
 
+Filter out 2023 data for testing.
+
 ```{r}
+#| eval: false
 resale23_test <- filter(resale_all, grepl('2023', month))
 ```
 
+
+For the purposes of this assignment, we will be focusing on 5 Room HDB resale flat prices.
+
 ```{r}
-n_distinct(resale2122$flat_type)
-```
-```{r}
+#| eval: false
 unique(resale2122$flat_type)
 ```
 
-
 ```{r}
-nrow(resale2122[resale2122$flat_type == '2 ROOM',])
-```
-```{r}
-nrow(resale_all[resale_all$flat_type == '3 ROOM',])
-```
-```{r}
-nrow(resale_all[resale_all$flat_type == '4 ROOM',])
-```
-```{r}
-nrow(resale_all[resale_all$flat_type == '5 ROOM',])
-```
-```{r}
+#| eval: false
 resale2122_5r <- filter(resale2122, flat_type == '5 ROOM')
 ```
 
-geocode resale data using tidygeocoder package
-https://cran.r-project.org/web/packages/tidygeocoder/readme/README.html 
 ```{r}
-geocoded <- resale2122_5r %>%
-  geocode(street_name, method = 'osm', lat = latitude , long = longitude)
-geocoded
+#| eval: false
+resale23_test <- filter(resale23_test, flat_type == '5 ROOM')
 ```
 
-```{r}
-sum(is.na(geocoded$longitude))
-```
+## Geocode Resale Data
 
-
-geocoding using onemap API
-```{r}
-resale2122_5r$street_name <- gsub("ST\\.", "SAINT", resale2122_5r$street_name)
-
-```
+Referencing [senior's](https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/#geocoding-our-aspatial-data) work, this geocoding function using onemap API will retrieve the latitude and longitude for resale data.
 
 ```{r}
+#| eval: false
 library(httr)
 geocode_function <- function(block, street_name) {
   base_url <- "https://developers.onemap.sg/commonapi/search"
@@ -100,8 +226,19 @@ geocode_function <- function(block, street_name) {
 }
 ```
 
+::: panel-tabset
+### Training Data
 
 ```{r}
+#| eval: false
+resale2122_5r$street_name <- gsub("ST\\.", "SAINT", resale2122_5r$street_name)
+
+```
+
+Execute the geocoding function
+
+```{r}
+#| eval: false
 resale2122_5r$LATITUDE <- 0
 resale2122_5r$LONGITUDE <- 0
 
@@ -113,58 +250,1045 @@ for (i in 1:nrow(resale2122_5r)){
 }
 ```
 
+We check if there are null values in the coordinate columns, in which there are none.
 ```{r}
+#| eval: false
 sum(is.na(resale2122_5r$LATITUDE))
 
 ```
 
 ```{r}
+#| eval: false
 sum(is.na(resale2122_5r$LONGITUDE))
 ```
 
+
+### Testing Data
+
 ```{r}
+#| eval: false
+resale23_test$street_name <- gsub("ST\\.", "SAINT", resale23_test$street_name)
 
 ```
 
-# geospatial data
-
-locational factors
-
-- MRT stations [lta datamall]
-- bus stops [lta datamall]
-- supermarkets 
-- parks
-- hawker centre
-- eldercare services
-- primary schools within 1km
-- good primary schools from <a href="https://www.salary.sg/2022/best-primary-schools-2022-by-popularity/">link</a> top 20 schools
+Execute the geocoding function
 
 ```{r}
+#| eval: false
+resale23_test$LATITUDE <- 0
+resale23_test$LONGITUDE <- 0
 
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
+for (i in 1:nrow(resale23_test)){
+  temp_output <- geocode_function(resale23_test[i, 4], resale23_test[i, 5])
+  
+  resale23_test$LATITUDE[i] <- temp_output$results.LATITUDE
+  resale23_test$LONGITUDE[i] <- temp_output$results.LONGITUDE
+}
 ```
 
 
 ```{r}
+#| eval: false
+sum(is.na(resale23_test$LATITUDE))
+```
+
+```{r}
+#| eval: false
+sum(is.na(resale23_test$LONGITUDE))
+```
+:::
+
+## Remaining Lease
+
+Referencing [senior's](https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/#remaining-lease) work, the remaining lease in years is retrieved by converting years and months into years.
+
+::: panel-tabset
+### Training Data
+
+```{r}
+#| eval: false
+str_list <- str_split(resale2122_5r$remaining_lease, " ")
+
+for (i in 1:length(str_list)) {
+  if (length(unlist(str_list[i])) > 2) {
+      year <- as.numeric(unlist(str_list[i])[1])
+      month <- as.numeric(unlist(str_list[i])[3])
+      resale2122_5r$remaining_lease[i] <- year + round(month/12, 2)
+  }
+  else {
+    year <- as.numeric(unlist(str_list[i])[1])
+    resale2122_5r$remaining_lease[i] <- year
+  }
+}
+```
+
+### Testing Data
+
+```{r}
+#| eval: false
+str_list <- str_split(resale23_test$remaining_lease, " ")
+
+for (i in 1:length(str_list)) {
+  if (length(unlist(str_list[i])) > 2) {
+      year <- as.numeric(unlist(str_list[i])[1])
+      month <- as.numeric(unlist(str_list[i])[3])
+      resale23_test$remaining_lease[i] <- year + round(month/12, 2)
+  }
+  else {
+    year <- as.numeric(unlist(str_list[i])[1])
+    resale23_test$remaining_lease[i] <- year
+  }
+}
+```
+:::
+
+## Floor Level
+
+Referencing [senior's](https://aisyahajit2018-is415.netlify.app/posts/2021-11-07-take-home-exercise-3/?panelset9=check-crs&panelset7=code-chunk8&panelset14=code-chunk15&panelset15=code-chunk16&panelset22=code-chunk23&panelset27=glimpse8#extract-unique-storey_range-and-sort) work, the floor level is retrieved by first sorting the storeys in ascending order, then assigning a numerical value to each category.
+
+::: panel-tabset
+### Training Data
+
+```{r}
+#| eval: false
+storeys <- sort(unique(resale2122_5r$storey_range))
+```
+
+```{r}
+#| eval: false
+storey_order <- 1:length(storeys)
+storey_range_order <- data.frame(storeys, storey_order)
+```
+
+```{r}
+#| eval: false
+resale2122_5r <- left_join(resale2122_5r, storey_range_order, by= c("storey_range" = "storeys"))
+```
+
+### Testing Data
+
+```{r}
+#| eval: false
+storeys <- sort(unique(resale23_test$storey_range))
+```
+
+```{r}
+#| eval: false
+storey_order <- 1:length(storeys)
+storey_range_order <- data.frame(storeys, storey_order)
+```
+
+```{r}
+#| eval: false
+resale23_test <- left_join(resale23_test, storey_range_order, by= c("storey_range" = "storeys"))
+```
+:::
+
+## Age of Unit
+
+::: panel-tabset
+### Training Data
+
+Convert the date field to a date data type, which assumes the first day of the month since date is in yyyy/mm format; referencing [sources](https://stackoverflow.com/questions/6242955/converting-year-and-month-yyyy-mm-format-to-a-date) [online](https://stackoverflow.com/questions/36568070/extract-year-from-date).
+
+```{r}
+#| eval: false
+date <- as.Date(as.yearmon(resale2122_5r$month))
+resale2122_5r$start <- as.numeric(format(date,'%Y'))
+```
+
+Age of unit calculation will only consider the year when the flat was sold.
+
+```{r}
+#| eval: false
+resale2122_5r$UNIT_AGE <- resale2122_5r$start - resale2122_5r$lease_commence_date
+```
+
+
+### Testing Data
+
+```{r}
+#| eval: false
+date <- as.Date(as.yearmon(resale23_test$month))
+resale23_test$start <- as.numeric(format(date,'%Y'))
+resale23_test$UNIT_AGE <- resale23_test$start - resale23_test$lease_commence_date
+
+```
+:::
+
+## Convert Resale Data To sf Object 
+
+Convert the dataframe into an sf object with geometry field attached, referencing [here](https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/#convert-into-sf-objects-transforming-coordinate-system).
+
+::: panel-tabset
+### Training Data
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- st_as_sf(resale2122_5r, 
+                      coords = c("LONGITUDE", 
+                                 "LATITUDE"), 
+                      # the geographical features are in longitude & latitude, in decimals
+                      # as such, WGS84 is the most appropriate coordinates system
+                      crs=4326) %>%
+  #afterwards, we transform it to SVY21, our desired CRS
+  st_transform(crs = 3414)
+```
+
+### Testing Data
+
+```{r}
+#| eval: false
+resale23_test_sf <- st_as_sf(resale23_test, 
+                      coords = c("LONGITUDE", 
+                                 "LATITUDE"), 
+                      # the geographical features are in longitude & latitude, in decimals
+                      # as such, WGS84 is the most appropriate coordinates system
+                      crs=4326) %>%
+  #afterwards, we transform it to SVY21, our desired CRS
+  st_transform(crs = 3414)
+```
+:::
+
+# Locational Factors
+
+As mentioned, the following locational factors will be used for predictive modelling of HDB resale prices.
+
+-   Proximity to CBD
+-   Proximity to eldercare services
+-   Proximity to hawker centres
+-   Proximity to MRT stations
+-   Proximity to parks
+-   Proximity to good primary schools
+-   proximity to shopping malls
+-   proximity to supermarkets
+-   Number of kindergarten within 350m
+-   Number of child care services within 350m
+-   Number of bus stops within 350m
+-   Number of primary schools within 1km
+
+## Factors With Geographic Coordinates
+
+### Self-sourced and referenced
+
+#### Kindergartens
+
+Using [OneMap API](https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/?panelset5=healthcare%252Feducation&panelset2=extracted3&panelset4=sg#using-the-onemapsg-api) retrieval methods, my personal token was pre-loaded into the token variable and used to call the OneMap API to retrieve location of kindergartens in Singapore as an sf object.
+
+```{r}
+#| echo: false
+token <-'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEwMDEyLCJ1c2VyX2lkIjoxMDAxMiwiZW1haWwiOiJhbm5uYXRzZW5nQGdtYWlsLmNvbSIsImZvcmV2ZXIiOmZhbHNlLCJpc3MiOiJodHRwOlwvXC9vbTIuZGZlLm9uZW1hcC5zZ1wvYXBpXC92MlwvdXNlclwvc2Vzc2lvbiIsImlhdCI6MTY3ODY3MzQ5MywiZXhwIjoxNjc5MTA1NDkzLCJuYmYiOjE2Nzg2NzM0OTMsImp0aSI6ImE5YmMzOGI2ZTFmOGQ5MzNkMWFhMTVkNDBlZGRlMTM0In0.QvTy9dkFDTNQe0GUUfJMBPGAzwGmN4QtksazVxoMjF4'
+```
+
+```{r}
+#| eval: false
+search_themes(token, "kindergarten")
+get_theme_status(token, "kindergartens")
+themetibble <- get_theme(token, "kindergartens")
+kindergarten_sf <- st_as_sf(themetibble, coords=c("Lng", "Lat"), crs=4326)
+```
+
+
+#### Shopping Malls
+
+With reference to a previously done [project](https://github.com/ValaryLim/Mall-Coordinates-Web-Scraper) to scrape the locations of shopping malls in Singapore, read in the csv and convert it to an sf object with appropriate projection system.
+
+```{r}
+#| eval: false
+mall_csv <- read_csv("data/geospatial/mall_coordinates_updated.csv")
+```
+
+```{r}
+#| eval: false
+glimpse(mall_csv)
+```
+
+```{r}
+#| eval: false
+malls_sf <- st_as_sf(mall_csv,
+                    coords = c("longitude", 
+                               "latitude"),
+                    crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+### Geojson Sources
+
+Read in the geojson files.
+
+```{r}
+#| eval: false
+elder_sf <- st_read(dsn = "data/geospatial/ElderCare", layer="ELDERCARE")
+mrt_sf <- st_read(dsn = "data/geospatial/TrainStationExit", layer="Train_Station_Exit_Layer")
+bus_sf <- st_read(dsn = "data/geospatial/BusStop_Feb2023", layer="BusStop")
+
+hawker_sf <- st_read("data/geospatial/hawker-centres-geojson.geojson") 
+parks_sf <- st_read("data/geospatial/parks.kml") 
+supermkt_sf <- st_read("data/geospatial/supermarkets-geojson.geojson") 
+childcare_sf <- st_read("data/geospatial/child-care-services-geojson.geojson") 
+
+mpsz_sf <- st_read(dsn="data/geospatial/MPSZ2019", layer = "MPSZ-2019") 
+```
+
+```{r}
+# kiv might delete/ write rds/ eval false
+mpsz_sf <- st_read(dsn="data/geospatial/MPSZ2019", layer = "MPSZ-2019")
+mpsz_sf <- st_set_crs(mpsz_sf, 3414)
+mpsz_sf <- sf::st_make_valid(mpsz_sf)
+length(which(st_is_valid(mpsz_sf) == FALSE))
+```
+
+#### CRS
+
+Check the CRS for the layers.
+
+```{r}
+#| eval: false
+st_crs(elder_sf)
+st_crs(mrt_sf)
+st_crs(bus_sf)
+st_crs(hawker_sf)
+st_crs(parks_sf)
+st_crs(supermkt_sf)
+st_crs(childcare_sf)
+st_crs(mpsz_sf)
+st_crs(kindergarten_sf)
+st_crs(malls_sf)
+```
+
+They are projected wrongly - using EPSG 9001 - when it should be EPSG 4326 instead.
+
+Set correct CRS except for malls_sf which is already EPSG3414 done in previous section when transforming to sf object.
+
+```{r}
+#| eval: false
+mpsz_sf <- st_set_crs(mpsz_sf, 3414)
+elder_sf <- st_set_crs(elder_sf, 3414)
+mrt_sf <- st_set_crs(mrt_sf, 3414)
+bus_sf <- st_set_crs(bus_sf, 3414)
+
+hawker_sf <- hawker_sf %>%
+  st_transform(crs = 3414)
+parks_sf <- parks_sf %>%
+  st_transform(crs = 3414)
+supermkt_sf <- supermkt_sf %>%
+  st_transform(crs = 3414)
+childcare_sf <- childcare_sf %>%
+  st_transform(crs = 3414)
+kindergarten_sf <- kindergarten_sf %>%
+  st_transform(crs = 3414)
+```
+
+Verify that there are no invalid geometries:
+
+```{r}
+#| eval: false
+length(which(st_is_valid(mpsz_sf) == FALSE))
+
+length(which(st_is_valid(elder_sf) == FALSE))
+length(which(st_is_valid(mrt_sf) == FALSE))
+length(which(st_is_valid(bus_sf) == FALSE))
+length(which(st_is_valid(hawker_sf) == FALSE))
+length(which(st_is_valid(supermkt_sf) == FALSE))
+length(which(st_is_valid(parks_sf) == FALSE))
+length(which(st_is_valid(childcare_sf) == FALSE))
+length(which(st_is_valid(kindergarten_sf) == FALSE))
+length(which(st_is_valid(malls_sf) == FALSE))
+
+```
+
+However, there are invalid geometries for mpsz_sf; which can be easily rectified with st_make_valid().
+
+```{r}
+#| eval: false
+mpsz_sf <- sf::st_make_valid(mpsz_sf)
+length(which(st_is_valid(mpsz_sf) == FALSE))
+
+```
+
+### Calculate Proximity
+
+Using a [proximity](https://aisyahajit2018-is415.netlify.app/posts/2021-11-07-take-home-exercise-3/?panelset9=check-crs&panelset7=code-chunk8#call-get_prox-function) function from senior's work, st_distance is used to compute a distance matrix which will retrieve the minimum distance from origin to destination.
+
+```{r}
+#| eval: false
+get_prox <- function(origin_df, dest_df, col_name){
+  
+  # creates a matrix of distances
+  dist_matrix <- st_distance(origin_df, dest_df)           
+  
+  # find the nearest location_factor and create new data frame
+  near <- origin_df %>% 
+    mutate(PROX = apply(dist_matrix, 1, function(x) min(x)) / 1000) 
+  
+  # rename column name according to input parameter
+  names(near)[names(near) == 'PROX'] <- col_name
+
+  # Return df
+  return(near)
+}
+```
+
+::: panel-tabset
+### Training Data
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, elder_sf, "PROX_ELDERCARE") 
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, mrt_sf, "PROX_MRT")
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, hawker_sf, "PROX_HAWKER") 
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, parks_sf, "PROX_PARK") 
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, supermkt_sf, "PROX_SUPERMARKET")
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, malls_sf, "PROX_MALL")
+
+```
+
+### Testing Data
+
+```{r}
+#| eval: false
+resale23_test_sf <- get_prox(resale23_test_sf, elder_sf, "PROX_ELDERCARE") 
+resale23_test_sf <- get_prox(resale23_test_sf, mrt_sf, "PROX_MRT")
+resale23_test_sf <- get_prox(resale23_test_sf, hawker_sf, "PROX_HAWKER") 
+resale23_test_sf <- get_prox(resale23_test_sf, parks_sf, "PROX_PARK") 
+resale23_test_sf <- get_prox(resale23_test_sf, supermkt_sf, "PROX_SUPERMARKET")
+resale23_test_sf <- get_prox(resale23_test_sf, malls_sf, "PROX_MALL")
+
+```
+:::
+
+## Calculate Number of Amenities
+
+Using a [function](https://aisyahajit2018-is415.netlify.app/posts/2021-11-07-take-home-exercise-3/?panelset9=check-crs&panelset7=code-chunk8#create-get_within-function-to-calculate-no.-of-factors-within-dist) to get the number of amenities within a certain distance from senior's work, the get within function counts the number of amenities within the threshold distance.
+
+```{r}
+#| eval: false
+get_within <- function(origin_df, dest_df, threshold_dist, col_name){
+  
+  # creates a matrix of distances
+  dist_matrix <- st_distance(origin_df, dest_df)   
+  
+  # count the number of location_factors within threshold_dist and create new data frame
+  wdist <- origin_df %>% 
+    mutate(WITHIN_DT = apply(dist_matrix, 1, function(x) sum(x <= threshold_dist)))
+  
+  # rename column name according to input parameter
+  names(wdist)[names(wdist) == 'WITHIN_DT'] <- col_name
+
+  # Return df
+  return(wdist)
+}
+```
+
+::: panel-tabset
+### Training Data
+
+#### Number of Kindergartens Within 350m
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- get_within(resale2122_5r_sf, kindergarten_sf, 350, "WITHIN_350M_KINDERGARTEN")
+```
+
+#### Number of Childcare Centres Within 350m
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- get_within(resale2122_5r_sf, childcare_sf, 350, "WITHIN_350M_CHILDCARE")
+```
+
+#### Number of Bus Stops Within 350m
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- get_within(resale2122_5r_sf, bus_sf, 350, "WITHIN_350M_BUS")
+```
+
+### Testing Data
+
+#### Number of Kindergartens Within 350m
+
+```{r}
+#| eval: false
+resale23_test_sf <- get_within(resale23_test_sf, kindergarten_sf, 350, "WITHIN_350M_KINDERGARTEN")
+```
+
+#### Number of Childcare Centres Within 350m
+
+```{r}
+#| eval: false
+resale23_test_sf <- get_within(resale23_test_sf, childcare_sf, 350, "WITHIN_350M_CHILDCARE")
+```
+
+#### Number of Bus Stops Within 350m
+
+```{r}
+#| eval: false
+resale23_test_sf <- get_within(resale23_test_sf, bus_sf, 350, "WITHIN_350M_BUS")
+```
+:::
+
+## Factors Without Geographic Coordinates
+
+### CBD
+
+Get the coordinates of Singapore's Central Business District in Downtown Core using <a href="https://www.latlong.net/place/downtown-core-singapore-20616.html">latlong.net</a>: 1.287953, 103.851784
+
+```{r}
+#| eval: false
+name <- c('CBD')
+latitude= c(1.287953)
+longitude= c(103.851784)
+cbd <- data.frame(name, latitude, longitude)
+```
+
+```{r}
+#| eval: false
+cbd_sf <- st_as_sf(cbd, coords = c("longitude", "latitude"), crs = 4326) %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+#| eval: false
+st_crs(cbd_sf)
+```
+
+Upon checking, the CBD data is in the correct CRS.
+
+#### Get Proximity To CBD
+
+This is done by calling the earlier defined get_prox function.
+
+::: panel-tabset
+##### Training Data
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, cbd_sf, "PROX_CBD") 
+
+```
+
+##### Testing Data
+
+```{r}
+#| eval: false
+resale23_test_sf <- get_prox(resale23_test_sf, cbd_sf, "PROX_CBD") 
+
+```
+:::
+
+### Primary Schools
+
+Read the csv of schools and filter out the primary schools for study.
+
+```{r}
+#| eval: false
+pri_sch <- read_csv("data/geospatial/general-information-of-schools.csv")
+```
+
+```{r}
+#| eval: false
+pri_sch <- pri_sch %>%
+  filter(mainlevel_code == "PRIMARY") %>%
+  select(school_name, address, postal_code, mainlevel_code)
+```
+
+```{r}
+#| eval: false
+glimpse(pri_sch)
+```
+
+#### Geocode
+
+Referencing [this link](https://aisyahajit2018-is415.netlify.app/posts/2021-11-07-take-home-exercise-3/?panelset9=check-crs&panelset7=code-chunk8&panelset14=code-chunk15&panelset15=code-chunk16&panelset22=code-chunk23&panelset27=code-chunk28#create-function-to-retrieve-coordinates-from-onemap.sg-api), define a get_coords() function that utilises the OneMap API, feeding the postal codes through it to get latitude and longitude.
+
+```{r}
+#| eval: false
+get_coords <- function(add_list){
+  
+  # Create a data frame to store all retrieved coordinates
+  postal_coords <- data.frame()
+    
+  for (i in add_list){
+    #print(i)
+
+    r <- GET('https://developers.onemap.sg/commonapi/search?',
+           query=list(searchVal=i,
+                     returnGeom='Y',
+                     getAddrDetails='Y'))
+    data <- fromJSON(rawToChar(r$content))
+    found <- data$found
+    res <- data$results
+    
+    # Create a new data frame for each address
+    new_row <- data.frame()
+    
+    # If single result, append 
+    if (found == 1){
+      postal <- res$POSTAL 
+      lat <- res$LATITUDE
+      lng <- res$LONGITUDE
+      new_row <- data.frame(address= i, postal = postal, latitude = lat, longitude = lng)
+    }
+    
+    # If multiple results, drop NIL and append top 1
+    else if (found > 1){
+      # Remove those with NIL as postal
+      res_sub <- res[res$POSTAL != "NIL", ]
+      
+      # Set as NA first if no Postal
+      if (nrow(res_sub) == 0) {
+          new_row <- data.frame(address= i, postal = NA, latitude = NA, longitude = NA)
+      }
+      
+      else{
+        top1 <- head(res_sub, n = 1)
+        postal <- top1$POSTAL 
+        lat <- top1$LATITUDE
+        lng <- top1$LONGITUDE
+        new_row <- data.frame(address= i, postal = postal, latitude = lat, longitude = lng)
+      }
+    }
+
+    else {
+      new_row <- data.frame(address= i, postal = NA, latitude = NA, longitude = NA)
+    }
+    
+    # Add the row
+    postal_coords <- rbind(postal_coords, new_row)
+  }
+  return(postal_coords)
+}
+```
+
+We extract the unique postal codes and feed them through the get_coords function.
+
+```{r}
+#| eval: false
+prisch_postal <- sort(unique(pri_sch$postal_code))
+```
+
+```{r}
+#| eval: false
+prisch_coords <- get_coords(prisch_postal)
+```
+
+This code checks for any null values in the retrieved coordinates data.
+
+```{r}
+#| eval: false
+prisch_coords[(is.na(prisch_coords$postal) | is.na(prisch_coords$latitude) | is.na(prisch_coords$longitude)), ]
+
+```
+
+```{r}
+#| eval: false
+glimpse(prisch_coords)
+```
+
+We can safely combine the retrieved coordinates with the original primary schools csv data.
+
+```{r}
+#| eval: false
+prisch_coords = prisch_coords[c("postal","latitude", "longitude")]
+pri_sch <- left_join(pri_sch, prisch_coords, by = c('postal_code' = 'postal'))
+```
+
+Lastly, we convert to it to an sf object with the correct projection.
+
+```{r}
+#| eval: false
+prisch_sf <- st_as_sf(pri_sch,
+                    coords = c("longitude", 
+                               "latitude"),
+                    crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+#### Number of Primary Schools Within 1km
+
+Run the primary schools data through the get_within function to get the number of primary schools within 1km.
+
+::: panel-tabset
+##### Training Data
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- get_within(resale2122_5r_sf, prisch_sf, 1000, "WITHIN_1KM_PRISCH")
+```
+
+##### Testing Data
+
+```{r}
+#| eval: false
+resale23_test_sf <- get_within(resale23_test_sf, prisch_sf, 1000, "WITHIN_1KM_PRISCH")
+```
+:::
+
+## Good Primary Schools
+
+With reference to <a href="https://www.salary.sg/2022/best-primary-schools-2022-by-popularity/">salary.sg</a>, we can extract the top 10 primary schools in 2022. Using the method employed by [senior](https://aisyahajit2018-is415.netlify.app/posts/2021-11-07-take-home-exercise-3/?panelset9=check-crs&panelset7=code-chunk8&panelset14=code-chunk15&panelset15=code-chunk16#good-primary-schools-top-10), the following web crawling method is used to search for the html element - which is a list item - on the web page to retrieve the top 10 primary schools.
+
+```{r}
+url <- "https://www.salary.sg/2022/best-primary-schools-2022-by-popularity/"
+
+good_pri <- data.frame()
+
+schools <- read_html(url) %>%
+  html_nodes(xpath = paste('//*[@id="post-33132"]/div[3]/div/div/ol/li') ) %>%
+  html_text() 
+
+for (i in (schools)){
+  sch_name <- toupper(gsub(" – .*","",i))
+  sch_name <- gsub("\\(PRIMARY SECTION)","",sch_name)
+  sch_name <- trimws(sch_name)
+  new_row <- data.frame(pri_sch_name=sch_name)
+  # Add the row
+  good_pri <- rbind(good_pri, new_row)
+}
+
+top_good_pri <- head(good_pri, 10)
+```
+
+```{r}
+#| eval: false
+top_good_pri
+```
+
+Check which top schools are not in prisch_sf.
+
+```{r}
+#| eval: false
+top_good_pri$pri_sch_name[!top_good_pri$pri_sch_name %in% prisch_sf$school_name]
+```
+
+Get the coordinates list of good primary schools and check for null values, upon which we see that St Hilda's primary school does not exist in the prisch_sf data.
+
+```{r}
+#| eval: false
+good_pri_list <- unique(top_good_pri$pri_sch_name)
+good_pri_list
+```
+
+```{r}
+#| eval: false
+goodprisch_coords <- get_coords(good_pri_list)
+goodprisch_coords
+```
+
+```{r}
+#| eval: false
+goodprisch_coords[(is.na(goodprisch_coords$postal) | is.na(goodprisch_coords$latitude) | is.na(goodprisch_coords$longitude)), ]
+
+```
+
+To rectify this, change the apostrophe symbol for the school title "ST HILDA'S PRIMARY SCHOOL".
+
+```{r}
+#| eval: false
+top_good_pri$pri_sch_name[top_good_pri$pri_sch_name == "ST. HILDA’S PRIMARY SCHOOL"] <- "ST. HILDA'S PRIMARY SCHOOL"
+
+```
+
+Here, we check once again for null values in the new coordinates list.
+
+```{r}
+#| eval: false
+good_pri_list <- unique(top_good_pri$pri_sch_name)
+good_pri_list
+```
+
+```{r}
+#| eval: false
+goodprisch_coords <- get_coords(good_pri_list)
+goodprisch_coords
+```
+
+```{r}
+#| eval: false
+goodprisch_coords[(is.na(goodprisch_coords$postal) | is.na(goodprisch_coords$latitude) | is.na(goodprisch_coords$longitude)), ]
+
+```
+
+Finally, convert the layer into an sf object with the correct projection.
+
+```{r}
+#| eval: false
+good_pri_sf <- st_as_sf(goodprisch_coords,
+                    coords = c("longitude", 
+                               "latitude"),
+                    crs=4326) %>%
+  st_transform(crs = 3414)
+```
+
+::: panel-tabset
+### Training Data
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- get_prox(resale2122_5r_sf, good_pri_sf, "PROX_GOOD_PRISCH")
+
+```
+
+### Testing Data
+
+```{r}
+#| eval: false
+resale23_test_sf <- get_prox(resale23_test_sf, good_pri_sf, "PROX_GOOD_PRISCH")
+
+```
+:::
+
+## Other Data Processing
+
+For the last steps of data processing, we retain necessary columns by dropping unnecessary one using [subset()](https://www.statology.org/r-keep-columns/) as well as convert the remaining lease field from a string data type to numeric.
+
+```{r}
+#| eval: false
+resale2122_5r_sf <- subset(resale2122_5r_sf, select = -c(month, town, flat_type, storey_range, block, street_name, flat_model, lease_commence_date, start)) %>% select(resale_price, everything())
+```
+
+```{r}
+#| eval: false
+resale2122_5r_sf$remaining_lease <- as.numeric(resale2122_5r_sf$remaining_lease)
+```
+
+```{r} 
+#| eval: false
+glimpse(resale2122_5r_sf)
+```
+
+```{r}
+#| eval: false
+resale23_test_sf <- subset(resale23_test_sf, select = -c(month, town, flat_type, storey_range, block, street_name, flat_model, lease_commence_date, start)) %>% select(resale_price, everything())
+```
+
+```{r}
+#| eval: false
+resale23_test_sf$remaining_lease <- as.numeric(resale23_test_sf$remaining_lease)
+```
+
+## Write Data to rds File
+
+```{r}
+#| eval: false
+train <- write_rds(resale2122_5r_sf, "data/rds/factors.rds")
+```
+
+```{r}
+#| eval: false
+test <- write_rds(resale23_test_sf, "data/rds/factors_test.rds")
+
+```
+
+# EDA
+
+```{r}
+train <- read_rds("data/rds/factors.rds")
+test <- read_rds("data/rds/factors_test.rds")
+```
+
+```{r}
+glimpse(train)
+```
+
+```{r}
+summary(train)
+```
+
+## EDA with Statistical Graphs
+
+```{r}
+summary(train$resale_price)
+```
+
+```{r}
+ggplot(data=train, aes(x=`resale_price`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+```
+
+We can observe a right skewed distribution of HDB resale prices from the above histogram plot.
+
+To visualise the shape of independent variables, use a multiple histogram plot below.
+
+```{r}
+FLOOR_AREA_SQM <- ggplot(data=train, aes(x= `floor_area_sqm`)) + 
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+LEASE_YRS <- ggplot(data=train, aes(x= `remaining_lease`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+STOREY_ORDER <- ggplot(data=train, aes(x= `storey_order`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+UNIT_AGE <- ggplot(data=train, aes(x= `UNIT_AGE`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_ELDERCARE <- ggplot(data=train, aes(x= `PROX_ELDERCARE`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_MRT <- ggplot(data=train, aes(x= `PROX_MRT`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_HAWKER <- ggplot(data=train, aes(x= `PROX_HAWKER`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_PARK <- ggplot(data=train, aes(x= `PROX_PARK`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_SPM <- ggplot(data=train, aes(x= `PROX_SUPERMARKET`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+PROX_MALL <- ggplot(data=train, aes(x= `PROX_MALL`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+
+PROX_CBD <- ggplot(data=train, aes(x= `PROX_CBD`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+
+PROX_TOP_SCH <- ggplot(data=train, 
+                               aes(x= `PROX_GOOD_PRISCH`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+ggarrange(FLOOR_AREA_SQM, LEASE_YRS, STOREY_ORDER, UNIT_AGE, PROX_ELDERCARE, PROX_MRT, PROX_HAWKER, PROX_PARK, PROX_SPM, PROX_MALL, PROX_CBD, PROX_TOP_SCH,  
+          ncol = 2, nrow = 6 )
+```
+
+kiv- floor area, unit age, remaining lease, a bit of prox to cbd binomial distribution with 2 peaks?
+
+```{r}
+NUM_KG <- ggplot(data=train, aes(x= `WITHIN_350M_KINDERGARTEN`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+NUM_CC <- ggplot(data=train, aes(x= `WITHIN_350M_CHILDCARE`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+NUM_BUS <- ggplot(data=train, aes(x= `WITHIN_350M_BUS`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+NUM_PRISCH <- ggplot(data=train, aes(x= `WITHIN_1KM_PRISCH`)) +
+  geom_histogram(bins=20, color="black", fill="light blue")
+
+ggarrange(NUM_KG, NUM_CC, NUM_BUS, NUM_PRISCH, ncol= 2, nrow= 2)
+```
+
+Interpretation:
+
+## Statistical Point Map
+
+```{r}
+tmap_mode("view")
+```
+
+```{r}
+tmap_options(check.and.fix = TRUE)
+```
+
+\[kiv the zoom limits, position map properly\]
+
+```{r}
+tm_shape(mpsz_sf)+
+  tm_polygons() +
+tm_shape(train) +  
+  tm_dots(col = "resale_price",
+          alpha = 0.6,
+          style="quantile") +
+  tm_view(set.zoom.limits = c(11, 15))
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+we can observe that the HDB resale prices are high in the CBD, southerns and central areas of singapore 720k to 1.4mil west and northern districts have cheaper resale flats 350 to 625k
+
+# Hedonic Pricing Model
+
+kiv explanatory vs predictive model: https://towardsdatascience.com/i-built-a-predictive-model-is-b-s-a905077fe4#:\~:text=Explanatory%20models%20are%20retrospective.,both%20bias%20and%20estimation%20variance.
+
+drop geometry to plot correlation matrix to check multi-colinearity
+
+```{r}
+train_nogeom <- train %>% st_drop_geometry()
+
+corrplot(cor(train_nogeom[, 2:17]), diag = FALSE, order = "AOE",
+         tl.pos = "td", tl.cex = 0.5, method = "number", type = "upper")
+```
+
+Interpretation: The correlation matrix above shows that all the correlation values are below 0.8. Hence, there is no sign of multicolinearity. / Matrix reorder is very important for mining the hiden structure and patter in the matrix. There are four methods in corrplot (parameter order), named "AOE", "FPC", "hclust", "alphabet". In the code chunk above, AOE order is used. It orders the variables by using the angular order of the eigenvectors method suggested by Michael Friendly.
+
+From the scatterplot matrix, it is clear that Freehold is highly correlated to LEASE_99YEAR. In view of this, it is wiser to only include either one of them in the subsequent model building. As a result, LEASE_99YEAR is excluded in the subsequent model building.
+
+```{r}
+train <- subset(train, select= -c(UNIT_AGE))
+```
+
+```{r}
+test <- subset(test, select= -c(UNIT_AGE))
+```
+
+## OLS Predictive Model
+
+OLS multiple linear regression
+
+```{r}
+train_nogeom <- train %>% st_drop_geometry()
+
+price_mlr <- lm(resale_price ~ .,
+                data=train_nogeom)
+summary(price_mlr)
+```
+
+multi-colinearity test
+
+```{r}
+vif <- ols_vif_tol(price_mlr)
+vif
+```
+
+We can observe that all vif values are well below 5, indicating there is no multi-colinearity between the independent variables.
+
+### Publication Quality Table
+
+Using <a href="https://www.danieldsjoberg.com/gtsummary/"> gt summary </a> package, it produces a summary table for the OLS model output for HDB resale price data.
+
+```{r}
+tbl_regression(price_mlr, intercept = TRUE) %>% 
+  add_glance_source_note(
+    label = list(sigma ~ "\U03C3"),
+    include = c(r.squared, adj.r.squared, 
+                AIC, statistic,
+                p.value, sigma))
+```
+
+### Check Non-linearity
+
+```{r}
+ols_plot_resid_fit(price_mlr)
+```
+
+scattered around 0 line, dependent var - price and independent variables are linear
+
+### Check Multicolinearity
+
+should be ok since dropped away columns
+
+```{r}
+ols_vif_tol(price_mlr)
+```
+
+### Check Normality Assumption
+
+https://olsrr.rsquaredacademy.com/reference/ols_plot_resid_hist.html
+
+```{r}
+ols_plot_resid_hist(price_mlr)
+```
+
+### Check Spatial Autocorrelation
+
+```{r}
 
 ```
 
@@ -172,6 +1296,211 @@ locational factors
 
 ```
 
+### Predict Using Test Data
+
+https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/predict.lm
+
+```{r}
+price_mlr_pred <- predict(price_mlr,
+             data=test,
+             se.fit = TRUE,
+             interval = "prediction")
+summary(price_mlr_pred)
+```
+
+```{r}
+price_mlr_pred$residual.scale
+```
+
+compare residual from prediction model - 83388.49 vs residual from explanatory model - 83390
+
+kiv
+
+```{r}
+summary(price_mlr_pred$fit)
+```
+
+## GWR predictive
+
+### Adaptive Bandwidth
+
+```{r}
+train_sp <- as_Spatial(train)
+train_sp
+```
+
+determine optimal adaptive bw
+
+```{r}
+#| eval: false
+bw_adaptive <- bw.gwr(resale_price ~.,
+                  data=train_sp,
+                  approach="CV",
+                  kernel="gaussian",
+                  adaptive=TRUE,
+                  longlat=FALSE)
+```
+
+```{r}
+#| eval: false
+write_rds(bw_adaptive, "data/rds/bw_adaptive.rds") 
+```
+
+
+```{r}
+#| eval: false
+gwr_adaptive <- gwr.basic(formula = resale_price ~
+                            floor_area_sqm + storey_order +
+                            remaining_lease + PROX_CBD + 
+                            PROX_ELDERCARE + PROX_HAWKER +
+                            PROX_MRT + PROX_PARK + PROX_MALL + 
+                            PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+                            WITHIN_350M_CHILDCARE + WITHIN_350M_BUS +
+                            WITHIN_1KM_PRISCH + PROX_GOOD_PRISCH,
+                          data=train_sp,
+                          bw=bw_adaptive, 
+                          kernel = 'gaussian', 
+                          adaptive=TRUE,
+                          longlat = FALSE)
+```
+
+```{r}
+#| eval: false
+write_rds(gwr_adaptive, "data/rds/gwr_adaptive.rds")
+```
+
+```{r}
+gwr_adaptive <- read_rds("data/rds/gwr_adaptive.rds")
+gwr_adaptive
+```
+
+### Visualise GWR output
+
+```{r}
+resale.sf.adaptive <- st_as_sf(gwr_adaptive$SDF) %>%
+  st_transform(crs=3414)
+resale.sf.adaptive.svy21 <- st_transform(resale.sf.adaptive, 3414)
+resale.sf.adaptive.svy21  
+```
+
+```{r}
+tmap_options(check.and.fix = TRUE)
+```
+
+```{r}
+tmap_mode("view")
+tm_shape(mpsz_sf)+
+  tm_polygons(alpha = 0.1) +
+tm_shape(resale.sf.adaptive) +  
+  tm_dots(col = "Local_R2",
+          border.col = "gray60",
+          border.lwd = 1) +
+  tm_view(set.zoom.limits = c(11,14))
+```
+
+Local R2: these values range between 0.0 and 1.0 and indicate how well the local regression model fits observed y values. Very low values indicate the local model is performing poorly. Mapping the Local R2 values to see where GWR predicts well and where it predicts poorly may provide clues about important variables that may be missing from the regression model.
+
+
+## GWR model
+
+random forest model, using ranger package 
+spatial ML introduce 
+
+### Preparing Coordinates Data
+
+```{r}
+coords_train <- st_coordinates(train)
+coords_test <- st_coordinates(test)
+```
+
+```{r}
+coords_train <- write_rds(coords_train, "data/rds/coords_train.rds" )
+coords_test <- write_rds(coords_test, "data/rds/coords_test.rds" )
+```
+
+https://rdrr.io/cran/SpatialML/man/grf.html
+
+testing w bw=69 (neighbours) - from gwr adaptive bw computation for gwr model 
+
+```{r}
+#| eval: false
+set.seed(1234)
+gwRF_adaptive <- grf(formula = resale_price ~
+                            floor_area_sqm + storey_order +
+                            remaining_lease + PROX_CBD + 
+                            PROX_ELDERCARE + PROX_HAWKER +
+                            PROX_MRT + PROX_PARK + PROX_MALL + 
+                            PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+                            WITHIN_350M_CHILDCARE + WITHIN_350M_BUS +
+                            WITHIN_1KM_PRISCH + PROX_GOOD_PRISCH,
+                     dframe=train_nogeom, 
+                     bw=69,
+                     kernel="adaptive",
+                     coords=coords_train,
+                     ntree=30)
+```
+
+```{r}
+#| eval: false
+write_rds(gwRF_adaptive, "data/rds/gwRF_adaptive.rds")
+```
+
+```{r}
+gwRF_adaptive <- read_rds("data/rds/gwRF_adaptive.rds")
+```
+
+predict using GRF random forest on test data https://rdrr.io/cran/SpatialML/man/predict.grf.html
+
+```{r}
+test <- cbind(test, coords_test) %>%
+  st_drop_geometry()
+```
+
+```{r}
+#| eval: false
+gwRF_pred <- predict.grf(gwRF_adaptive, 
+                           test, 
+                           x.var.name="X",
+                           y.var.name="Y", 
+                           local.w=1,
+                           global.w=0)
+```
+
+```{r}
+#| eval: false
+GRF_PRED <- write_rds(gwRF_pred, "data/rds/GRF_PRED.rds")
+```
+
+```{r}
+GRF_pred <- read_rds("data/rds/GRF_pred.rds")
+GRF_pred_df <- as.data.frame(GRF_pred)
+```
+
+Interpreting results of random forest predictive model 
+```{r}
+test_data_p <- cbind(test, GRF_pred_df)
+```
+
+```{r}
+write_rds(test_data_p,"data/rds/test_data_p.rds")
+```
+
+```{r}
+rmse(test_data_p$resale_price, 
+     test_data_p$GRF_pred)
+```
+
+```{r}
+ggplot(data = test_data_p,
+       aes(x = GRF_pred,
+           y = resale_price)) +
+  geom_point()
+```
+^ means a good fit of the model along the diagonal line
+(gwr accurate prediction?)
+
+
+## Comparison between OLS, GWR Model
 ```{r}
 
 ```
