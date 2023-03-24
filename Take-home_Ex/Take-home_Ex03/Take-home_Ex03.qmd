@@ -1658,7 +1658,7 @@ Various methods and models were used to derive a predictive model for HDB 5 room
 
     -   Number of primary schools within 1km
 
-The GWR model had performed better than the global regression model,
+The GWR model had performed better than the global regression model.
 
 ```{r}
 
