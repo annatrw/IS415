@@ -142,12 +142,54 @@ kable(datasets, caption="Datasets Used") %>%
 
 # Importing Required R Packages
 
-<introduce the packages>
+The following packages are used in this assignment
 
-[GWmodel](https://www.jstatsoft.org/article/view/v063i17)
+-   Building Ordinary Least Square model and performing diagnostics tests
+
+    -   [olsrr](https://olsrr.rsquaredacademy.com/)
+
+-   Calibrating geographical weighted family of models
+
+    -   [GWmodel](https://cran.r-project.org/web/packages/GWmodel/)
+
+-   Multivariate data visualisation and analysis
+
+    -   [corrplot](https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html) and [ggpubr](https://cran.r-project.org/web/packages/ggpubr/index.html)
+
+-   Random Forest model generation
+
+    -   [SpatialML](https://cran.r-project.org/web/packages/SpatialML/SpatialML.pdf)
+
+-   Converting JSON objects to R data types
+
+    -   [jsonlite](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html)
+
+-   Spatial data handling
+
+    -   sf
+
+-   Attribute data handling
+
+    -   tidyverse, especially readr, ggplot2 and dplyr
+
+-   Choropleth mapping
+
+    -   tmap
+
+-   Handling spatial autocorrelation calculations
+
+    -   [spdep](https://cran.r-project.org/web/packages/spdep/index.html)
+
+-   For API queries calls for Singapore specific data
+
+    -   [onemapsgapi](https://cran.r-project.org/web/packages/onemapsgapi/onemapsgapi.pdf)
+
+-   Summarising model statistics
+
+    -   [gtsummary](https://cran.r-project.org/web/packages/gtsummary/index.html)
 
 ```{r}
-pacman::p_load(tidygeocoder, sf, tidyverse, tmap, jsonlite, rvest, onemapsgapi, olsrr, corrplot, ggpubr, spdep, GWmodel, gtsummary, ggthemes, zoo, SpatialML, tmap, rsample, Metrics)
+pacman::p_load(sf, tidyverse, tmap, jsonlite, rvest, onemapsgapi, olsrr, corrplot, ggpubr, spdep, GWmodel, gtsummary, ggthemes, zoo, SpatialML, tmap, rsample, Metrics)
 ```
 
 # Structural Factors
@@ -168,6 +210,8 @@ This is how the resale data looks like.
 glimpse(resale_all)
 ```
 
+![](img/glimpseresaleall.png)
+
 Filter out 2021 and 2022 data as per assignment requirement using [grepl()](https://www.programiz.com/r/examples/check-if-character-present-in-string).
 
 ```{r}
@@ -182,13 +226,14 @@ Filter out 2023 data for testing.
 resale23_test <- filter(resale_all, grepl('2023', month))
 ```
 
-
 For the purposes of this assignment, we will be focusing on 5 Room HDB resale flat prices.
 
 ```{r}
 #| eval: false
 unique(resale2122$flat_type)
 ```
+
+![](img/uniqueflattype.png)
 
 ```{r}
 #| eval: false
@@ -202,7 +247,7 @@ resale23_test <- filter(resale23_test, flat_type == '5 ROOM')
 
 ## Geocode Resale Data
 
-Referencing [senior's](https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/#geocoding-our-aspatial-data) work, this geocoding function using onemap API will retrieve the latitude and longitude for resale data.
+Referencing [senior's](https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/#geocoding-our-aspatial-data) work, this geocoding function using OneMap API will retrieve the latitude and longitude for resale data.
 
 ```{r}
 #| eval: false
@@ -251,6 +296,7 @@ for (i in 1:nrow(resale2122_5r)){
 ```
 
 We check if there are null values in the coordinate columns, in which there are none.
+
 ```{r}
 #| eval: false
 sum(is.na(resale2122_5r$LATITUDE))
@@ -261,7 +307,6 @@ sum(is.na(resale2122_5r$LATITUDE))
 #| eval: false
 sum(is.na(resale2122_5r$LONGITUDE))
 ```
-
 
 ### Testing Data
 
@@ -285,7 +330,6 @@ for (i in 1:nrow(resale23_test)){
   resale23_test$LONGITUDE[i] <- temp_output$results.LONGITUDE
 }
 ```
-
 
 ```{r}
 #| eval: false
@@ -404,7 +448,6 @@ Age of unit calculation will only consider the year when the flat was sold.
 resale2122_5r$UNIT_AGE <- resale2122_5r$start - resale2122_5r$lease_commence_date
 ```
 
-
 ### Testing Data
 
 ```{r}
@@ -416,7 +459,7 @@ resale23_test$UNIT_AGE <- resale23_test$start - resale23_test$lease_commence_dat
 ```
 :::
 
-## Convert Resale Data To sf Object 
+## Convert Resale Data To sf Object
 
 Convert the dataframe into an sf object with geometry field attached, referencing [here](https://is415-msty.netlify.app/posts/2021-10-25-take-home-exercise-3/#convert-into-sf-objects-transforming-coordinate-system).
 
@@ -488,7 +531,6 @@ themetibble <- get_theme(token, "kindergartens")
 kindergarten_sf <- st_as_sf(themetibble, coords=c("Lng", "Lat"), crs=4326)
 ```
 
-
 #### Shopping Malls
 
 With reference to a previously done [project](https://github.com/ValaryLim/Mall-Coordinates-Web-Scraper) to scrape the locations of shopping malls in Singapore, read in the csv and convert it to an sf object with appropriate projection system.
@@ -514,7 +556,7 @@ malls_sf <- st_as_sf(mall_csv,
 
 ### Geojson Sources
 
-Read in the geojson files.
+Import the geojson files.
 
 ```{r}
 #| eval: false
@@ -530,17 +572,9 @@ childcare_sf <- st_read("data/geospatial/child-care-services-geojson.geojson")
 mpsz_sf <- st_read(dsn="data/geospatial/MPSZ2019", layer = "MPSZ-2019") 
 ```
 
-```{r}
-# kiv might delete/ write rds/ eval false
-mpsz_sf <- st_read(dsn="data/geospatial/MPSZ2019", layer = "MPSZ-2019")
-mpsz_sf <- st_set_crs(mpsz_sf, 3414)
-mpsz_sf <- sf::st_make_valid(mpsz_sf)
-length(which(st_is_valid(mpsz_sf) == FALSE))
-```
-
 #### CRS
 
-Check the CRS for the layers.
+Check the CRS projection for the layers.
 
 ```{r}
 #| eval: false
@@ -556,9 +590,9 @@ st_crs(kindergarten_sf)
 st_crs(malls_sf)
 ```
 
-They are projected wrongly - using EPSG 9001 - when it should be EPSG 4326 instead.
+They are projected wrongly - using EPSG 9001 - when it should be projected to EPSG 4326 instead.
 
-Set correct CRS except for malls_sf which is already EPSG3414 done in previous section when transforming to sf object.
+Set correct CRS except for malls_sf which is already EPSG 3414 done in previous section when transforming to sf object.
 
 ```{r}
 #| eval: false
@@ -584,7 +618,6 @@ Verify that there are no invalid geometries:
 ```{r}
 #| eval: false
 length(which(st_is_valid(mpsz_sf) == FALSE))
-
 length(which(st_is_valid(elder_sf) == FALSE))
 length(which(st_is_valid(mrt_sf) == FALSE))
 length(which(st_is_valid(bus_sf) == FALSE))
@@ -597,7 +630,7 @@ length(which(st_is_valid(malls_sf) == FALSE))
 
 ```
 
-However, there are invalid geometries for mpsz_sf; which can be easily rectified with st_make_valid().
+There are invalid geometries for mpsz_sf; which can be rectified with st_make_valid().
 
 ```{r}
 #| eval: false
@@ -955,6 +988,8 @@ top_good_pri <- head(good_pri, 10)
 top_good_pri
 ```
 
+![](img/topgoodpri.png)
+
 Check which top schools are not in prisch_sf.
 
 ```{r}
@@ -1053,7 +1088,7 @@ resale2122_5r_sf <- subset(resale2122_5r_sf, select = -c(month, town, flat_type,
 resale2122_5r_sf$remaining_lease <- as.numeric(resale2122_5r_sf$remaining_lease)
 ```
 
-```{r} 
+```{r}
 #| eval: false
 glimpse(resale2122_5r_sf)
 ```
@@ -1068,7 +1103,9 @@ resale23_test_sf <- subset(resale23_test_sf, select = -c(month, town, flat_type,
 resale23_test_sf$remaining_lease <- as.numeric(resale23_test_sf$remaining_lease)
 ```
 
-## Write Data to rds File
+## Write Data To rds File
+
+Save the train and test data that are sf objects into an rds file to reduce the computation and render time, as well as for easy access.
 
 ```{r}
 #| eval: false
@@ -1083,14 +1120,20 @@ test <- write_rds(resale23_test_sf, "data/rds/factors_test.rds")
 
 # EDA
 
+Since we are building a predictive model, load the train and test data separately.
+
 ```{r}
 train <- read_rds("data/rds/factors.rds")
 test <- read_rds("data/rds/factors_test.rds")
 ```
 
+Our training data has 14,519 rows and 18 columns as shown below.
+
 ```{r}
 glimpse(train)
 ```
+
+View the summary of the training data to get a quick sense of the data spread and values contained in it.
 
 ```{r}
 summary(train)
@@ -1107,7 +1150,7 @@ ggplot(data=train, aes(x=`resale_price`)) +
   geom_histogram(bins=20, color="black", fill="light blue")
 ```
 
-We can observe a right skewed distribution of HDB resale prices from the above histogram plot.
+From the histogram, We can observe a right skewed distribution of HDB resale prices in 2021 to 2022.
 
 To visualise the shape of independent variables, use a multiple histogram plot below.
 
@@ -1152,10 +1195,10 @@ PROX_TOP_SCH <- ggplot(data=train,
   geom_histogram(bins=20, color="black", fill="light blue")
 
 ggarrange(FLOOR_AREA_SQM, LEASE_YRS, STOREY_ORDER, UNIT_AGE, PROX_ELDERCARE, PROX_MRT, PROX_HAWKER, PROX_PARK, PROX_SPM, PROX_MALL, PROX_CBD, PROX_TOP_SCH,  
-          ncol = 2, nrow = 6 )
+          ncol = 3, nrow = 4 )
 ```
 
-kiv- floor area, unit age, remaining lease, a bit of prox to cbd binomial distribution with 2 peaks?
+We can observe a generally right skewed nature of the above variables.
 
 ```{r}
 NUM_KG <- ggplot(data=train, aes(x= `WITHIN_350M_KINDERGARTEN`)) +
@@ -1173,7 +1216,7 @@ NUM_PRISCH <- ggplot(data=train, aes(x= `WITHIN_1KM_PRISCH`)) +
 ggarrange(NUM_KG, NUM_CC, NUM_BUS, NUM_PRISCH, ncol= 2, nrow= 2)
 ```
 
-Interpretation:
+We can observe the right skewed data from 'WITHIN_350M_KINDERGARTEN', while the other 3 factors are relatively even.
 
 ## Statistical Point Map
 
@@ -1185,7 +1228,10 @@ tmap_mode("view")
 tmap_options(check.and.fix = TRUE)
 ```
 
-\[kiv the zoom limits, position map properly\]
+```{r}
+#| echo: false
+mpsz_sf <- st_read(dsn="data/geospatial/MPSZ2019", layer = "MPSZ-2019")
+```
 
 ```{r}
 tm_shape(mpsz_sf)+
@@ -1194,20 +1240,18 @@ tm_shape(train) +
   tm_dots(col = "resale_price",
           alpha = 0.6,
           style="quantile") +
-  tm_view(set.zoom.limits = c(11, 15))
+  tm_view(set.zoom.limits = c(11, 12))
 ```
 
 ```{r}
 tmap_mode("plot")
 ```
 
-we can observe that the HDB resale prices are high in the CBD, southerns and central areas of singapore 720k to 1.4mil west and northern districts have cheaper resale flats 350 to 625k
+We can observe that the HDB resale prices are high in the CBD, Southern and central areas of Singapore, reaching to \$720,000 to \$1,418,000 range. Resale flats in the North East (Punggol, Sengkang etc) are beginning to get more expensive, reaching the \$625,000 range. The West and Northern districts have a larger majority of cheaper resale HDB flats that are in the \$350,000 to \$625,000 range.
 
 # Hedonic Pricing Model
 
-kiv explanatory vs predictive model: https://towardsdatascience.com/i-built-a-predictive-model-is-b-s-a905077fe4#:\~:text=Explanatory%20models%20are%20retrospective.,both%20bias%20and%20estimation%20variance.
-
-drop geometry to plot correlation matrix to check multi-colinearity
+Before we begin building the pricing model for HDB resale prices, we will use the package <a href="https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html"> corrplot</a> to check for multicolinearity. The code chunk below drops the geometry field to plot correlation matrix. It uses the 'AOE' order, ordering variables by the eigenvectors method suggested by <a href="https://www.datavis.ca/papers/corrgram.pdf"> Michael Friendly</a>.
 
 ```{r}
 train_nogeom <- train %>% st_drop_geometry()
@@ -1216,9 +1260,9 @@ corrplot(cor(train_nogeom[, 2:17]), diag = FALSE, order = "AOE",
          tl.pos = "td", tl.cex = 0.5, method = "number", type = "upper")
 ```
 
-Interpretation: The correlation matrix above shows that all the correlation values are below 0.8. Hence, there is no sign of multicolinearity. / Matrix reorder is very important for mining the hiden structure and patter in the matrix. There are four methods in corrplot (parameter order), named "AOE", "FPC", "hclust", "alphabet". In the code chunk above, AOE order is used. It orders the variables by using the angular order of the eigenvectors method suggested by Michael Friendly.
+The correlation matrix above shows that all values are below 0.8 apart from UNIT_AGE and remaining_lease that has a value of 1, indicating they are highly correlated.
 
-From the scatterplot matrix, it is clear that Freehold is highly correlated to LEASE_99YEAR. In view of this, it is wiser to only include either one of them in the subsequent model building. As a result, LEASE_99YEAR is excluded in the subsequent model building.
+Therefore, the UNIT_AGE variable will be excluded from subsequent analysis.
 
 ```{r}
 train <- subset(train, select= -c(UNIT_AGE))
@@ -1228,9 +1272,9 @@ train <- subset(train, select= -c(UNIT_AGE))
 test <- subset(test, select= -c(UNIT_AGE))
 ```
 
-## OLS Predictive Model
+## Ordinary Least Squares (OLS) Method
 
-OLS multiple linear regression
+Compute the regression model using the lm() function below.
 
 ```{r}
 train_nogeom <- train %>% st_drop_geometry()
@@ -1239,15 +1283,6 @@ price_mlr <- lm(resale_price ~ .,
                 data=train_nogeom)
 summary(price_mlr)
 ```
-
-multi-colinearity test
-
-```{r}
-vif <- ols_vif_tol(price_mlr)
-vif
-```
-
-We can observe that all vif values are well below 5, indicating there is no multi-colinearity between the independent variables.
 
 ### Publication Quality Table
 
@@ -1268,19 +1303,20 @@ tbl_regression(price_mlr, intercept = TRUE) %>%
 ols_plot_resid_fit(price_mlr)
 ```
 
-scattered around 0 line, dependent var - price and independent variables are linear
+The points are scattered around 0 line, indicating that the dependent variable (price) and independent variables have a linear relationship.
 
 ### Check Multicolinearity
 
-should be ok since dropped away columns
-
 ```{r}
-ols_vif_tol(price_mlr)
+vif <- ols_vif_tol(price_mlr)
+vif
 ```
+
+We can observe that all vif values are well below 5, indicating there is no multicolinearity between the independent variables.
 
 ### Check Normality Assumption
 
-https://olsrr.rsquaredacademy.com/reference/ols_plot_resid_hist.html
+From the <a href="https://olsrr.rsquaredacademy.com/reference/ols_plot_resid_hist.html"> ols_plot_resid_hist</a> package, the residuals are resembling a normal distribution.
 
 ```{r}
 ols_plot_resid_hist(price_mlr)
@@ -1288,48 +1324,118 @@ ols_plot_resid_hist(price_mlr)
 
 ### Check Spatial Autocorrelation
 
-```{r}
+Since we are building a predictive geographically weighted regression model that accounts for spatial distribution, we check for <a href="https://medium.com/locale-ai/spatial-autocorrelation-how-spatial-objects-affect-other-nearby-spatial-objects-e05fa7d43de8"> spatial autocorrelation</a> to understand the relationship data points have with neighbouring points.
 
+Extract out the residuals and convert it into a dataframe.
+
+```{r}
+mlr.output <- as.data.frame(price_mlr$residuals)
+price_resale.res.sf <- cbind(train, 
+                        price_mlr$residuals) %>%
+rename(`MLR_RES` = `price_mlr.residuals`)
+```
+
+Next, convert it into an sp spatial object to prepare the residuals for the spatial autocorrelation test.
+
+```{r}
+price_resale.sp <- as_Spatial(price_resale.res.sf)
+price_resale.sp
 ```
 
 ```{r}
-
+tmap_mode("view")
 ```
 
-### Predict Using Test Data
-
-https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/predict.lm
+```{r}
+tm_shape(mpsz_sf)+
+  tmap_options(check.and.fix = TRUE) +
+  tm_polygons(alpha = 0.4) +
+tm_shape(price_resale.res.sf) +  
+  tm_dots(col = "MLR_RES",
+          alpha = 0.6,
+          style="quantile") +
+  tm_view(set.zoom.limits = c(11,14))
+```
 
 ```{r}
-price_mlr_pred <- predict(price_mlr,
+tmap_mode("plot")
+```
+
+From the tmap plot of residuals, we can observe signs of spatial clustering, hence we can perform Moran I test to confirm this.
+
+Using the <a href="https://r-spatial.github.io/spdep/reference/dnearneigh.html"> dnearneigh</a> function from spdep package, the following code chunk identifies neighbours that are euclidean distance away between the lower and upper bounds specified.
+
+```{r}
+nb <- dnearneigh(coordinates(price_resale.sp), 0, 1500, longlat = FALSE)
+summary(nb)
+```
+
+The next code chunk below converts the neighbours list into spatial weights using <a href="https://www.rdocumentation.org/packages/spdep/versions/1.2-8/topics/nb2listw"> nb2listw</a> function.
+
+```{r}
+nb_lw <- nb2listw(nb, style = 'W')
+summary(nb_lw)
+```
+
+The Moran I test is performed below.
+
+```{r}
+lm.morantest(price_mlr, nb_lw)
+```
+
+Since the p-value is less than 2.2e-16 which is smaller than the alpha value of 0.05, there is evidence to conclude the residuals are not randomly distributed. the Observed Moran I value is 0.29395 which is larger than 0, indicating the residuals resemble a clustered distribution.
+
+## Ordinary Least Squares (OLS) Regression Predictive Model
+
+### Training Data
+
+```{r}
+price_ols_train <- predict(price_mlr,
+             data=train,
+             se.fit = TRUE,
+             interval = "prediction")
+summary(price_ols_train)
+```
+
+```{r}
+price_ols_train$residual.scale
+```
+
+### Testing Data
+
+To predict HDB resale prices using the test data, use the <a href="https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/predict.lm">predict ()</a> function from the car package.
+
+```{r}
+price_ols_test <- predict(price_mlr,
              data=test,
              se.fit = TRUE,
              interval = "prediction")
-summary(price_mlr_pred)
+summary(price_ols_test)
 ```
 
 ```{r}
-price_mlr_pred$residual.scale
+summary(price_ols_test$fit)
 ```
-
-compare residual from prediction model - 83388.49 vs residual from explanatory model - 83390
-
-kiv
 
 ```{r}
-summary(price_mlr_pred$fit)
+price_ols_test$residual.scale
 ```
 
-## GWR predictive
+By comparing the residuals from the training and testing data, they have yielded the same value of 83388.49, indicating that the OLS predictive model was able to predict the HDB resale prices.
 
-### Adaptive Bandwidth
+
+## Geographically Weighted Regression (GWR) Predictive Model
+
+Convert the training data into an sp object for subsequent analysis.
 
 ```{r}
 train_sp <- as_Spatial(train)
 train_sp
 ```
 
-determine optimal adaptive bw
+### Adaptive Bandwidth
+
+First, we will determine the optimal adaptive bandwidth for the gwr model using the code below.
 
 ```{r}
 #| eval: false
@@ -1341,11 +1447,15 @@ bw_adaptive <- bw.gwr(resale_price ~.,
                   longlat=FALSE)
 ```
 
+
+Write the output of the optimal adaptive bandwidth into an rds file.
+
 ```{r}
 #| eval: false
 write_rds(bw_adaptive, "data/rds/bw_adaptive.rds") 
 ```
 
+The gwr predictive model is computed below using the previously calculated optimal bandwidth:
 
 ```{r}
 #| eval: false
@@ -1364,15 +1474,21 @@ gwr_adaptive <- gwr.basic(formula = resale_price ~
                           longlat = FALSE)
 ```
 
+Write the output of the gwr.basic model into an rds file.
+
 ```{r}
 #| eval: false
 write_rds(gwr_adaptive, "data/rds/gwr_adaptive.rds")
 ```
 
+Display the contents of the model below:
+
 ```{r}
 gwr_adaptive <- read_rds("data/rds/gwr_adaptive.rds")
 gwr_adaptive
 ```
+
+From the above output and referencing this <a href="https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/interpreting-gwr-results.htm">link</a> for interpreting GWR outputs, we can observe that the GWR model has a lower AIC value of 352433.6 compared to the Global Regression model which has a value of 370258.4, indicating that the GWR model is a better fit for the data compared to the global regression model. The Residual sum of squares for the GWR model is also smaller than that compared to the global regression model, indicating the GWR model has a closer fit to the observed data.
 
 ### Visualise GWR output
 
@@ -1398,13 +1514,11 @@ tm_shape(resale.sf.adaptive) +
   tm_view(set.zoom.limits = c(11,14))
 ```
 
-Local R2: these values range between 0.0 and 1.0 and indicate how well the local regression model fits observed y values. Very low values indicate the local model is performing poorly. Mapping the Local R2 values to see where GWR predicts well and where it predicts poorly may provide clues about important variables that may be missing from the regression model.
+From the map showing the outputs of the local R2 values, the Eastern, Central and Northern areas of Singapore are not able to have good fit of the GWR model for observed values as these areas have low R2 values. As for the rest of Singapore, the model is able to predict HDB resale prices well.
 
+## GWR Random Forest Predictive Model
 
-## GWR model
-
-random forest model, using ranger package 
-spatial ML introduce 
+Using the ranger package Spatial ML, it allows for the computation of geographically weighted models using random forest regression.
 
 ### Preparing Coordinates Data
 
@@ -1418,9 +1532,10 @@ coords_train <- write_rds(coords_train, "data/rds/coords_train.rds" )
 coords_test <- write_rds(coords_test, "data/rds/coords_test.rds" )
 ```
 
-https://rdrr.io/cran/SpatialML/man/grf.html
+::: panel-tabset
+### Training Data
 
-testing w bw=69 (neighbours) - from gwr adaptive bw computation for gwr model 
+Using the <a href="https://rdrr.io/cran/SpatialML/man/grf.html">grf()</a> function from Spatial ML, compute the GWR random forest model using the adaptive bandwidth derived previously in the GWR regression model. The number of trees is limited to 30 for computational efficiency.
 
 ```{r}
 #| eval: false
@@ -1440,6 +1555,8 @@ gwRF_adaptive <- grf(formula = resale_price ~
                      ntree=30)
 ```
 
+Write and save the gwr adaptive model output into an rds file.
+
 ```{r}
 #| eval: false
 write_rds(gwRF_adaptive, "data/rds/gwRF_adaptive.rds")
@@ -1449,7 +1566,9 @@ write_rds(gwRF_adaptive, "data/rds/gwRF_adaptive.rds")
 gwRF_adaptive <- read_rds("data/rds/gwRF_adaptive.rds")
 ```
 
-predict using GRF random forest on test data https://rdrr.io/cran/SpatialML/man/predict.grf.html
+### Testing Data
+
+To predict using random forest methods on the test data, use the <a href="https://rdrr.io/cran/SpatialML/man/predict.grf.html">predict.grf()</a> function below.
 
 ```{r}
 test <- cbind(test, coords_test) %>%
@@ -1475,8 +1594,10 @@ GRF_PRED <- write_rds(gwRF_pred, "data/rds/GRF_PRED.rds")
 GRF_pred <- read_rds("data/rds/GRF_pred.rds")
 GRF_pred_df <- as.data.frame(GRF_pred)
 ```
+:::
 
-Interpreting results of random forest predictive model 
+Interpreting results of random forest predictive model
+
 ```{r}
 test_data_p <- cbind(test, GRF_pred_df)
 ```
@@ -1496,16 +1617,49 @@ ggplot(data = test_data_p,
            y = resale_price)) +
   geom_point()
 ```
-^ means a good fit of the model along the diagonal line
-(gwr accurate prediction?)
 
+The above graph indicates a good fit of the GWR random forest model as points are distributed along the diagonal line.
 
-## Comparison between OLS, GWR Model
+# Conclusion
+
+Various methods and models were used to derive a predictive model for HDB 5 room resale flats in Singapore based on independent variables:
+
+-   Structural factors
+
+    -   Area of the unit
+
+    -   Floor level
+
+    -   Remaining lease
+
+-   Locational factors
+
+    -   Proxomity to CBD
+
+    -   Proximity to eldercare
+
+    -   Proximity to hawker centres
+
+    -   Proximity to MRT
+
+    -   Proximity to park
+
+    -   Proximity to good primary school
+
+    -   Proximity to shopping mall
+
+    -   Proximity to supermarket
+
+    -   Number of kindergartens within 350m
+
+    -   Number of childcare centres within 350m
+
+    -   Number of bus stop within 350m
+
+    -   Number of primary schools within 1km
+
+The GWR model had performed better than the global regression model,
+
 ```{r}
 
 ```
-
-```{r}
-
-```
-
