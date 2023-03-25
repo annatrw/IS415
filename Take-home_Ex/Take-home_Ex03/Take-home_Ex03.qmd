@@ -21,6 +21,61 @@ Conventional, housing resale prices predictive models were built by using <a hre
 
 In this take-home exercise, you are tasked to predict HDB resale prices at the sub-market level (i.e. HDB 3-room, HDB 4-room and HDB 5-room) for the month of January and February 2023 in Singapore. The predictive models must be built by using by using conventional OLS method and GWR methods. You are also required to compare the performance of the conventional OLS method versus the geographical weighted methods.
 
+
+
+# Importing Required R Packages
+
+The following packages are used in this assignment
+
+-   Building Ordinary Least Square model and performing diagnostics tests
+
+    -   [olsrr](https://olsrr.rsquaredacademy.com/)
+
+-   Calibrating geographical weighted family of models
+
+    -   [GWmodel](https://cran.r-project.org/web/packages/GWmodel/)
+
+-   Multivariate data visualisation and analysis
+
+    -   [corrplot](https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html) and [ggpubr](https://cran.r-project.org/web/packages/ggpubr/index.html)
+
+-   Random Forest model generation
+
+    -   [SpatialML](https://cran.r-project.org/web/packages/SpatialML/SpatialML.pdf)
+
+-   Converting JSON objects to R data types
+
+    -   [jsonlite](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html)
+
+-   Spatial data handling
+
+    -   sf
+
+-   Attribute data handling
+
+    -   tidyverse, especially readr, ggplot2 and dplyr
+
+-   Choropleth mapping
+
+    -   tmap
+
+-   Handling spatial autocorrelation calculations
+
+    -   [spdep](https://cran.r-project.org/web/packages/spdep/index.html)
+
+-   For API queries calls for Singapore specific data
+
+    -   [onemapsgapi](https://cran.r-project.org/web/packages/onemapsgapi/onemapsgapi.pdf)
+
+-   Summarising model statistics
+
+    -   [gtsummary](https://cran.r-project.org/web/packages/gtsummary/index.html)
+
+```{r}
+pacman::p_load(sf, tidyverse, tmap, jsonlite, rvest, onemapsgapi, olsrr, corrplot, ggpubr, spdep, GWmodel, gtsummary, ggthemes, zoo, SpatialML, tmap, rsample, Metrics, matrixStats, kableExtra)
+```
+
+
 # The Data
 
 Structural and Locational factors will be extracted:
@@ -64,6 +119,8 @@ Structural and Locational factors will be extracted:
 The following table describes the data sources used in this assignment.
 
 ```{r}
+#| code-fold: true
+#| code-summary: Show Code
 datasets <- data.frame(
   Type=c("Aspatial",
          "Geospatial",
@@ -135,63 +192,9 @@ datasets <- data.frame(
 # kable_material is the name of the kable theme
 # 'hover' for to highlight row when hovering, 'scale_down' to adjust table to fit page width
 library(knitr)
-library(kableExtra)
 kable(datasets, caption="Datasets Used") %>%
   kable_material("hover", latex_options="scale_down")
 ```
-
-# Importing Required R Packages
-
-The following packages are used in this assignment
-
--   Building Ordinary Least Square model and performing diagnostics tests
-
-    -   [olsrr](https://olsrr.rsquaredacademy.com/)
-
--   Calibrating geographical weighted family of models
-
-    -   [GWmodel](https://cran.r-project.org/web/packages/GWmodel/)
-
--   Multivariate data visualisation and analysis
-
-    -   [corrplot](https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html) and [ggpubr](https://cran.r-project.org/web/packages/ggpubr/index.html)
-
--   Random Forest model generation
-
-    -   [SpatialML](https://cran.r-project.org/web/packages/SpatialML/SpatialML.pdf)
-
--   Converting JSON objects to R data types
-
-    -   [jsonlite](https://cran.r-project.org/web/packages/jsonlite/vignettes/json-aaquickstart.html)
-
--   Spatial data handling
-
-    -   sf
-
--   Attribute data handling
-
-    -   tidyverse, especially readr, ggplot2 and dplyr
-
--   Choropleth mapping
-
-    -   tmap
-
--   Handling spatial autocorrelation calculations
-
-    -   [spdep](https://cran.r-project.org/web/packages/spdep/index.html)
-
--   For API queries calls for Singapore specific data
-
-    -   [onemapsgapi](https://cran.r-project.org/web/packages/onemapsgapi/onemapsgapi.pdf)
-
--   Summarising model statistics
-
-    -   [gtsummary](https://cran.r-project.org/web/packages/gtsummary/index.html)
-
-```{r}
-pacman::p_load(sf, tidyverse, tmap, jsonlite, rvest, onemapsgapi, olsrr, corrplot, ggpubr, spdep, GWmodel, gtsummary, ggthemes, zoo, SpatialML, tmap, rsample, Metrics)
-```
-
 # Structural Factors
 
 ## Import HDB Resale Prices Data
@@ -1216,7 +1219,7 @@ NUM_PRISCH <- ggplot(data=train, aes(x= `WITHIN_1KM_PRISCH`)) +
 ggarrange(NUM_KG, NUM_CC, NUM_BUS, NUM_PRISCH, ncol= 2, nrow= 2)
 ```
 
-We can observe the right skewed data from 'WITHIN_350M_KINDERGARTEN', while the other 3 factors are relatively even.
+We can observe the right skewed data from 'WITHIN_350M_KINDERGARTEN', while the other 3 factors indicate normally distributed childcare, bus stops and primary schools.
 
 ## Statistical Point Map
 
@@ -1423,7 +1426,6 @@ price_ols_test$residual.scale
 
 By comparing the residuals from the training and testing data, they have yielded the same value of 83388.49, indicating that the OLS predictive model was able to predict the HDB resale prices.
 
-
 ## Geographically Weighted Regression (GWR) Predictive Model
 
 Convert the training data into an sp object for subsequent analysis.
@@ -1446,7 +1448,6 @@ bw_adaptive <- bw.gwr(resale_price ~.,
                   adaptive=TRUE,
                   longlat=FALSE)
 ```
-
 
 Write the output of the optimal adaptive bandwidth into an rds file.
 
@@ -1622,7 +1623,7 @@ The above graph indicates a good fit of the GWR random forest model as points ar
 
 # Conclusion
 
-Various methods and models were used to derive a predictive model for HDB 5 room resale flats in Singapore based on independent variables:
+Various methods and models - OLS, GWR and random forest - were used to derive a predictive model, revealing that the GWR model had performed better than the global regression model. The random forest model also performed well with test data as seen from section 8.4. The model was derived for 5 room HDB resale flats in Singapore based on the following independent variables:
 
 -   Structural factors
 
@@ -1657,9 +1658,3 @@ Various methods and models were used to derive a predictive model for HDB 5 room
     -   Number of bus stop within 350m
 
     -   Number of primary schools within 1km
-
-The GWR model had performed better than the global regression model.
-
-```{r}
-
-```
