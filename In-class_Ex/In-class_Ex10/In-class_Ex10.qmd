@@ -1,0 +1,291 @@
+---
+title: "In-class Exercise 10: Spatial Interaction Models"
+date: "27 Mar 2023"
+date-modified: "`r Sys.Date()`"
+format: html
+execute: 
+  message: true 
+  warning: false
+editor: visual
+---
+
+# Getting Started
+
+1.  population data - singstat: Singapore residents by planning area; subzone, single year of age june 2022 (raw)
+2.  population by age - prof/ data categorised by age group (calculated using the same method as in class exercise 2) bus stop - LTA datamall
+3.  masterplan 2019 - URA data.gov.sg
+
+```{r}
+pacman::p_load(tmap, sf, sp, caret, stplanr, reshape2, broom, tidyverse)
+```
+
+-   caret: ML library to assess model performance
+-   stplanr: spatial library
+-   reshape2 , broom: for handling of attribute data
+
+# Aspatial Data
+```{r}
+odbus <- read_csv("data/aspatial/origin_destination_bus_202210.csv")
+```
+
+```{r}
+glimpse(odbus)
+```
+
+```{r}
+odbus$ORIGIN_PT_CODE <- as.factor(odbus$ORIGIN_PT_CODE)
+odbus$DESTINATION_PT_CODE <- as.factor(odbus$DESTINATION_PT_CODE)
+
+```
+- convert to factor data type: gives a <chr> field but also retains the ordinal scale data instead of nominal scale data
+- ie: will not treat the origin and destination code as a number anymore
+
+
+```{r}
+#| eval: false
+odbus7_9 <-odbus %>% 
+  filter(DAY_TYPE == "WEEKDAY") %>%
+  filter(TIME_PER_HOUR >= 7 & TIME_PER_HOUR <= 9) %>%
+  group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+```
+- output variable saves the morning peak weekday records from the odbus dataframe
+
+
+```{r}
+write_rds(odbus7_9, "data/rds/odbus7_9.rds")
+```
+
+```{r}
+odbus7_9 <- read_rds("data/rds/odbus7_9.rds")
+```
+
+# Geospatial Data
+```{r}
+busstop <- st_read(dsn="data/geospatial", layer="BusStop") %>% 
+  st_transform(crs=3414)
+
+mpsz <- st_read(dsn="data/geospatial", layer="MPSZ-2019") %>% 
+  st_transform(crs=3414)
+mpsz
+```
+
+```{r}
+busstop_mpsz <- st_intersection(busstop, mpsz) %>%
+  select(BUS_STOP_N, SUBZONE_C) %>%
+  st_drop_geometry()
+```
+- overlay bus stop on top of polygon
+- note the sequence - bus stop point data will be the final output with polygon mpsz data transferred over
+- spatial intersection
+- drop the geometry to retain attribute table only 
+- output is a point data
+- busstops (5159) vs busstop_mpsz (5154) - 5 missing bus stops are in Johor
+
+
+```{r}
+od_data <- left_join(odbus7_9, busstop_mpsz, 
+                     by=c("ORIGIN_PT_CODE" = "BUS_STOP_N"))%>%
+  rename(ORIGIN_BS = ORIGIN_PT_CODE,
+         ORIGIN_SZ = SUBZONE_C,
+         DESTIN_BS = DESTINATION_PT_CODE)
+```
+- joining the od and bus stop data 
+- rename relevant columns 
+
+
+```{r}
+duplicate <- od_data %>% 
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+```
+- checking for duplicates if any
+- 930 duplicates
+- saved duplicated records into a separate dataframe
+
+
+```{r}
+od_data <- unique(od_data)
+```
+- once run duplicates should be removed, retains the unique record only 
+
+Reconfirm there are no more duplicates
+```{r}
+duplicate <- od_data %>% 
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+```
+- expected output: 0 obs
+
+
+```{r}
+od_data <- left_join(od_data, busstop_mpsz,
+                     by = c("DESTIN_BS" = "BUS_STOP_N"))
+```
+- bringing in the destination bus stops 
+
+```{r}
+duplicate <- od_data %>% 
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+```
+- 1216 duplicates
+
+```{r}
+od_data <- unique(od_data)
+
+```
+
+```{r}
+duplicate <- od_data %>% 
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+```
+
+
+```{r}
+od_data <- od_data %>%
+  rename (DESTIN_SZ = SUBZONE_C) %>%
+  drop_na()
+```
+- rename for clarity
+- remove na / null records
+
+
+```{r}
+write_rds(od_data, "data/rds/od_data.rds")
+```
+
+```{r}
+od_data <- read_rds("data/rds/od_data.rds")
+```
+
+
+# Data Wrangling / Creating OD matrix
+```{r}
+tmap_mode("plot")
+qtm(mpsz)
+```
+
+```{r}
+mpsz <- mpsz[order(mpsz$SUBZONE_C),]
+head(mpsz,10)
+```
+- masterplan subzone is sorted 
+
+```{r}
+mpsz_sp <- as(mpsz, "Spatial")
+```
+
+```{r}
+dist <- spDists(mpsz_sp)
+dist
+```
+- computing distance matrix
+- code is the same as st_distance 
+
+But since the dist matrix headers are V1,V2,V3... need to rename them to the subzone name:
+```{r}
+sz_names <- mpsz$SUBZONE_C
+```
+- create a list with all subzone names 
+
+```{r}
+colnames(dist) <- paste0(sz_names)
+rownames(dist) <- paste0(sz_names)
+```
+- successfully renamed the distance matrix headers with subzone 
+
+```{r}
+distPair <- melt(dist) %>%
+  rename (dist = value)
+head(distPair, 10)
+```
+- pivoting the distance matrix 
+- output is 2 col, 1 is origin, 1 is distination
+- Var 1 is origin Var 2 is destination, dist is the value in the matrix previously
+
+```{r}
+distPair %>%
+  filter(dist > 0) %>%
+  summary()
+```
+- view the non-zero distance values
+
+```{r}
+distPair$dist <- ifelse(distPair$dist == 0, 50, distPair$dist)
+```
+- assign / replace a value of 50m to distance values that are 0m
+
+```{r}
+distPair <- distPair %>% rename (orig = Var1,
+                                 dest = Var2)
+```
+- can also rename to origin_sz and destination_sz so that subsequent left join will not need to rename 
+
+```{r}
+flow_data <- od_data %>%
+  group_by(ORIGIN_SZ, DESTIN_SZ) %>%
+  summarise(TRIP = sum(TRIPS))
+```
+- aggregated the bus stop trips in the same subzone together
+- output is the total number of trips to and from bus stops per subzone
+
+## Bring in population data
+```{r}
+pop <- read_csv("data/aspatial/pop.csv")
+```
+
+```{r}
+pop <- pop %>%
+  left_join(mpsz, 
+            by = c("PA"="PLN_AREA_N",
+                   "SZ" = "SUBZONE_N")) %>%
+  select(1:6) %>%
+  rename(SZ_NAME = SZ,
+         SZ = SUBZONE_C)
+```
+- left join pop and mpsz to get SUBZONE code since flow_data only has subzone code
+
+
+```{r}
+flow_data1 <- flow_data %>%
+  left_join(distPair, 
+            by = c("ORIGIN_SZ"="orig",
+                   "DESTIN_SZ" = "dest"))
+```
+- including the distance information into flow_data 
+- rename origin and destination fields
+
+```{r}
+flow_data1 <- flow_data1 %>% 
+  left_join(pop,
+            by = c(ORIGIN_SZ = "SZ")) %>%
+  rename(ORIGIN_AGE7_12 = AGE7_12,
+         ORIGIN_AGE13_24 = AGE13_24,
+         ORIGIN_AGE25_64 = AGE25_64) %>%
+  select(-c(PA, SZ_NAME))
+```
+- join pop with flow_data for origin fields
+- mapped with origin subzone fields
+
+```{r}
+flow_data1 <- flow_data1 %>% 
+  left_join(pop,
+            by = c(DESTIN_SZ = "SZ")) %>%
+  rename(DESTIN_AGE7_12 = AGE7_12,
+         DESTIN_AGE13_24 = AGE13_24,
+         DESTIN_AGE25_64 = AGE25_64) %>%
+  select(-c(PA, SZ_NAME))
+```
+- join pop with flow_data for destination fields
+
+```{r}
+
+```
+
+
