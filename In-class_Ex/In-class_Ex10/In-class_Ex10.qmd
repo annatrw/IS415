@@ -42,7 +42,6 @@ odbus$DESTINATION_PT_CODE <- as.factor(odbus$DESTINATION_PT_CODE)
 
 
 ```{r}
-#| eval: false
 odbus7_9 <-odbus %>% 
   filter(DAY_TYPE == "WEEKDAY") %>%
   filter(TIME_PER_HOUR >= 7 & TIME_PER_HOUR <= 9) %>%
